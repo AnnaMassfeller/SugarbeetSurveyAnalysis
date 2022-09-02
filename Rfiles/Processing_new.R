@@ -201,9 +201,9 @@ df.Coord <- left_join(df.Coord, df.Centroids, by = "number")
 
 #we now have centroids for each observation that has coordinates
 #based on that we now get the postalcode etc.
-#reverse_geocoding <- df.Centroids %>%
- #reverse_geocode(lat = Lat_Centroid, long = Long_Centroid, method = 'osm',
-  #          address = "address", full_results = TRUE)
+reverse_geocoding <- df.Centroids %>%
+ reverse_geocode(lat = Lat_Centroid, long = Long_Centroid, method = 'osm',
+            address = "address", full_results = TRUE)
 
 rev_geo <- reverse_geocoding %>% dplyr::select(Long_Centroid, Lat_Centroid,county, state, postcode)
 

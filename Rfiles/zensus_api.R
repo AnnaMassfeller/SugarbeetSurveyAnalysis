@@ -165,7 +165,7 @@ spdf <- left_join(spdf, df.Beratungsregionen, by = c("NUTS"="NUTS3"))
 
 spdf <- spdf %>% dplyr::select(BEZ, geometry.x, Kreis.x,elev_mean, sand_content,clay_content,ShareAdopters, Verband, ShareSB)
 
-#mapview::mapview(spdf, zcol="")
+mapview::mapview(spdf, zcol="FLC047")
 
 
 # apparently 2020 data for Rheinland Pfalz is not available yet

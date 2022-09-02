@@ -275,12 +275,12 @@ g.MeanDemoDist <- ggplot(FullSample, aes(meanDist_demo))+
 # scale_x_discrete(labels = c("0-5", "6-10","11-15","16-20","21-30","more than 30","no fields observed"))
 g.MeanDemoDist  
 
-g.MeanDistNei <- ggplot(FullSample_forDist, aes(meanDist_Nei))+
-  geom_density(kernel = "gaussian")+
+#g.MeanDistNei <- ggplot(FullSample_forDist, aes(meanDist_Nei))+
+ # geom_density(kernel = "gaussian")+
   #labs(x = "Distance in km", y = "Count")+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+#  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 # scale_x_discrete(labels = c("0-5", "6-10","11-15","16-20","21-30","more than 30","no fields observed"))
-g.MeanDistNei  
+#g.MeanDistNei  
 
 #plot IVS
 g.ShareOrgFarms <- ggplot(SampleIV, aes(ShareOrgFarms))+
@@ -622,7 +622,7 @@ df.technique <- df.technique[df.technique$q1_adopt == 1,]
 
 #put it out as xlsx at give it back in to adjust those who slected several techniques
 #library(xlsx)
-#write.xlsx(df.technique,"df.technique.xlsx")
+#write_xlsx(df.technique,"df.technique.xlsx")
 df.technique <-read_excel("df.technique.xlsx")
 
 df.technique$type_tech <- 0
