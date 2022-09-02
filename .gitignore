@@ -37,3 +37,29 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+*.csv
+*.geojson
+*.shp
+*.doc
+*.txt
+*.xlsx
+*.docx
+*.html
+Data_raw/
+Backgrounddata/
+*.zip
+*.rds
+*.jpeg
+*.jpg
+*.pdf
+*.png
+*.js
+*.fgb
+Output/
+map_sandcontent_files/
+map_Fabrikstandorte_files/
