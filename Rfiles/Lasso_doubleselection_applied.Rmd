@@ -1,0 +1,454 @@
+---
+title: 'R Example LASSO: Wages'
+output:
+  html_document:
+    df_print: paged
+---
+
+
+```{r}
+library(glmnet)
+library(plotmo) # for plot_glmnet
+library(dplyr)
+library(expss)
+library(qpcR)
+
+
+# Set random number seed
+set.seed(40)
+## Clear workspace 
+#rm(list = ls())
+```
+
+Add labels to get better overview of vars included
+```{r}
+#apply labels to get overview
+SampleIV <- apply_labels(SampleIV,q1_adopt="Adoption mechanical weeding binary",
+                    fields_b="observing fields binary",
+                    info_b="knowing adopters binary",
+                    minDist_demo="minimal distance to demonstration farm",
+                    sq.demodist="squared minimal distance to demonstration farm",
+                    Fabrikstandort_agg="sugar factory location aggregated",
+                    farmsize_b="farm size in ha over 50 binary",
+                    AES_b="participation in AES binary",
+                    age_b="farmer age over 45 binary",
+                    farm_organic="production type binary",
+                    meanFarmSize2="mean farm size at county level",
+                    UAA_unter5="UAA in farms with less than 5ha at county level",
+                    UAA_Sugarbeet="UAA where sugarbeet is grown at county level",
+                    SB_region="share of SB in UAA larger 10% binary",
+                    ShareSB="Share of UAA for Sugarbeets in arable UAA at county level",
+                    lwBetr_Anzahl="number of farms in county",
+                    lwBetrOrganic_Anzahl="number of farms with organic agriculture at county level",
+                    lwBetrUnter5_Anzahl="number of farms with less than 5ha at county level",
+                    lwBetr5b10_Anzahl="number of farms with 5-10ha at county level",
+                    UAA_5b10="UAA in farms with 5- 10ha at county level",
+                    UAA="UAA at county level",
+                    UAA_Organic="organic UAA at county level",
+                    UAA_arable="arable UAA at county level",
+                    ShareOrgFarms="Share of organic farms in all farms at county level",
+                    ShareOrgArea="Share of organic area in UAA at county level",
+                    Area="total area county",
+                    population="Number of habitants at county level",
+                    populationdensity="habitants per sq.km",
+                    farmDens="farms per sq.km",
+                    areaDens="UAA per total county area",
+                    ShareSmallFarms="Share of small farms (< 10ha) in all farms at county level",
+                    elevation_in_m_mean="mean elevation at county or field level",
+                    sand_content_percent_mean="mean sand content in soil at county or field level",
+                    clay_content_percent_mean="mean clay content in soil at county or field level",
+                    sq.elevation_in_m_mean="sq.mean elevation at county or field level",
+                    sq.sand_content_percent_mean="sq.mean sand content in soil at county or field level",
+                    sq.clay_content_percent_mean="sq.mean clay content in soil at county or field level",
+                    mainly_crop="farm specialized in crops/ arable farming binary",
+                    Verband_agg = "producer associations aggregated",
+                    meanDist = "mean distance to other farmers' fields, set to 50 for NA",
+                    sq.meanDist ="squared mean distance to other farmers' fields",
+                    fields_dist ="interaction of fields_b*meanDist =0 for non-observators",
+                    sq.fields_dist = "squared distance to other farmers' fields with 0 for non-observators",
+                    ShareSmallArea= "share of area of farms wih 5 to 10 ha in total UAA",
+                    ShareArableUAA = "share of arable area in total UAA", 
+                    ShareArableInTotalArea = "share of arable area in total county area")
+
+```
+
+
+Get explanatory variables and create subsample including dependant and independant variable
+```{r}
+dat<-SampleIV %>% dplyr::select("q1_adopt","fields_b","info_b","minDist_demo","sq.demodist","farmsize_b","AES_b","age_b","farm_organic","mainly_crop","meanFarmSize2","ShareOrgFarms","ShareOrgArea","populationdensity","farmDens","areaDens","ShareSmallFarms","elevation_in_m_mean","sand_content_percent_mean","clay_content_percent_mean","sq.elevation_in_m_mean","sq.sand_content_percent_mean","sq.clay_content_percent_mean", "ShareArableUAA", "ShareArableInTotalArea","Fabrikstandort_agg")
+
+#take kreislevel data away:
+#"meanFarmSize2","ShareOrgFarms","ShareOrgArea","populationdensity","farmDens","areaDens","ShareSmallFarms","elevation_in_m_mean","sand_content_percent_mean","clay_content_percent_mean","sq.elevation_in_m_mean","sq.sand_content_percent_mean","sq.clay_content_percent_mean", "ShareArableUAA", "ShareArableInTotalArea","Fabrikstandort_agg"
+
+XVars <- c("fields_b","info_b","minDist_demo","sq.demodist","farmsize_b","AES_b","age_b","farm_organic","mainly_crop","meanFarmSize2","ShareOrgFarms","ShareOrgArea","populationdensity","farmDens","areaDens","ShareSmallFarms","elevation_in_m_mean","sand_content_percent_mean","clay_content_percent_mean","sq.elevation_in_m_mean","sq.sand_content_percent_mean","sq.clay_content_percent_mean", "ShareArableUAA", "ShareArableInTotalArea","Fabrikstandort_agg")
+
+
+df <-dat[XVars]
+
+df<-df %>% drop_na()
+dat<-dat %>% drop_na()
+```
+
+get overview of vars/ group of vars
+```{r}
+vars.prereg <- SampleIV %>% dplyr::select("q1_adopt","fields_b","info_b","fields_dist","sq.fields_dist","minDist_demo","sq.demodist","Fabrikstandort_agg","farmsize_b","AES_b","age_b")
+
+vars.prereg_extended <-SampleIV %>% dplyr::select("q1_adopt","fields_b","info_b","fields_dist","sq.fields_dist","minDist_demo","sq.demodist","Fabrikstandort_agg","farmsize_b","AES_b","age_b", "SB_region","meanFarmSize2","sand_content_percent_mean","elevation_in_m_mean")
+
+vars.all_lasso <-SampleIV %>% dplyr::select("q1_adopt","fields_b","info_b","minDist_demo","sq.demodist","Fabrikstandort_agg","farmsize_b","AES_b","age_b","farm_organic","SB_region","meanFarmSize2","UAA_unter5","UAA_Sugarbeet","ShareSB","lwBetr_Anzahl","lwBetrOrganic_Anzahl","lwBetrUnter5_Anzahl","lwBetr5b10_Anzahl","UAA_5b10","UAA","UAA_Organic","UAA_arable","ShareOrgFarms","ShareOrgArea","Area","population","populationdensity","farmDens","areaDens","ShareSmallFarms","elevation_in_m_mean","sand_content_percent_mean","clay_content_percent_mean","sq.elevation_in_m_mean","sq.sand_content_percent_mean","sq.clay_content_percent_mean","mainly_crop", "Verband_agg")
+
+vars.identified11 <-SampleIV %>% dplyr::select("q1_adopt","fields_b","info_b","minDist_demo","Fabrikstandort_agg","farmsize_b","AES_b","age_b","sand_content_percent_mean")
+
+vars.identified8 <-SampleIV %>% dplyr::select("q1_adopt","fields_b","info_b","minDist_demo","Fabrikstandort_agg","farmsize_b","AES_b","age_b","sand_content_percent_mean","farm_organic","ShareSB","lwBetr_Anzahl","UAA_Organic","population","populationdensity","areaDens","ShareSmallFarms","sq.sand_content_percent_mean","SB_region")
+
+
+
+vtable(dat, missing = TRUE)
+
+```
+
+
+### Run lasso on the model directly 
+
+```{r}
+
+lasso_mod <- glmnet(df,dat$q1_adopt,alpha=1, family='binomial')
+plot_glmnet(lasso_mod, label=15)
+```
+
+Run cross-validation for model selection
+
+```{r}
+cvfit <- cv.glmnet(data.matrix(df),dat$q1_adopt, nfolds=40,family='binomial', type.measure = "class")
+
+plot(cvfit)
+```
+Get the model with the lowest error (indicated be the left vertical 
+line in the plot)
+```{r}
+
+coef(cvfit ,s ="lambda.min")
+```
+```{r}
+coef(cvfit ,s ="lambda.1se")
+```
+**Interpretation**
+ 
+
+
+
+## Double selection approach 
+
+
+See: 
+*Belloni, Alexandre, Victor Chernozhukov, and Christian Hansen. 2014. “High-Dimensional Methods and Inference on Structural and Treatment Effects.” The Journal of Economic Perspectives 210 (2): 210–50.*
+
+Lets see how a double selection approach would work in this context. 
+Remember that we are interested in estimating the effects of info/field on adoption.
+Hence in this example info/field is our "treatment" variable. 
+In the double selection approach we first run two models. 
+1) We explain adoption by all control variables (except info and field)
+2) We explain info by all the control variables
+3) We explain field by all the control variables
+In each case we use LASSO for variable selection. 
+
+Finally we run run OLS on the union of the variables selection in 1), 2) and 3)
+First get all the exogenous variables (excluding info and field)
+```{r}
+dfExog <- df[ , !names(df) %in% c("info_b", "fields_b")]
+#create df for corss-check for fields w/o info
+dfExog2 <- df[ , !names(df) %in% c("info_b")]
+```
+
+### 1) Perform model selection explaining adoption by all the exogenous variables 
+(excluding info and field)
+```{r}
+# Run cross validation
+cvfit_AdoptExog <- cv.glmnet(data.matrix(dfExog), dat$q1_adopt,nfolds=40, family = "binomial",type.measure = "class")
+plot(cvfit_AdoptExog)
+```
+
+Get list of variables for "lambda.min"
+```{r}
+coefAdoptmin <- coef(cvfit_AdoptExog ,s ="lambda.min")
+coefAdoptmin
+lstCoefAdoptmin <- coefAdoptmin@Dimnames[[1]][which(coefAdoptmin != 0 ) ] #feature names: intercept included
+lstCoefAdoptmin <- tail(lstCoefAdoptmin,-1) # exclude constant
+lstCoefAdoptmin
+```
+
+Get list of variables for "lambda.1se" 
+```{r}
+coefAdopt1se <- coef(cvfit_AdoptExog ,s ="lambda.1se")
+coefAdopt1se
+lstCoefAdopt1se <- coefAdopt1se@Dimnames[[1]][which(coefAdopt1se != 0 ) ] #feature names: intercept included
+lstCoefAdopt1se <- tail(lstCoefAdopt1se,-1) # exclude constant
+lstCoefAdopt1se
+
+```
+
+### 2) Perform model selection explaining info by all the exogenous variables 
+
+
+```{r}
+# Run cross validation
+cvfit_info <- cv.glmnet(data.matrix(dfExog), dat$info_b,nfolds=40,family = "binomial",type.measure = "class")
+plot(cvfit_info)
+```
+
+Get list of variables for "lambda.min"
+```{r}
+coefinfomin <- coef(cvfit_info ,s ="lambda.min")
+coefinfomin
+lstCoefinfomin <- coefinfomin@Dimnames[[1]][which(coefinfomin != 0 ) ] #feature names: intercept included
+lstCoefinfomin <- tail(lstCoefinfomin,-1) # exclude constant
+lstCoefinfomin
+
+```
+
+Get list of variables for "lambda.1se" 
+```{r}
+coefinfo1se <- coef(cvfit_info ,s ="lambda.1se")
+coefinfo1se
+lstCoefinfo1se <- coefinfo1se@Dimnames[[1]][which(coefinfo1se != 0 ) ] #feature names: intercept included
+lstCoefinfo1se <- tail(lstCoefinfo1se,-1) # exclude constant
+lstCoefinfo1se
+```
+
+### 3) Perform model selection explaining fields by all the exogenous variables 
+
+
+```{r}
+# Run cross validation
+cvfit_fields <- cv.glmnet(data.matrix(dfExog), dat$fields_b,nfolds=40,family = "binomial",type.measure = "class")
+plot(cvfit_fields)
+#cross-check full model on fields
+reg_Fullfields <- glm(fields_b ~ .,data=dfExog2,family = "binomial")
+summary(reg_Fullfields)
+m.reg_Fullfields_mfx <-probitmfx(reg_Fullfields, data = dfExog2)
+m.reg_Fullfields_mfx
+```
+
+Get list of variables for "lambda.min"
+```{r}
+coeffieldsmin <- coef(cvfit_fields ,s ="lambda.min")
+coeffieldsmin
+lstCoeffieldsmin <- coeffieldsmin@Dimnames[[1]][which(coeffieldsmin != 0 ) ] #feature names: intercept included
+lstCoeffieldsmin <- tail(lstCoeffieldsmin,-1) # exclude constant
+lstCoeffieldsmin
+
+```
+
+Get list of variables for "lambda.1se" 
+```{r}
+coeffields1se <- coef(cvfit_fields ,s ="lambda.1se")
+coeffields1se
+lstCoeffields1se <- coeffields1se@Dimnames[[1]][which(coeffields1se != 0 ) ] #feature names: intercept included
+lstCoeffields1se <- tail(lstCoeffields1se,-1) # exclude constant
+lstCoeffields1se
+```
+
+
+### Run the final model explaining Adoption by the union of variables selected in 1), 2) and 3). 
+
+Because we are worried about omitted variables bias lets take the variables 
+selected from the "lambda.min" this includes more variables as "lambda.1se".
+Because including too many variables is less of a problem then excluding 
+relevant once we want to be more conservative here. 
+
+```{r}
+#save lists of vars selected in different steps
+lstvarsselected3.8_kreisdummy <- lst(lstCoefAdoptmin,lstCoeffieldsmin,lstCoefinfomin)
+
+dfDouble1 <- dat[,union(union(lstCoeffieldsmin,lstCoefAdoptmin),c("q1_adopt","fields_b"))]
+dfDouble2 <- dat[,union(union(lstCoefinfomin,lstCoefAdoptmin),c("q1_adopt", "info_b"))]
+dfDouble3 <- dat[,union(union(lstCoefinfomin,lstCoeffieldsmin),c("fields_b", "info_b"))]
+
+dfDouble <- cbind(dfDouble1,dfDouble2,dfDouble3)
+dfDouble <-dfDouble %>% 
+  dplyr::select(unique(colnames(.)))
+
+reg_double3.8_kreisdummy <- glm(q1_adopt ~ .,data=dfDouble, family = "binomial")
+summary(reg_double3.8_kreisdummy)
+df.Lasso_selected3.8_kreisdummy <- reg_double3.8_kreisdummy[["model"]] 
+vtable(df.Lasso_selected3.8_kreisdummy, values = TRUE, missing = TRUE)
+#marginal effects
+m.Lasso_select_mfx3.8_kreisdummy <-probitmfx(reg_double3.8_kreisdummy, data = dfDouble)
+m.Lasso_select_mfx3.8_kreisdummy
+
+```
+Compare that to the result that we would obtained for OLS on all variables
+```{r}
+reg_Full3.8_kreisdummy <- glm(q1_adopt ~ .,data=dat,family = "binomial")
+summary(reg_Full3.8_kreisdummy)
+m.reg_Full3.8_kreisdummy_mfx <-probitmfx(reg_Full3.8_kreisdummy, data = dat)
+m.reg_Full3.8_kreisdummy_mfx
+```
+
+
+Compare model results visually, e.g. estimates for info_b and fields_b
+```{r}
+#with max N
+plot.reg_compare <- plot_summs(m.Full.comp_mfx3,
+                           #  m.Full.IV_mfx,
+                              m.Full_regional_mfx2,
+                            #  m.reg_Full3.0_verband_mfx,
+                              m.reg_Full3.0_fabric_mfx,
+                             # m.Lasso_select_mfx3.0_verband,
+                              m.Lasso_select_mfx3.0_fabric,
+                              #m.Lasso_select_mfx3.1_verband,
+                              m.Lasso_select_mfx3.1_fabric,
+                              #m.Lasso_select_mfx3.2_verband,
+                              m.Lasso_select_mfx3.2_fabric,
+                              #m.Lasso_select_mfx3.3_verband,
+                              m.Lasso_select_mfx3.3_fabric,
+                              m.Lasso_select_mfx3.4_fabric,
+                              m.Lasso_select_mfx3.5_fabric,
+                              m.Lasso_select_mfx3.6_fabric,
+                              m.reg_Full3.8_kreisdummy_mfx,
+                               coefs = c("knowing other farmers (info)"="info_b1",
+                    "Info_IV =knowing other farmers"="info_iv",
+                     "observing fields (fields)"="fields_b1",
+                      "Field_IV = observing fields"="fields_iv"),
+       colors = c("Grey","Grey","Green","Blue","Red","Orange","Brown","Black","Pink","Purple", "yellow", "darkgreen", "lightblue", "darkblue", "lightgreen", "red4"),#c("Spectral"),
+           legend.title = "marginal effects",
+        model.names = c("M_prereg", 
+                       #  "M_preregIV", 
+                        "M_prereg_extended", 
+                       # "FullM3.0_verband",
+                        "FullM3.0_fabric",
+                        #"LassoM3.0_verband_s20nf20",
+                        "LassoM3.0_fabric_s20nf20",
+                        #"LassoM3.1_verband_s40nf20",
+                        "LassoM3.1_fabric_s40nf20",
+                        #"LassoM3.2_verband_s20nf10",
+                        "LassoM3.2_fabric_s20nf10",
+                        #"LassoM3.3_verband_s40nf40",
+                        "LassoM3.3_fabric_s40nf40",
+                       "LassoM3.4_fabric_s40nf80",
+                        "LassoM3.5_fabric_s20nf40",
+                        "LassoM3.6_fabric_s200nf40", 
+                        "FullM3.8_kreisdummy"
+                      
+               ),
+           scale = TRUE, robust = TRUE) + theme(legend.position="bottom")
+
+plot.reg_compare
+```
+
+```{r}
+
+#reg double
+plot.reg_double <- plot_summs(reg_double1,reg_double2,reg_double3,reg_double4,reg_double5,reg_double6,reg_double7,
+           coefs = c("knowing other farmers (info)"="info_b1",
+                     "observing fields (fields)"="fields_b1"),
+         colors = c("Spectral"),
+         model.names = c("M1_s20nf20","M2_s40nf20","M3_s20nf10","M4_s40nf40","M5_s20nf40","M6_s40nf10"),
+           scale = TRUE, robust = TRUE)
+
+
+plot.reg_double_vars <- plot_summs(reg_double4,reg_double7,reg_double8,reg_double9,reg_double10,reg_double11,reg_double12,m.Full.IV,m.Full.comp,m.Full_regional,reg_double13,reg_double14,
+           coefs = c("knowing other farmers (info)"="info_b1",
+                     "Info_IV =knowing other farmers"="info_iv",
+                     "observing fields (fields)"="fields_b1",
+                      "Field_IV = observing fields"="fields_iv"),
+         colors = c("Spectral"),
+         model.names = c("M4_s40nf40","M7_s40nf40_prereg","M8_s40nf40_prereg_extended","M9_s40nf40_prereg_extended_nofieldsdist","M10_s40nf40_allLasso_wfieldsdist","M11_s40nf40_allLasso_wfieldsdist_noverbagg","M12_s40nf40__allLasso_nofieldsdist_noverbagg","M_preregIV", "M_prereg_noIV", "M_prereg_extended", "M13_vars_identified", "M14_vars_identified" ),
+           scale = TRUE, robust = TRUE) + theme(legend.position="bottom")
+
+plot.reg_old <- plot_summs(m.Full.IV,m.Full.comp,m.Full_regional,
+           coefs = c("knowing other farmers (info)"="info_b1",
+                     "Info_IV =knowing other farmers"="info_iv",
+                     "observing fields (fields)"="fields_b1"),
+                     "Field_IV = observing fields"="fields_iv",
+         colors = c("Spectral"),
+         model.names = c("M_preregIV", "M_prereg_noIV", "M_prereg_extended" ),
+           scale = TRUE, robust = TRUE) 
+#reg full
+plot.reg_Full <- plot_summs(reg_Full1,reg_Full2,reg_Full3,reg_Full4,reg_Full5,reg_Full6,reg_Full7,reg_Full8,reg_Full9,reg_Full10,reg_Full11,reg_Full12,m.Full.IV,m.Full.comp,   
+           coefs = c("knowing other farmers (info)"="info_b1",
+                     "observing fields (fields)"="fields_b1"),
+           model.names = c("M1_s20nf20","M2_s40nf20","M3_s20nf10","M4_s400nf40","M5_s20nf40","M6_s40nf10","M7_s40nf40_prereg","M8_s40nf40_prereg_extended","M9_s40nf40_prereg _extended_nofieldsdist","M10_s40nf40_allLasso_wfieldsdist","M11_s40nf40_allLasso_wfieldsdist_noverbagg","M12_s40nf40__allLasso_nofieldsdist_noverbagg","M_preregIV", "M_prereg_noIV", "M_prereg_extended" ),
+          colors = "Spectral",
+           scale = TRUE, robust = TRUE)
+```
+Which vars have been selected in all specifications?
+```{r}
+#make all teh same nr rows
+
+VarsSelected <-cbind(df.Lasso_selected3.0_fabric,df.Lasso_selected3.1_fabric,df.Lasso_selected3.2_fabric, df.Lasso_selected3.3_fabric, df.Lasso_selected3.4_fabric, df.Lasso_selected3.5_fabric, df.Lasso_selected3.6_fabric,df.Lasso_selected3.0_verband,df.Lasso_selected3.1_verband,df.Lasso_selected3.2_verband, df.Lasso_selected3.3_verband)
+
+VarsSelected <- VarsSelected[-c(2:205), ]
+VarsSelected <- as.data.frame(t(VarsSelected))
+library(tibble)
+VarsSelected <- tibble::rownames_to_column(VarsSelected, "variable")
+
+VarsSelected<- VarsSelected %>% dplyr::group_by(variable) %>% dplyr::mutate(n = n())
+VarsSelected <- VarsSelected[,-c(2,3)]
+
+VarsSelected$variable <-  sub("*\\.[0-9]", "", VarsSelected$variable)
+VarsSelected$variable <- lapply(VarsSelected$variable, function(x) gsub("0", "", x))
+VarsSelected$variable <- lapply(VarsSelected$variable, function(x) gsub("1", "", x))
+
+VarsSelected <-VarsSelected %>% 
+  dplyr::count(variable)
+VarsSelected <-VarsSelected[order(VarsSelected$n, decreasing =TRUE),]  
+
+stargazer(VarsSelected,                 # Export txt
+          summary = FALSE,
+        type = "html",
+          out = "VarsSelectedLasso.html")
+
+
+#identify vars only chosen in step 1 (adoption)
+df3.0f<- as.data.frame(lstvarsselected3.0_fabric[["lstCoefAdoptmin"]])
+df3.0v<- as.data.frame(lstvarsselected3.0_verband[["lstCoefAdoptmin"]])
+df3.1f<- as.data.frame(lstvarsselected3.1_fabric[["lstCoefAdoptmin"]])
+df3.1v<- as.data.frame(lstvarsselected3.1_verband[["lstCoefAdoptmin"]])
+df3.2f<- as.data.frame(lstvarsselected3.2_fabric[["lstCoefAdoptmin"]])
+df3.2v<- as.data.frame(lstvarsselected3.2_verband[["lstCoefAdoptmin"]])
+df3.3f<- as.data.frame(lstvarsselected3.3_fabric[["lstCoefAdoptmin"]])
+df3.3v<- as.data.frame(lstvarsselected3.3_verband[["lstCoefAdoptmin"]])
+df3.4<- as.data.frame(lstvarsselected3.4_fabric[["lstCoefAdoptmin"]])
+df3.5<- as.data.frame(lstvarsselected3.5_fabric[["lstCoefAdoptmin"]])
+df3.6<- as.data.frame(lstvarsselected3.6_fabric[["lstCoefAdoptmin"]])
+df3.7<- as.data.frame(lstvarsselected3.7_fabric[["lstCoefAdoptmin"]])
+
+library(qpcR)
+VarsSelectedStep1 <-qpcR:::cbind.na (df3.0f, df3.0v,df3.1f, df3.1v,df3.2f, df3.2v,df3.3f, df3.3v,df3.4,df3.5,df3.6,df3.7)
+
+write_xlsx(VarsSelectedStep1,"VarsSelectedStep1.xlsx")
+
+stargazer(VarsSelectedStep1,                 # Export txt
+          summary = FALSE,
+        type = "html",
+          out = "VarsSelectedStep1Lasso.html")
+
+#identify vars only chosen in step 2 (info)
+#identify vars only chosen in step 1 (adoption)
+df3.0f<- as.data.frame(lstvarsselected3.0_fabric[["lstCoefinfomin"]])
+df3.0v<- as.data.frame(lstvarsselected3.0_verband[["lstCoefinfomin"]])
+df3.1f<- as.data.frame(lstvarsselected3.1_fabric[["lstCoefinfomin"]])
+df3.1v<- as.data.frame(lstvarsselected3.1_verband[["lstCoefinfomin"]])
+df3.2f<- as.data.frame(lstvarsselected3.2_fabric[["lstCoefinfomin"]])
+df3.2v<- as.data.frame(lstvarsselected3.2_verband[["lstCoefinfomin"]])
+df3.3f<- as.data.frame(lstvarsselected3.3_fabric[["lstCoefinfomin"]])
+df3.3v<- as.data.frame(lstvarsselected3.3_verband[["lstCoefinfomin"]])
+df3.4<- as.data.frame(lstvarsselected3.4_fabric[["lstCoefinfomin"]])
+df3.5<- as.data.frame(lstvarsselected3.5_fabric[["lstCoefinfomin"]])
+df3.6<- as.data.frame(lstvarsselected3.6_fabric[["lstCoefinfomin"]])
+df3.7<- as.data.frame(lstvarsselected3.7_fabric[["lstCoefinfomin"]])
+
+
+VarsSelectedStep2 <-qpcR:::cbind.na (df3.0f, df3.0v,df3.1f, df3.1v,df3.2f, df3.2v,df3.3f, df3.3v,df3.4,df3.5,df3.6,df3.7)
+
+write_xlsx(VarsSelectedStep2,"VarsSelectedStep2.xlsx")
+
+stargazer(VarsSelectedStep2,                 # Export txt
+          summary = FALSE,
+        type = "html",
+          out = "VarsSelectedStep2Lasso.html")
+
+```
+
+

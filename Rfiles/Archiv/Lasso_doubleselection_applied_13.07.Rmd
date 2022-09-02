@@ -1,0 +1,221 @@
+---
+title: 'R Example LASSO: Wages'
+output:
+  html_document:
+    df_print: paged
+---
+
+
+```{r}
+library(glmnet)
+library(plotmo) # for plot_glmnet
+library(dplyr)
+
+# Set random number seed
+set.seed(20)
+## Clear workspace 
+#rm(list = ls())
+```
+
+
+Get explanatory variables and create subsample including dependant and independant variable
+```{r}
+dat<-SampleIV %>% dplyr::select("q1_adopt", "q7_age", "q7_farm", "q7_size", "q7_speci_select", "q7_AES", "bundesland",
+                               "lwBetr_Anzahl","lwBetrOrganic_Anzahl","lwBetrUnter5_Anzahl","lwBetr5b10_Anzahl","UAA_unter5","UAA_5b10","UAA",
+                               "UAA_Organic","UAA_Sugarbeet","UAA_arable","meanFarmSize",
+                               "minDist_demo","meanDist","info_b","fields_b","ShareOrgFarms","ShareOrgArea",
+                               "farmsize_b","AES_b","age_b","Area","Bevölkerung","Bevölkerungsdichte","farmDens","areaDens","ShareSB",
+                               "ShareSmallFarms","elevation_in_m_mean","sand_content_percent_mean","clay_content_percent_mean","mainly_crop","SB_region","Fabrikstandort","advisory",
+                               "sq.neidist","sq.demodist")
+
+
+XVars <- c("q7_age", "q7_farm", "q7_size", "q7_speci_select", "q7_AES", "bundesland",
+                               "lwBetr_Anzahl","lwBetrOrganic_Anzahl","lwBetrUnter5_Anzahl","lwBetr5b10_Anzahl","UAA_unter5","UAA_5b10","UAA",
+                               "UAA_Organic","UAA_Sugarbeet","UAA_arable","meanFarmSize",
+                               "minDist_demo","meanDist","info_b","fields_b","ShareOrgFarms","ShareOrgArea",
+                               "farmsize_b","AES_b","age_b","Area","Bevölkerung","Bevölkerungsdichte","farmDens","areaDens","ShareSB",
+                               "ShareSmallFarms","elevation_in_m_mean","sand_content_percent_mean","clay_content_percent_mean","mainly_crop","SB_region","Fabrikstandort","advisory",
+                               "sq.neidist","sq.demodist")
+#NA in some like "UAA_unter5","UAA_5b10",
+
+
+df <-dat[XVars]
+
+df<-df %>% drop_na()
+dat<-dat %>% drop_na()
+```
+
+### Run lasso on the model directly 
+
+```{r}
+
+lasso_mod <- glmnet(df,dat$q1_adopt,alpha=1, family='binomial')
+plot_glmnet(lasso_mod, label=15)
+```
+
+Run cross-validation for model selection
+
+```{r}
+cvfit <- cv.glmnet(data.matrix(df),dat$q1_adopt, nfolds =5,family='binomial', type.measure = "class")
+
+plot(cvfit)
+```
+Get the model with the lowest error (indicated be the left vertical 
+line in the plot)
+```{r}
+
+coef(cvfit ,s ="lambda.min")
+```
+```{r}
+coef(cvfit ,s ="lambda.1se")
+```
+**Interpretation**
+Consider what this result is telling us. From the cross validation plot 
+we see that in terms of out-of-sample prediction a model including only one 
+variable (info) is not much worse (i.e. withing 1se of the best model)
+then a model that includes all variables. So for a pure prediction 
+(out-of-sample) perspective is it fine to simply use a model with only 
+infoing included. If we would naively, following the Post-LASSO approach
+we would now run an OLS regression using only infoing. Obviously, when 
+considering the consequences of omitted variables this approach is highly 
+problematic! 
+
+
+
+## Double selection approach 
+
+
+See: 
+*Belloni, Alexandre, Victor Chernozhukov, and Christian Hansen. 2014. “High-Dimensional Methods and Inference on Structural and Treatment Effects.” The Journal of Economic Perspectives 28 (2): 29–50.*
+
+Lets see how a double selection approach would work in this context. 
+Remember that we are interested in estimating the effects of schooling on wage.
+Hence in this example schooling is our "treatment" variable. 
+In the double selection approach we first run two models. 
+1) We explain wages by all control variables (except schooling)
+2) We explain schooling by all the control variables
+In each case we use LASSO for variable selection. 
+
+Finally we run run OLS on the union of the variables selection in 1) and 2)
+
+```{r}
+
+```
+
+First get all the exogenous variables (excluding info)
+```{r}
+dfExog <- df[ , !names(df) %in% c("info_b", "fields_b")]
+```
+
+### 1) Perform model selection explaining adoption by all the exogenous variables 
+(excluding info and field)
+```{r}
+# Run cross validation
+cvfit_AdoptExog <- cv.glmnet(data.matrix(dfExog), dat$q1_adopt,nfolds =20, family = "binomial",type.measure = "class")
+
+```
+
+Get list of variables for "lambda.min"
+```{r}
+coefAdoptmin <- coef(cvfit_AdoptExog ,s ="lambda.min")
+coefAdoptmin
+lstCoefAdoptmin <- coefAdoptmin@Dimnames[[1]][which(coefAdoptmin != 0 ) ] #feature names: intercept included
+lstCoefAdoptmin <- tail(lstCoefAdoptmin,-1) # exclude constant
+lstCoefAdoptmin
+```
+
+Get list of variables for "lambda.1se" 
+```{r}
+coefAdopt1se <- coef(cvfit_AdoptExog ,s ="lambda.1se")
+coefAdopt1se
+lstCoefAdopt1se <- coefAdopt1se@Dimnames[[1]][which(coefAdopt1se != 0 ) ] #feature names: intercept included
+lstCoefAdopt1se <- tail(lstCoefAdopt1se,-1) # exclude constant
+lstCoefAdopt1se
+
+```
+
+### 2) Perform model selection explaining info by all the exogenous variables 
+
+
+```{r}
+# Run cross validation
+cvfit_info <- cv.glmnet(data.matrix(dfExog), dat$info_b,nfolds =20,family = "binomial",type.measure = "class")
+
+```
+
+Get list of variables for "lambda.min"
+```{r}
+coefinfomin <- coef(cvfit_info ,s ="lambda.min")
+coefinfomin
+lstCoefinfomin <- coefinfomin@Dimnames[[1]][which(coefinfomin != 0 ) ] #feature names: intercept included
+lstCoefinfomin <- tail(lstCoefinfomin,-1) # exclude constant
+lstCoefinfomin
+
+```
+
+Get list of variables for "lambda.1se" 
+```{r}
+coefinfo1se <- coef(cvfit_info ,s ="lambda.1se")
+coefinfo1se
+lstCoefinfo1se <- coefinfo1se@Dimnames[[1]][which(coefinfo1se != 0 ) ] #feature names: intercept included
+lstCoefinfo1se <- tail(lstCoefinfo1se,-1) # exclude constant
+lstCoefinfo1se
+```
+
+### 3) Perform model selection explaining fields by all the exogenous variables 
+
+
+```{r}
+# Run cross validation
+cvfit_fields <- cv.glmnet(data.matrix(dfExog), dat$fields_b,nfolds =20,family = "binomial",type.measure = "class")
+
+```
+
+Get list of variables for "lambda.min"
+```{r}
+coeffieldsmin <- coef(cvfit_fields ,s ="lambda.min")
+coeffieldsmin
+lstCoeffieldsmin <- coeffieldsmin@Dimnames[[1]][which(coeffieldsmin != 0 ) ] #feature names: intercept included
+lstCoeffieldsmin <- tail(lstCoeffieldsmin,-1) # exclude constant
+lstCoeffieldsmin
+
+```
+
+Get list of variables for "lambda.1se" 
+```{r}
+coeffields1se <- coef(cvfit_fields ,s ="lambda.1se")
+coeffields1se
+lstCoeffields1se <- coeffields1se@Dimnames[[1]][which(coeffields1se != 0 ) ] #feature names: intercept included
+lstCoeffields1se <- tail(lstCoeffields1se,-1) # exclude constant
+lstCoeffields1se
+```
+
+
+
+### Run the final model explaining Adoption by the union of variables selected in 1), 2) and 3). 
+
+Because we are worried about omitted variables bias lets take the variables 
+selected from the "lambda.min" this includes more variables as "lambda.1se".
+Because including too many variables is less of a problem then excluding 
+relevant once we want to be more conservative here. 
+
+```{r}
+dfDouble1 <- dat[,union(union(lstCoeffieldsmin,lstCoefAdoptmin),c("q1_adopt","fields_b"))]
+dfDouble2 <- dat[,union(union(lstCoefinfomin,lstCoefAdoptmin),c("q1_adopt", "info_b"))]
+dfDouble3 <- dat[,union(union(lstCoefinfomin,lstCoeffieldsmin),c("fields_b", "info_b"))]
+
+dfDouble <- cbind(dfDouble1,dfDouble2,dfDouble3)
+dfDouble <-dfDouble %>% 
+  dplyr::select(unique(colnames(.)))
+
+reg_double <- glm(q1_adopt ~ .,data=dfDouble, family = "binomial")
+summary(reg_double)
+
+```
+Compare that to the result that we would obtained for OLS on all variables
+```{r}
+reg_Full <- glm(q1_adopt ~ .,data=dat,family = "binomial")
+summary(reg_Full)
+
+
+```
