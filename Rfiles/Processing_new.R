@@ -201,9 +201,9 @@ df.Coord <- left_join(df.Coord, df.Centroids, by = "number")
 
 #we now have centroids for each observation that has coordinates
 #based on that we now get the postalcode etc.
-reverse_geocoding <- df.Centroids %>%
- reverse_geocode(lat = Lat_Centroid, long = Long_Centroid, method = 'osm',
-            address = "address", full_results = TRUE)
+#reverse_geocoding <- df.Centroids %>%
+ #reverse_geocode(lat = Lat_Centroid, long = Long_Centroid, method = 'osm',
+  #          address = "address", full_results = TRUE)
 
 rev_geo <- reverse_geocoding %>% dplyr::select(Long_Centroid, Lat_Centroid,county, state, postcode)
 
@@ -641,6 +641,7 @@ FullSample$FLC047 <-ifelse(FullSample$Kreis == "Landkreis Bad Dürkheim",1302,Fu
 st(FullSample, vars = c("q1_adopt","q3_info","plz","NrFields","FieldDist","q6_col1","q6_col2","q6_col3","q7_age", "q7_size", "q7_farm","q7_speci_select", "q7_AES"))
 
 
+
 #give good column names
 FullSample <- dplyr::rename(FullSample, "lwBetr_Anzahl" = BTR010)
 FullSample <- dplyr::rename(FullSample, "lwBetrOrganic_Anzahl" = BTR030)
@@ -869,6 +870,9 @@ df.Adopters_County$ShareAdopters <- df.Adopters_County$NrAdopters/ df.Adopters_C
 df.NUTS_shareAdopters <- df.Adopters_County %>% dplyr::select(NUTS_ID, ShareAdopters)
 df.NUTS_shareAdopters <- df.NUTS_shareAdopters[!is.na(df.NUTS_shareAdopters$NUTS_ID),]
 
+#join share of adopters to sampleIV
+FullSample <- left_join(FullSample, df.NUTS_shareAdopters, by = c("NUTS_ID"= "NUTS_ID"))
+
 
 #create necessary variables for models
 FullSample$q1_adopt <- as.factor(FullSample$q1_adopt)
@@ -992,9 +996,11 @@ FullSample$meanFarmSize2 <- (FullSample$UAA/FullSample$lwBetr_Anzahl)*100
 
 #get names right
 FullSample <- dplyr::rename(FullSample, population = "Bevölkerung" ,populationdensity = "Bevölkerungsdichte")
+FullSample$population <- as.numeric(FullSample$population)
+FullSample$populationdensity <- as.numeric(FullSample$populationdensity)
 
 #create sampel for IV/for models with complete observations
-SampleIV<-FullSample[!is.na(FullSample$Kreis)&(!FullSample$advisory == "Cosun")&(!is.na(FullSample$ShareOrgArea)),]
+SampleIV<-FullSample[!is.na(FullSample$Kreis.x)&(!FullSample$advisory == "Cosun")&(!is.na(FullSample$ShareOrgArea)),]
 #keep COSUN now &(!FullSample$advisory == "Cosun")
 #exxclude those who have NA for age
 SampleIV<-SampleIV[!is.na(SampleIV$age_b),]
@@ -1047,9 +1053,24 @@ mapping.CountyID_lkrname <- Organic_lkr %>% dplyr::select(KREISE,Kreis)
 #calculate mean farm size for landkreise where info is missing
 df.Kreise$meanFarmSize2 <- (df.Kreise$UAA/df.Kreise$lwBetr_Anzahl)*100
 
+#get öko-data fro rheinland fpalz
+df.organic_rhlpflz <- read_xlsx("Backgrounddata/Organic_rhlpfz.xlsx")
+
+#first map county id
+mapping.CountyID_lkrname$Kreis <- as.character(mapping.CountyID_lkrname$Kreis)
+df.organic_rhlpflz <- left_join(df.organic_rhlpflz, mapping.CountyID_lkrname, by = "Kreis")
+
+#merge rhlplz data to df.kreise
+df.Kreise <- left_join(df.Kreise, df.organic_rhlpflz, by = "Kreis")
+df.Kreise$lwBetrOrganic_Anzahl<- ifelse(!is.na(df.Kreise$org_anzahl),df.Kreise$org_anzahl,df.Kreise$lwBetrOrganic_Anzahl )
+df.Kreise$UAA_Organic <- ifelse(!is.na(df.Kreise$org_area),df.Kreise$org_area,df.Kreise$UAA_Organic)
+df.Kreise$ShareOrgFarms<- ifelse(!is.na(df.Kreise$org_anzahl_percent),df.Kreise$org_anzahl_percent,df.Kreise$ShareOrgArea )
+df.Kreise$ShareOrgArea<- ifelse(!is.na(df.Kreise$org_area_percent),df.Kreise$org_area_percent,df.Kreise$ShareOrgArea )
+
+
 #create df
 df.Kreise_Lasso <-df.Kreise %>% 
-  dplyr::select(KREISE,Kreis,lwBetr_Anzahl,lwBetrOrganic_Anzahl,lwBetrUnter5_Anzahl,lwBetr5b10_Anzahl,UAA_unter5,UAA_5b10,
+  dplyr::select(KREISE.x,Kreis,lwBetr_Anzahl,lwBetrOrganic_Anzahl,lwBetrUnter5_Anzahl,lwBetr5b10_Anzahl,UAA_unter5,UAA_5b10,
                          UAA,UAA_Organic,UAA_Sugarbeet,UAA_arable,meanFarmSize2,ShareOrgFarms,ShareOrgArea,Area,Bevölkerung,Bevölkerungsdichte,farmDens,areaDens,ShareSB,ShareSmallFarms,
                          elev_mean,sand_content,clay_content,sq.elev_mean,sq.sand_content,sq.clay_content)
 df.Kreise_Lasso <- dplyr::rename(df.Kreise_Lasso, population = "Bevölkerung" ,populationdensity = "Bevölkerungsdichte")
@@ -1063,9 +1084,13 @@ df.Kreise_Lasso<-df.Kreise_Lasso[!duplicated(df.Kreise_Lasso$KREISE), ]
 vtable(df.Kreise_Lasso,missing = TRUE )
 
 #tabelle for Enola missing UAA unter5
-df.missingUAAunter5 <- FullSample %>% dplyr::select(Kreis, UAA_unter5)
+df.missingUAAunter5 <- FullSample %>% dplyr::select(Kreis.x, UAA_unter5)
 df.missingUAAunter5 <-df.missingUAAunter5[is.na(df.missingUAAunter5$UAA_unter5),]
-df.missingUAAunter5<-df.missingUAAunter5[!duplicated(df.missingUAAunter5$Kreis), ]
-write_xlsx(df.missingUAAunter5,"df.missingUAAunter5.xlsx")
+df.missingUAAunter5<-df.missingUAAunter5[!duplicated(df.missingUAAunter5$Kreis.x), ]
+#write_xlsx(df.missingUAAunter5,"df.missingUAAunter5.xlsx")
+
+
+
+
 
 
