@@ -98,13 +98,13 @@ summary(m.Full.comp3 <- glm(q1_adopt ~  info_b +
 
 
 
-m.Full.comp_mfx <-probitmfx(m.Full.comp, data = SampleIV)
-m.Full.comp_mfx2 <-probitmfx(m.Full.comp2, data = SampleIV)
-m.Full.comp_mfx3 <-probitmfx(m.Full.comp3, data = SampleIV)
+m.Full.comp_mfx <-probitmfx(m.Full.comp, data = SampleIV, robust = TRUE)
+m.Full.comp_mfx2 <-probitmfx(m.Full.comp2, data = SampleIV, robust = TRUE)
+m.Full.comp_mfx3 <-probitmfx(m.Full.comp3, data = SampleIV, robust = TRUE)
 
-plot_summs(m.Full.comp_mfx,m.Full.comp_mfx2,m.Full.comp_mfx3, scale = TRUE, robust = TRUE)#,
-       #   coefs = c("knowing other farmers"="info_b1",
-        #             "observing fields"="fields_b1",
+plot_summs(m.Full.comp_mfx,m.Full.comp_mfx2,m.Full.comp_mfx3, scale = TRUE, robust = TRUE,
+          coefs = c("knowing other farmers"="info_b1",
+                    "observing fields"="fields_b1"))
          #           "distance to fields observed"="fields_dist",
           #          "squared distance to fields observed"="sq.fields_dist",
            #          "minimal distance to demo farm" = "minDist_demo",
@@ -119,25 +119,25 @@ plot_summs(m.Full.comp_mfx,m.Full.comp_mfx2,m.Full.comp_mfx3, scale = TRUE, robu
           
 #correlation between IV and error term
 #first need model with endo and instrument
-#summary(m.Full.forInfo <- glm(q1_adopt ~  info_b + ShareOrgFarms + ShareOrgArea + age_b + farmsize_b + AES_b, 
-#                           data = SampleIV, family = binomial("probit")))
-#summary(m.Full.forInfo2 <- glm(q1_adopt ~  info_b + age_b + farmsize_b + AES_b, 
-#                              data = SampleIV, family = binomial("probit")))
+summary(m.Full.forInfo <- glm(q1_adopt ~  info_b + ShareOrgFarms + ShareOrgArea + age_b + farmsize_b + AES_b + Fabrikstandort_agg, 
+                           data = SampleIV, family = binomial("probit")))
+summary(m.Full.forInfo2 <- glm(q1_adopt ~  info_b + age_b + farmsize_b + AES_b + Fabrikstandort_agg, 
+                              data = SampleIV, family = binomial("probit")))
 
 
 
-#residualsI <- m.Full.forInfo$residuals
-#SampleIV <- cbind(SampleIV, residualsI)
-#cor(SampleIV$residualsI, SampleIV$ShareOrgFarms)
+residualsI <- m.Full.forInfo$residuals
+SampleIV <- cbind(SampleIV, residualsI)
+cor(SampleIV$residualsI, SampleIV$ShareOrgFarms)
 
-#summary(m.Full.forField <- glm(q1_adopt ~  fields_b + ShareOrgFarms + ShareOrgArea + age_b + farmsize_b + AES_b, 
- #                             data = SampleIV, family = binomial("probit")))
-#summary(m.Full.forField2 <- glm(q1_adopt ~  fields_b + age_b + farmsize_b + AES_b, 
-  #                             data = SampleIV, family = binomial("probit")))
+summary(m.Full.forField <- glm(q1_adopt ~  fields_b + ShareOrgFarms + ShareOrgArea + age_b + farmsize_b + AES_b  + Fabrikstandort_agg, 
+                              data = SampleIV, family = binomial("probit")))
+summary(m.Full.forField2 <- glm(q1_adopt ~  fields_b + age_b + farmsize_b + AES_b  + Fabrikstandort_agg, 
+                               data = SampleIV, family = binomial("probit")))
 #
-#residualsF <- m.Full.forField$residuals
-#SampleIV <- cbind(SampleIV, residualsF)
-#cor(SampleIV$residualsF, SampleIV$ShareOrgArea)
+residualsF <- m.Full.forField$residuals
+SampleIV <- cbind(SampleIV, residualsF)
+cor(SampleIV$residualsF, SampleIV$ShareOrgArea)
 
 #pR2(m.Full.forInfo)
 #pR2(m.Full.forInfo2)
@@ -216,7 +216,7 @@ m.info<-probitmfx(q1_adopt ~ info_iv+
             farmsize_b + 
             AES_b +
             # advisory,
-            Fabrikstandort_agg, data = SampleIV)
+            Fabrikstandort_agg, data = SampleIV, robust = TRUE)
 
 SampleIV$info_b <- as.factor(SampleIV$info_b)
 #now add all the other variables
@@ -275,7 +275,7 @@ m.fields<-probitmfx(q1_adopt ~ fields_iv+
             farmsize_b + 
             AES_b +
             # advisory,
-            Fabrikstandort_agg, data = SampleIV)
+            Fabrikstandort_agg, data = SampleIV, robust = TRUE)
 SampleIV$fields_b <- as.factor(SampleIV$fields_b)
 #now put both IVs teogether in the original full model
 summary(m.Full.IV <- glm(q1_adopt ~  info_iv + 
@@ -291,15 +291,15 @@ summary(m.Full.IV <- glm(q1_adopt ~  info_iv +
                            Fabrikstandort_agg, 
                       data = SampleIV, family = binomial("probit")))
 
-m.Full.IV_mfx <-probitmfx(m.Full.IV, data = SampleIV)
+m.Full.IV_mfx <-probitmfx(m.Full.IV, data = SampleIV, robust = TRUE)
 
-p.mFull_mfx_compareIV <- plot_summs(m.Full.comp_mfx3,m.Full.IV_mfx,scale = TRUE, robust = TRUE)
-                   #    coefs = c("knowing other farmers (info)"="info_b1",
-                    #             "Info_IV =knowing other farmers"="info_iv",
-                     #            "observing fields (field)"="fields_b1",
-                      #           "Field_IV = observing fields"="fields_iv",
-                       #          "distance to fields observed"="fields_dist",
-                        #         "squared distance to fields observed"="sq.fields_dist",
+p.mFull_mfx_compareIV <- plot_summs(m.Full.comp_mfx3,m.Full.IV_mfx,scale = TRUE, robust = TRUE,
+                      coefs = c("knowing other farmers (info)"="info_b1",
+                                 "Info_IV =knowing other farmers"="info_iv",
+                                 "observing fields (field)"="fields_b1",
+                                 "Field_IV = observing fields"="fields_iv"),
+                           #      "distance to fields observed"="fields_dist",
+                          #       "squared distance to fields observed"="sq.fields_dist",
                          #        "minimal distance to demo farm" = "minDist_demo",
                           #       "squared minimal distance to demo farm" = "sq.demodist",
                            #      "advisory Cosun" = "advisoryCosun",
@@ -308,7 +308,7 @@ p.mFull_mfx_compareIV <- plot_summs(m.Full.comp_mfx3,m.Full.IV_mfx,scale = TRUE,
                               #   "older than 45 years"="age_b1",
                                #  "farm size > 50 ha"="farmsize_b1",
                                 # "AES participation"="AES_b1",
-                        #model.names = c("Probit model", "Probit model with 3SLS-IV")
+                        model.names = c("Probit model", "Probit model with 3SLS-IV"))
                          #,colors = c("grey60", "grey36"))
 
 p.mFull_mfx_compareIV +theme(legend.position="bottom")
@@ -464,20 +464,22 @@ models_cat <-plot_summs(m.Full2_mfx,m.Allin2_mfx, m.Full_mfx,
                      "11-15 fields observed"="NrFields3",
                      "more than 15 fields observed"="NrFields4",
                      "knowing other farmers"="info_b1",
-                     "observing fields" = "fields_b1",
-                     "minimal distance to demo farm" = "minDist_demo",
-                     "distance to fields observed"="fields_dist",
-                     "squared distance to fields observed"="sq.fields_dist",
-                     "minimal distance to demo farm" = "minDist_demo",
-                     "squared minimal distance to demo farm" = "sq.demodist",
+                     "observing fields" = "fields_b1"),
+                   #  "minimal distance to demo farm" = "minDist_demo",
+                    # "distance to fields observed"="fields_dist",
+                    # "squared distance to fields observed"="sq.fields_dist",
+                    # "minimal distance to demo farm" = "minDist_demo",
+                    # "squared minimal distance to demo farm" = "sq.demodist",
                      #"advisory Cosun" = "advisoryCosun",
-                     "advisory Pfeiffer&Langen" = "advisoryPfeifferLangen",
-                     "advisory Südzucker"= "advisorySüdzucker",
-                     "older than 45 years"="age_b1",
-                     "farm size > 50 ha"="farmsize_b1",
-                     "AES participation"="AES_b1"),
+                    # "advisory Pfeiffer&Langen" = "advisoryPfeifferLangen",
+                    # "advisory Südzucker"= "advisorySüdzucker",
+                    # "older than 45 years"="age_b1",
+                    # "farm size > 50 ha"="farmsize_b1",
+                    # "AES participation"="AES_b1"),
          model.names = c("Model3_NrAdopters","Model4_FieldDistance", "Model5_NrFields"),
            scale = TRUE, robust = TRUE)#, colors = c("grey60", "grey36", "grey76"))
+
+models_cat +theme(legend.position="bottom")
 
 #stargazer(m.Full2_mfx$fit,m.Allin2_mfx$fit, m.Full_mfx$fit,
  #         type = "html", out = "Categorical.html", star.char = c("*", "**", "***"), star.cutoffs = c(0.1, 0.05, 0.01),
@@ -501,8 +503,7 @@ models_cat <-plot_summs(m.Full2_mfx,m.Allin2_mfx, m.Full_mfx,
 m.1.mfx <- probitmfx(m.1<- glm(q1_adopt ~ 1,  
                         data = SampleIV,family = binomial("probit")), data = SampleIV) 
 
-m.2.mfx <- probitmfx(m.2 <-glm(q1_adopt ~ fields_dist+
-                                 sq.fields_dist+
+m.2.mfx <- probitmfx(m.2 <-glm(q1_adopt ~ 
                                  minDist_demo + 
                                  sq.demodist+
                                  age_b + 
@@ -512,8 +513,7 @@ m.2.mfx <- probitmfx(m.2 <-glm(q1_adopt ~ fields_dist+
                                  Fabrikstandort_agg, 
                         data = SampleIV,family = binomial("probit")), data = SampleIV) 
 
-m.3.mfx <- probitmfx(m.3 <-glm(q1_adopt ~ info_b +fields_dist+
-                                 sq.fields_dist+
+m.3.mfx <- probitmfx(m.3 <-glm(q1_adopt ~ info_b +
                                  minDist_demo + 
                                  sq.demodist+
                                  age_b + 
@@ -523,8 +523,7 @@ m.3.mfx <- probitmfx(m.3 <-glm(q1_adopt ~ info_b +fields_dist+
                                  Fabrikstandort_agg, 
                    data = SampleIV,family = binomial("probit")), data = SampleIV)
 
-m.4.mfx <- probitmfx(m.4 <-glm(q1_adopt ~ fields_b+ fields_dist+
-                                 sq.fields_dist+
+m.4.mfx <- probitmfx(m.4 <-glm(q1_adopt ~ fields_b+ 
                                  minDist_demo + 
                                  sq.demodist+
                                  age_b + 
@@ -534,8 +533,7 @@ m.4.mfx <- probitmfx(m.4 <-glm(q1_adopt ~ fields_b+ fields_dist+
                                  Fabrikstandort_agg, 
                    data = SampleIV,family = binomial("probit")), data = SampleIV)
 
-m.5.mfx <- probitmfx(m.5 <-glm(q1_adopt ~ info_b + fields_b+ fields_dist+
-                                 sq.fields_dist+
+m.5.mfx <- probitmfx(m.5 <-glm(q1_adopt ~ info_b + fields_b+ 
                                  minDist_demo + 
                                  sq.demodist+
                                  age_b + 
@@ -875,26 +873,27 @@ VIF(m.Full_regional)
 
 
 #####INTENTION#####
+
+#problem with anklam in fabrikstandort_agg
+#SampleIV$Fabrikstandort_agg <- relevel(SampleIV$Fabrikstandort_agg, ref = "West")
+
 #try ordered probit model
 orderedprobit1<-polr(q6_col1 ~ info_b + fields_b+
-                      fields_dist+
-                     # sq.fields_dist+
-                       minDist_demo + 
-                       sq.demodist+
-                       age_b + 
-                       farmsize_b + 
+                      minDist_demo + 
+                      sq.demodist+
+                      age_b + 
+                      farmsize_b + 
                        AES_b +
                        # advisory,
                        Fabrikstandort_agg
                        , 
-                     data = SampleIV, method = "probit")
+                     data = SampleIV,Hess= TRUE)
 summary(orderedprobit1)
-plot_summs(orderedprobit1)
+m.Intention1_mfx <-probitmfx(orderedprobit1, data = SampleIV, robust = TRUE)
+plot_summs(m.Intention1_mfx)
 #how to get marginal effects?
 #probitmfx(orderedprobit1, data = df.Models)
 orderedprobit2<-polr(q6_col2 ~ info_b + fields_b+
-                       fields_dist+
-                       # sq.fields_dist+
                        minDist_demo + 
                        sq.demodist+
                        age_b + 
@@ -903,45 +902,48 @@ orderedprobit2<-polr(q6_col2 ~ info_b + fields_b+
                        # advisory,
                        Fabrikstandort_agg
                      , 
-                     data = SampleIV, method = "probit")
+                     data = SampleIV,Hess = TRUE)
+
+m.Intention2_mfx <-probitmfx(orderedprobit2, data = SampleIV, robust = TRUE)
 
 orderedprobit3<-polr(q6_col3 ~ info_b + fields_b+
-                       fields_dist+
-                       # sq.fields_dist+
                        minDist_demo + 
                        sq.demodist+
                        age_b + 
                        farmsize_b + 
                        AES_b +
                        # advisory,
-                       Fabrikstandort_agg
+                      Fabrikstandort_agg
                      , 
-                     data = SampleIV, method = "probit")
+                     data = SampleIV,Hess = TRUE)
 
-plot_summs(orderedprobit1,orderedprobit2,orderedprobit3,
+m.Intention3_mfx <-probitmfx(orderedprobit3, data = SampleIV, robust = TRUE)
+
+models_Intention <- plot_summs(m.Intention1_mfx,m.Intention2_mfx,m.Intention3_mfx,
            coefs = c("knowing other farmers (info)"="info_b1",
                      "Info_IV =knowing other farmers"="info_iv",
                      "observing fields (field)"="fields_b1",
                      "Field_IV = observing fields"="fields_iv",
-                     "distance to fields observed"="fields_dist",
-                     "squared distance to fields observed"="sq.fields_dist",
-                     "minimal distance to demo farm" = "minDist_demo",
-                     "squared minimal distance to demo farm" = "sq.demodist",
-                     "advisory Cosun" = "advisoryCosun",
-                     "advisory Pfeiffer&Langen" = "advisoryPfeifferLangen",
-                     "advisory Südzucker"= "advisorySüdzucker",
-                     "older than 45 years"="age_b1",
-                     "farm size > 50 ha"="farmsize_b1",
-                     "AES participation"="AES_b1",
-                     "share of sugarbeet area/ county"="ShareSB",
-                     "mean farm size (ha)/ county" = "meanFarmSize2",
-                     "sand content/ county"="sand_content",
-                     "elevation (m)"="elev_mean"),
-           model.names = c("traditional weeding techniques","modern weeidng techniques", "autonomous weeding"),
+                     "distance to fields observed"="fields_dist"),
+                   #  "squared distance to fields observed"="sq.fields_dist",
+                  #   "minimal distance to demo farm" = "minDist_demo",
+                  #   "squared minimal distance to demo farm" = "sq.demodist",
+                  #   "advisory Cosun" = "advisoryCosun",
+                  #   "advisory Pfeiffer&Langen" = "advisoryPfeifferLangen",
+                  #   "advisory Südzucker"= "advisorySüdzucker",
+                  #   "older than 45 years"="age_b1",
+                  #   "farm size > 50 ha"="farmsize_b1",
+                  #   "AES participation"="AES_b1",
+                  #   "share of sugarbeet area/ county"="ShareSB",
+                  #   "mean farm size (ha)/ county" = "meanFarmSize2",
+                  #   "sand content/ county"="sand_content",
+                  #   "elevation (m)"="elev_mean"),
+           model.names = c("traditional weeding techniques","modern weeding techniques", "autonomous weeding"),
            scale = TRUE, robust = TRUE
            )
 
 
+models_Intention +theme(legend.position="bottom")
 
 
 

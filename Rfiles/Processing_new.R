@@ -638,6 +638,25 @@ FullSample$FLC047 <-ifelse(FullSample$Kreis == "Landkreis Mayen-Koblenz",1875,Fu
 
 FullSample$FLC047 <-ifelse(FullSample$Kreis == "Landkreis Bad Dürkheim",1302,FullSample$FLC047)
 
+#get öko-data fro rheinland fpalz
+df.organic_rhlpflz <- read_xlsx("Backgrounddata/Organic_rhlpfz.xlsx")
+
+#first map county id
+mapping.CountyID_lkrname$Kreis <- as.character(mapping.CountyID_lkrname$Kreis)
+df.organic_rhlpflz <- left_join(df.organic_rhlpflz, mapping.CountyID_lkrname, by = "Kreis")
+
+#add data for donnersbergkreis manually
+FullSample$FLC047 <-ifelse(FullSample$Kreis == "Donnersbergkreis",1909,FullSample$FLC047)
+FullSample$BTR030 <-ifelse(FullSample$Kreis == "Donnersbergkreis",31,FullSample$BTR030)
+
+#for eckernförde: https://www.statistik-nord.de/fileadmin/Dokumente/Faltbl%C3%A4tter/Faltbl%C3%A4tter_Landwirtschaft/Faltblatt_Landwirtschaft_RD-ECK.pdf
+FullSample$FLC047 <-ifelse(FullSample$Kreis == "Kreis Rendsburg-Eckernförde",3596,FullSample$FLC047)
+FullSample$BTR030 <-ifelse(FullSample$Kreis == "Kreis Rendsburg-Eckernförde",65,FullSample$BTR030)
+
+#Wittenberg:https://www.bauernzeitung.de/news/sachsen-anhalt/oekologischer-landbau-im-aufwind/
+FullSample$FLC047 <-ifelse(FullSample$Kreis == "Wittenberg",17404,FullSample$FLC047)
+FullSample$BTR030 <-ifelse(FullSample$Kreis == "Wittenberg",98,FullSample$BTR030)
+
 st(FullSample, vars = c("q1_adopt","q3_info","plz","NrFields","FieldDist","q6_col1","q6_col2","q6_col3","q7_age", "q7_size", "q7_farm","q7_speci_select", "q7_AES"))
 
 
@@ -655,11 +674,25 @@ FullSample <- dplyr::rename(FullSample, "UAA_Sugarbeet" = `FLC004_BNZAT-2132`)
 FullSample <- dplyr::rename(FullSample, "UAA_arable" = `FLC004_BNZAT-21`)
 
 
+#add UAA and lw. betreibe allgmeien for eckernförde
+FullSample$lwBetr_Anzahl <-ifelse(FullSample$Kreis == "Kreis Rendsburg-Eckernförde",1697,FullSample$lwBetr_Anzahl)
+FullSample$UAA <-ifelse(FullSample$Kreis == "Kreis Rendsburg-Eckernförde",138682,FullSample$UAA)
 
 
 #create columns for share of organic farms and orgnaic area
 FullSample$ShareOrgFarms <- (FullSample$lwBetrOrganic_Anzahl/ FullSample$lwBetr_Anzahl)
 FullSample$ShareOrgArea <- (FullSample$UAA_Organic/FullSample$UAA)
+
+#add manually for wittenberg
+FullSample$ShareOrgArea <-ifelse(FullSample$Kreis == "Wittenberg",0.25,FullSample$ShareOrgArea)
+FullSample$ShareOrgFarms <-ifelse(FullSample$Kreis == "Wittenberg",0.32,FullSample$ShareOrgFarms)
+
+#calculate abse don shares UAA and lw. betriebe
+FullSample$lwBetr_Anzahl <-ifelse(FullSample$Kreis == "Wittenberg",306,FullSample$lwBetr_Anzahl)
+FullSample$UAA <-ifelse(FullSample$Kreis == "Wittenberg",69616,FullSample$UAA)
+
+
+
 
 
 #get dichte land. betriebe
@@ -1000,10 +1033,17 @@ FullSample$population <- as.numeric(FullSample$population)
 FullSample$populationdensity <- as.numeric(FullSample$populationdensity)
 
 #create sampel for IV/for models with complete observations
-SampleIV<-FullSample[!is.na(FullSample$Kreis.x)&(!FullSample$advisory == "Cosun")&(!is.na(FullSample$ShareOrgArea)),]
-#keep COSUN now &(!FullSample$advisory == "Cosun")
+#remove those for which we have no spatial data
+SampleIV<-FullSample[!is.na(FullSample$Kreis.x),]
+#remove the one delivering to Cosun
+SampleIV<-SampleIV[(!SampleIV$advisory == "Cosun"),]
 #exxclude those who have NA for age
 SampleIV<-SampleIV[!is.na(SampleIV$age_b),]
+
+#drop unnecessary levels fo verband anf fabrikstandort as no cosun
+SampleIV$Fabrikstandort_agg <- droplevels(SampleIV$Fabrikstandort_agg )
+SampleIV$Verband_agg <- droplevels(SampleIV$Verband_agg)
+
 vtable(SampleIV,missing = TRUE )
 #create dataframe with all info we have at Kreislevel to then identify outliers
 
@@ -1053,12 +1093,7 @@ mapping.CountyID_lkrname <- Organic_lkr %>% dplyr::select(KREISE,Kreis)
 #calculate mean farm size for landkreise where info is missing
 df.Kreise$meanFarmSize2 <- (df.Kreise$UAA/df.Kreise$lwBetr_Anzahl)*100
 
-#get öko-data fro rheinland fpalz
-df.organic_rhlpflz <- read_xlsx("Backgrounddata/Organic_rhlpfz.xlsx")
 
-#first map county id
-mapping.CountyID_lkrname$Kreis <- as.character(mapping.CountyID_lkrname$Kreis)
-df.organic_rhlpflz <- left_join(df.organic_rhlpflz, mapping.CountyID_lkrname, by = "Kreis")
 
 #merge rhlplz data to df.kreise
 df.Kreise <- left_join(df.Kreise, df.organic_rhlpflz, by = "Kreis")
@@ -1066,6 +1101,32 @@ df.Kreise$lwBetrOrganic_Anzahl<- ifelse(!is.na(df.Kreise$org_anzahl),df.Kreise$o
 df.Kreise$UAA_Organic <- ifelse(!is.na(df.Kreise$org_area),df.Kreise$org_area,df.Kreise$UAA_Organic)
 df.Kreise$ShareOrgFarms<- ifelse(!is.na(df.Kreise$org_anzahl_percent),df.Kreise$org_anzahl_percent,df.Kreise$ShareOrgArea )
 df.Kreise$ShareOrgArea<- ifelse(!is.na(df.Kreise$org_area_percent),df.Kreise$org_area_percent,df.Kreise$ShareOrgArea )
+
+#add data manually
+df.Kreise$UAA_Organic <-ifelse(df.Kreise$Kreis == "Donnersbergkreis",1909,df.Kreise$UAA_Organic)
+df.Kreise$lwBetrOrganic_Anzahl <-ifelse(df.Kreise$Kreis == "Donnersbergkreis",31,df.Kreise$lwBetrOrganic_Anzahl)
+
+#for eckernförde: https://www.statistik-nord.de/fileadmin/Dokumente/Faltbl%C3%A4tter/Faltbl%C3%A4tter_Landwirtschaft/Faltblatt_Landwirtschaft_RD-ECK.pdf
+df.Kreise$UAA_Organic <-ifelse(df.Kreise$Kreis == "Kreis Rendsburg-Eckernförde",3596,df.Kreise$UAA_Organic)
+df.Kreise$lwBetrOrganic_Anzahl <-ifelse(df.Kreise$Kreis == "Kreis Rendsburg-Eckernförde",65,df.Kreise$lwBetrOrganic_Anzahl)
+
+#Wittenberg:https://www.bauernzeitung.de/news/sachsen-anhalt/oekologischer-landbau-im-aufwind/
+df.Kreise$UAA_Organic <-ifelse(df.Kreise$Kreis == "Wittenberg",17404,df.Kreise$UAA_Organic)
+df.Kreise$lwBetrOrganic_Anzahl <-ifelse(df.Kreise$Kreis == "Wittenberg",98,df.Kreise$lwBetrOrganic_Anzahl)
+
+#add UAA and lw. betreibe allgmeien for eckernförde
+df.Kreise$lwBetr_Anzahl <-ifelse(df.Kreise$Kreis == "Kreis Rendsburg-Eckernförde",1697,df.Kreise$lwBetr_Anzahl)
+df.Kreise$UAA <-ifelse(df.Kreise$Kreis == "Kreis Rendsburg-Eckernförde",138682,df.Kreise$UAA)
+
+
+#add manually for wittenberg
+df.Kreise$ShareOrgArea <-ifelse(df.Kreise$Kreis == "Wittenberg",0.25,df.Kreise$ShareOrgArea)
+df.Kreise$ShareOrgFarms <-ifelse(df.Kreise$Kreis == "Wittenberg",0.32,df.Kreise$ShareOrgFarms)
+
+#calculate abse don shares UAA and lw. betriebe
+df.Kreise$lwBetr_Anzahl <-ifelse(df.Kreise$Kreis == "Wittenberg",306,df.Kreise$lwBetr_Anzahl)
+df.Kreise$UAA <-ifelse(df.Kreise$Kreis == "Wittenberg",69616,df.Kreise$UAA)
+
 
 
 #create df

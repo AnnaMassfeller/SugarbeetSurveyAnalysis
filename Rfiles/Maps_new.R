@@ -106,8 +106,8 @@ spdf_formaps$ShareOrgArea <- as.numeric(spdf_formaps$ShareOrgArea)
 spdf_formaps$ShareOrgFarms <- as.numeric(spdf_formaps$ShareOrgFarms)
 
 #scale all share sbetween 0 and 1
-spdf_formaps$ShareOrgArea <- rescale(spdf_formaps$ShareOrgArea) 
-spdf_formaps$ShareOrgFarms <- rescale(spdf_formaps$ShareOrgFarms) 
+#spdf_formaps$ShareOrgArea <- rescale(spdf_formaps$ShareOrgArea) 
+#spdf_formaps$ShareOrgFarms <- rescale(spdf_formaps$ShareOrgFarms) 
 
 #share sb
 spdf_formaps$ShareSB<-spdf_formaps$`FLC004_BNZAT-2132`/spdf_formaps$`FLC004_BNZAT-21`
@@ -149,6 +149,66 @@ SmallFarms_plot<-ggplot(data = spdf_formaps) +
                    min.segment.length = 0,box.padding = 0.5)#+
  #theme(legend.position="none")
 ggsave(SmallFarms_plot,file="Output/map_sharesmallfarms_fabrics.tiff",dpi = 300,unit="cm",height=35,width=50)
+
+#share organic farms
+OrgFarms_plot<-ggplot(data = spdf_formaps) +
+  #add filling of landkreise accoridng to variable of choice
+  geom_sf(aes(fill = ShareOrgFarms ))+#,size = 0.01, alpha = 1)+
+  scale_fill_distiller("Share of organic farms",palette = "Greens", direction = 1)+
+  #now add SB fabrics and farms that participated in the survey
+  # farms
+  # geom_point(data = df.Coordinates,
+  #            aes(x = Long_Centroid, y = Lat_Centroid,colour = factor(q1_adopt)),
+  #           alpha=4,size = 2)+
+  #scale_color_manual("Mechanical weeding",values = c("0" = "orange", "1" = "darkgreen"),labels = c("No", "Yes"))+
+  #general make up of map
+  theme_bw()+
+  labs(x = "", y = "") +
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks=element_blank(),
+        panel.border = element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "white"))+
+  coord_sf()+
+  #sb fabrics
+  geom_point(data = df.SB_fabriken,
+             aes(x = Long, y = Lat),
+             alpha=1,shape = 23,size = 2, fill = "darkred")+
+  geom_label_repel(data=df.SB_fabriken, aes(Long, Lat, label=Fabrikstandort), size = 4,
+                   min.segment.length = 0,box.padding = 0.5)#+
+#theme(legend.position="none")
+ggsave(OrgFarms_plot,file="Output/map_shareorgfarms_fabrics.tiff",dpi = 300,unit="cm",height=35,width=50)
+
+#share organic area
+OrgArea_plot<-ggplot(data = spdf_formaps) +
+  #add filling of landkreise accoridng to variable of choice
+  geom_sf(aes(fill = ShareOrgArea))+#,size = 0.01, alpha = 1)+
+  scale_fill_distiller("Share of organic area in total UAA",palette = "Greens", direction = 1)+
+  #now add SB fabrics and farms that participated in the survey
+  # farms
+  # geom_point(data = df.Coordinates,
+  #            aes(x = Long_Centroid, y = Lat_Centroid,colour = factor(q1_adopt)),
+  #           alpha=4,size = 2)+
+  #scale_color_manual("Mechanical weeding",values = c("0" = "orange", "1" = "darkgreen"),labels = c("No", "Yes"))+
+  #general make up of map
+  theme_bw()+
+  labs(x = "", y = "") +
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks=element_blank(),
+        panel.border = element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "white"))+
+  coord_sf()+
+  #sb fabrics
+  geom_point(data = df.SB_fabriken,
+             aes(x = Long, y = Lat),
+             alpha=1,shape = 23,size = 2, fill = "darkred")+
+  geom_label_repel(data=df.SB_fabriken, aes(Long, Lat, label=Fabrikstandort), size = 4,
+                   min.segment.length = 0,box.padding = 0.5)#+
+#theme(legend.position="none")
+ggsave(OrgArea_plot,file="Output/map_shareorgarea_fabrics.tiff",dpi = 300,unit="cm",height=35,width=50)
+
+
 
 #share of small farms
 ShareAdopters_plot<-ggplot(data = spdf_formaps) +
@@ -441,8 +501,41 @@ SB_farms_plot<-ggplot(data = spdf_formaps) +
 #theme(legend.position="none")
 ggsave(SB_farms_plot,file="Output/map_SB_farms_fabrics.tiff",dpi = 300,unit="cm",height=35,width=50)
 
+#add demonstration farms
+Demo_coord_map <- Demo_coord
+Demo_coord_map['type'] = 'demonstration farm'
 
-
+SB_farms_demo_plot<-ggplot(data = spdf_formaps) +
+  #add filling of landkreise accoridng to variable of choice
+  geom_sf(aes(fill = ShareSB))+#,size = 0.01, alpha = 1)+
+  scale_fill_distiller("Share of Sugar beet",palette = "Greys", direction = 1)+
+  #now add demo farms, SB fabrics and farms that participated in the survey
+  #demo farms
+  geom_point(data = Demo_coord_map,
+             aes(x = DemoOrg_lon, y = DemoOrg_lat),
+             alpha=4,size = 2, shape = 8, colour = "orange", show.legend = TRUE)+
+  # farms
+  geom_point(data = df.Coordinates,
+             aes(x = Long_Centroid, y = Lat_Centroid,colour = factor(q1_adopt)),
+             alpha=4,size = 2, shape = 16)+
+  scale_color_manual("Mechanical weeding",values = c("0" = "hotpink3", "1" = "royalblue2"),labels = c("No", "Yes"))+
+  #general make up of map
+  theme_bw()+
+  labs(x = "", y = "") +
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks=element_blank(),
+        panel.border = element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "white"))+
+  coord_sf()+
+  #sb fabrics
+  geom_point(data = df.SB_fabriken,
+             aes(x = Long, y = Lat),
+             alpha=1,shape = 23,size = 2, fill = "darkred")+
+  geom_label_repel(data=df.SB_fabriken, aes(Long, Lat, label=Fabrikstandort), size = 2,
+                   min.segment.length = 0,box.padding = 0.5)+
+  theme(legend.position="none")
+ggsave(SB_farms_demo_plot,file="Output/map_SB_farms_demo_fabrics.tiff")#,dpi = 800,unit="cm",height=35,width=50)
 
 
 

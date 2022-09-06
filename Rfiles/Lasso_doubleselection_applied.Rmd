@@ -75,12 +75,13 @@ SampleIV <- apply_labels(SampleIV,q1_adopt="Adoption mechanical weeding binary",
 
 Get explanatory variables and create subsample including dependant and independant variable
 ```{r}
-dat<-SampleIV %>% dplyr::select("q1_adopt","fields_b","info_b","minDist_demo","sq.demodist","farmsize_b","AES_b","age_b","farm_organic","mainly_crop","meanFarmSize2","ShareOrgFarms","ShareOrgArea","populationdensity","farmDens","areaDens","ShareSmallFarms","elevation_in_m_mean","sand_content_percent_mean","clay_content_percent_mean","sq.elevation_in_m_mean","sq.sand_content_percent_mean","sq.clay_content_percent_mean", "ShareArableUAA", "ShareArableInTotalArea","Fabrikstandort_agg")
+dat<-SampleIV %>% dplyr::select("q1_adopt","fields_b","info_b","minDist_demo","sq.demodist","farmsize_b","AES_b","age_b","farm_organic","mainly_crop", "Kreis.x")
 
 #take kreislevel data away:
-#"meanFarmSize2","ShareOrgFarms","ShareOrgArea","populationdensity","farmDens","areaDens","ShareSmallFarms","elevation_in_m_mean","sand_content_percent_mean","clay_content_percent_mean","sq.elevation_in_m_mean","sq.sand_content_percent_mean","sq.clay_content_percent_mean", "ShareArableUAA", "ShareArableInTotalArea","Fabrikstandort_agg"
+#"meanFarmSize2","ShareOrgFarms","ShareOrgArea","populationdensity","farmDens","areaDens","ShareSmallFarms","elevation_in_m_mean","sand_content_percen#t_mean","clay_content_percent_mean","sq.elevation_in_m_mean","sq.sand_content_percent_mean","sq.clay_content_percent_mean", "ShareArableUAA", #"ShareArableInTotalArea","Fabrikstandort_agg"
 
-XVars <- c("fields_b","info_b","minDist_demo","sq.demodist","farmsize_b","AES_b","age_b","farm_organic","mainly_crop","meanFarmSize2","ShareOrgFarms","ShareOrgArea","populationdensity","farmDens","areaDens","ShareSmallFarms","elevation_in_m_mean","sand_content_percent_mean","clay_content_percent_mean","sq.elevation_in_m_mean","sq.sand_content_percent_mean","sq.clay_content_percent_mean", "ShareArableUAA", "ShareArableInTotalArea","Fabrikstandort_agg")
+
+XVars <- c("fields_b","info_b","minDist_demo","sq.demodist","farmsize_b","AES_b","age_b","farm_organic","mainly_crop", "Kreis.x")
 
 
 df <-dat[XVars]
@@ -258,7 +259,7 @@ relevant once we want to be more conservative here.
 
 ```{r}
 #save lists of vars selected in different steps
-lstvarsselected3.8_kreisdummy <- lst(lstCoefAdoptmin,lstCoeffieldsmin,lstCoefinfomin)
+lstvarsselected3_kreisdummy <- lst(lstCoefAdoptmin,lstCoeffieldsmin,lstCoefinfomin)
 
 dfDouble1 <- dat[,union(union(lstCoeffieldsmin,lstCoefAdoptmin),c("q1_adopt","fields_b"))]
 dfDouble2 <- dat[,union(union(lstCoefinfomin,lstCoefAdoptmin),c("q1_adopt", "info_b"))]
@@ -268,21 +269,21 @@ dfDouble <- cbind(dfDouble1,dfDouble2,dfDouble3)
 dfDouble <-dfDouble %>% 
   dplyr::select(unique(colnames(.)))
 
-reg_double3.8_kreisdummy <- glm(q1_adopt ~ .,data=dfDouble, family = "binomial")
-summary(reg_double3.8_kreisdummy)
-df.Lasso_selected3.8_kreisdummy <- reg_double3.8_kreisdummy[["model"]] 
-vtable(df.Lasso_selected3.8_kreisdummy, values = TRUE, missing = TRUE)
+reg_double3_kreisdummy <- glm(q1_adopt ~ .,data=dfDouble, family = "binomial")
+summary(reg_double3_kreisdummy)
+df.Lasso_selected3_kreisdummy <- reg_double3_kreisdummy[["model"]] 
+vtable(df.Lasso_selected3_kreisdummy, values = TRUE, missing = TRUE)
 #marginal effects
-m.Lasso_select_mfx3.8_kreisdummy <-probitmfx(reg_double3.8_kreisdummy, data = dfDouble)
-m.Lasso_select_mfx3.8_kreisdummy
-
+m.Lasso_select_mfx3_kreisdummy <-probitmfx(reg_double3_kreisdummy, data = dfDouble)
+m.Lasso_select_mfx3_kreisdummy
+coefs_3_kreisdummy <-  m.Lasso_select_mfx3_kreisdummy[["mfxest"]]
 ```
 Compare that to the result that we would obtained for OLS on all variables
 ```{r}
-reg_Full3.8_kreisdummy <- glm(q1_adopt ~ .,data=dat,family = "binomial")
-summary(reg_Full3.8_kreisdummy)
-m.reg_Full3.8_kreisdummy_mfx <-probitmfx(reg_Full3.8_kreisdummy, data = dat)
-m.reg_Full3.8_kreisdummy_mfx
+reg_Full3_kreisdummy <- glm(q1_adopt ~ .,data=dat,family = "binomial")
+summary(reg_Full3_kreisdummy)
+m.reg_Full3_kreisdummy_mfx <-probitmfx(reg_Full3_kreisdummy, data = dat)
+m.reg_Full3_kreisdummy_mfx
 ```
 
 
@@ -291,44 +292,45 @@ Compare model results visually, e.g. estimates for info_b and fields_b
 #with max N
 plot.reg_compare <- plot_summs(m.Full.comp_mfx3,
                            #  m.Full.IV_mfx,
-                              m.Full_regional_mfx2,
-                            #  m.reg_Full3.0_verband_mfx,
-                              m.reg_Full3.0_fabric_mfx,
-                             # m.Lasso_select_mfx3.0_verband,
-                              m.Lasso_select_mfx3.0_fabric,
+                            #  m.Full_regional_mfx2,
+                              m.reg_Full1.0_verband_mfx,
+                             m.reg_Full1.0_fabric_mfx,
+                             m.Lasso_select_mfx1.0_verband,
+                              m.Lasso_select_mfx1.0_fabric,
                               #m.Lasso_select_mfx3.1_verband,
-                              m.Lasso_select_mfx3.1_fabric,
-                              #m.Lasso_select_mfx3.2_verband,
-                              m.Lasso_select_mfx3.2_fabric,
+                              m.Lasso_select_mfx1.1_fabric,
+                             # m.Lasso_select_mfx1.2_verband,
+                              m.Lasso_select_mfx1.2_fabric,
                               #m.Lasso_select_mfx3.3_verband,
-                              m.Lasso_select_mfx3.3_fabric,
-                              m.Lasso_select_mfx3.4_fabric,
-                              m.Lasso_select_mfx3.5_fabric,
-                              m.Lasso_select_mfx3.6_fabric,
-                              m.reg_Full3.8_kreisdummy_mfx,
+                              m.Lasso_select_mfx1.3_fabric,
+                              m.Lasso_select_mfx1.4_fabric,
+                              m.Lasso_select_mfx1.5_fabric,
+                              m.Lasso_select_mfx1.6_fabric,
+                              m.reg_Full2_kreisdummy_mfx,
+                            #  m.reg_Full3_kreisdummy_mfx,
                                coefs = c("knowing other farmers (info)"="info_b1",
                     "Info_IV =knowing other farmers"="info_iv",
                      "observing fields (fields)"="fields_b1",
                       "Field_IV = observing fields"="fields_iv"),
        colors = c("Grey","Grey","Green","Blue","Red","Orange","Brown","Black","Pink","Purple", "yellow", "darkgreen", "lightblue", "darkblue", "lightgreen", "red4"),#c("Spectral"),
            legend.title = "marginal effects",
-        model.names = c("M_prereg", 
+        model.names = c(#"M_prereg", 
                        #  "M_preregIV", 
-                        "M_prereg_extended", 
-                       # "FullM3.0_verband",
-                        "FullM3.0_fabric",
+                        #"M_prereg_extended", 
+                       # "FullM1.0_verband",
+                        #"FullM3.0_fabric",
                         #"LassoM3.0_verband_s20nf20",
-                        "LassoM3.0_fabric_s20nf20",
+                        #"LassoM3.0_fabric_s20nf20",
                         #"LassoM3.1_verband_s40nf20",
-                        "LassoM3.1_fabric_s40nf20",
+                        #"LassoM3.1_fabric_s40nf20",
                         #"LassoM3.2_verband_s20nf10",
-                        "LassoM3.2_fabric_s20nf10",
+                        #"LassoM3.2_fabric_s20nf10",
                         #"LassoM3.3_verband_s40nf40",
-                        "LassoM3.3_fabric_s40nf40",
-                       "LassoM3.4_fabric_s40nf80",
-                        "LassoM3.5_fabric_s20nf40",
-                        "LassoM3.6_fabric_s200nf40", 
-                        "FullM3.8_kreisdummy"
+                        #"LassoM3.3_fabric_s40nf40",
+                       #"LassoM3.4_fabric_s40nf80",
+                        #"LassoM3.5_fabric_s20nf40",
+                        #"LassoM3.6_fabric_s200nf40", 
+                        #"FullM3.8_kreisdummy"
                       
                ),
            scale = TRUE, robust = TRUE) + theme(legend.position="bottom")
@@ -376,7 +378,7 @@ Which vars have been selected in all specifications?
 ```{r}
 #make all teh same nr rows
 
-VarsSelected <-cbind(df.Lasso_selected3.0_fabric,df.Lasso_selected3.1_fabric,df.Lasso_selected3.2_fabric, df.Lasso_selected3.3_fabric, df.Lasso_selected3.4_fabric, df.Lasso_selected3.5_fabric, df.Lasso_selected3.6_fabric,df.Lasso_selected3.0_verband,df.Lasso_selected3.1_verband,df.Lasso_selected3.2_verband, df.Lasso_selected3.3_verband)
+VarsSelected <-cbind(df.Lasso_selected1.0_fabric,df.Lasso_selected1.1_fabric,df.Lasso_selected1.2_fabric, df.Lasso_selected1.3_fabric, df.Lasso_selected1.4_fabric, df.Lasso_selected1.5_fabric,df.Lasso_selected1.6_fabric,df.Lasso_selected1.0_verband)
 
 VarsSelected <- VarsSelected[-c(2:205), ]
 VarsSelected <- as.data.frame(t(VarsSelected))
@@ -401,23 +403,23 @@ stargazer(VarsSelected,                 # Export txt
 
 
 #identify vars only chosen in step 1 (adoption)
-df3.0f<- as.data.frame(lstvarsselected3.0_fabric[["lstCoefAdoptmin"]])
-df3.0v<- as.data.frame(lstvarsselected3.0_verband[["lstCoefAdoptmin"]])
-df3.1f<- as.data.frame(lstvarsselected3.1_fabric[["lstCoefAdoptmin"]])
-df3.1v<- as.data.frame(lstvarsselected3.1_verband[["lstCoefAdoptmin"]])
-df3.2f<- as.data.frame(lstvarsselected3.2_fabric[["lstCoefAdoptmin"]])
-df3.2v<- as.data.frame(lstvarsselected3.2_verband[["lstCoefAdoptmin"]])
-df3.3f<- as.data.frame(lstvarsselected3.3_fabric[["lstCoefAdoptmin"]])
-df3.3v<- as.data.frame(lstvarsselected3.3_verband[["lstCoefAdoptmin"]])
-df3.4<- as.data.frame(lstvarsselected3.4_fabric[["lstCoefAdoptmin"]])
-df3.5<- as.data.frame(lstvarsselected3.5_fabric[["lstCoefAdoptmin"]])
-df3.6<- as.data.frame(lstvarsselected3.6_fabric[["lstCoefAdoptmin"]])
-df3.7<- as.data.frame(lstvarsselected3.7_fabric[["lstCoefAdoptmin"]])
+df1.0f<- as.data.frame(lstvarsselected1.0_fabric[["lstCoefAdoptmin"]])
+df1.0v<- as.data.frame(lstvarsselected1.0_verband[["lstCoefAdoptmin"]])
+df1.1f<- as.data.frame(lstvarsselected1.1_fabric[["lstCoefAdoptmin"]])
+#df3.1v<- as.data.frame(lstvarsselected1.1_verband[["lstCoefAdoptmin"]])
+df1.2f<- as.data.frame(lstvarsselected1.2_fabric[["lstCoefAdoptmin"]])
+#df3.2v<- as.data.frame(lstvarsselected1.2_verband[["lstCoefAdoptmin"]])
+df1.3f<- as.data.frame(lstvarsselected1.3_fabric[["lstCoefAdoptmin"]])
+#df3.3v<- as.data.frame(lstvarsselected1.3_verband[["lstCoefAdoptmin"]])
+df1.4<- as.data.frame(lstvarsselected1.4_fabric[["lstCoefAdoptmin"]])
+df1.5<- as.data.frame(lstvarsselected1.5_fabric[["lstCoefAdoptmin"]])
+df1.6<- as.data.frame(lstvarsselected1.6_fabric[["lstCoefAdoptmin"]])
+#df3.7<- as.data.frame(lstvarsselected1.7_fabric[["lstCoefAdoptmin"]])
 
 library(qpcR)
-VarsSelectedStep1 <-qpcR:::cbind.na (df3.0f, df3.0v,df3.1f, df3.1v,df3.2f, df3.2v,df3.3f, df3.3v,df3.4,df3.5,df3.6,df3.7)
+VarsSelectedStep1 <-qpcR:::cbind.na (df1.0f, df1.0v,df1.1f, df1.2f, df1.3f, df1.4,df1.5,df1.6)
 
-write_xlsx(VarsSelectedStep1,"VarsSelectedStep1.xlsx")
+write_xlsx(VarsSelectedStep1,"VarsSelectedStep1_06.09.xlsx")
 
 stargazer(VarsSelectedStep1,                 # Export txt
           summary = FALSE,
@@ -426,28 +428,86 @@ stargazer(VarsSelectedStep1,                 # Export txt
 
 #identify vars only chosen in step 2 (info)
 #identify vars only chosen in step 1 (adoption)
-df3.0f<- as.data.frame(lstvarsselected3.0_fabric[["lstCoefinfomin"]])
-df3.0v<- as.data.frame(lstvarsselected3.0_verband[["lstCoefinfomin"]])
-df3.1f<- as.data.frame(lstvarsselected3.1_fabric[["lstCoefinfomin"]])
-df3.1v<- as.data.frame(lstvarsselected3.1_verband[["lstCoefinfomin"]])
-df3.2f<- as.data.frame(lstvarsselected3.2_fabric[["lstCoefinfomin"]])
-df3.2v<- as.data.frame(lstvarsselected3.2_verband[["lstCoefinfomin"]])
-df3.3f<- as.data.frame(lstvarsselected3.3_fabric[["lstCoefinfomin"]])
-df3.3v<- as.data.frame(lstvarsselected3.3_verband[["lstCoefinfomin"]])
-df3.4<- as.data.frame(lstvarsselected3.4_fabric[["lstCoefinfomin"]])
-df3.5<- as.data.frame(lstvarsselected3.5_fabric[["lstCoefinfomin"]])
-df3.6<- as.data.frame(lstvarsselected3.6_fabric[["lstCoefinfomin"]])
-df3.7<- as.data.frame(lstvarsselected3.7_fabric[["lstCoefinfomin"]])
+df1.0f<- as.data.frame(lstvarsselected1.0_fabric[["lstCoefinfomin"]])
+df1.0v<- as.data.frame(lstvarsselected1.0_verband[["lstCoefinfomin"]])
+df1.1f<- as.data.frame(lstvarsselected1.1_fabric[["lstCoefinfomin"]])
+#df1.1v<- as.data.frame(lstvarsselected1.1_verband[["lstCoefinfomin"]])
+df1.2f<- as.data.frame(lstvarsselected1.2_fabric[["lstCoefinfomin"]])
+#df1.2v<- as.data.frame(lstvarsselected1.2_verband[["lstCoefinfomin"]])
+df1.3f<- as.data.frame(lstvarsselected1.3_fabric[["lstCoefinfomin"]])
+#df1.3v<- as.data.frame(lstvarsselected1.3_verband[["lstCoefinfomin"]])
+df1.4<- as.data.frame(lstvarsselected1.4_fabric[["lstCoefinfomin"]])
+df1.5<- as.data.frame(lstvarsselected1.5_fabric[["lstCoefinfomin"]])
+df1.6<- as.data.frame(lstvarsselected1.6_fabric[["lstCoefinfomin"]])
+#df1.7<- as.data.frame(lstvarsselected1.7_fabric[["lstCoefinfomin"]])
 
 
-VarsSelectedStep2 <-qpcR:::cbind.na (df3.0f, df3.0v,df3.1f, df3.1v,df3.2f, df3.2v,df3.3f, df3.3v,df3.4,df3.5,df3.6,df3.7)
+VarsSelectedStep2 <-qpcR:::cbind.na (df1.0f, df1.0v,df1.1f, df1.2f, df1.3f, df1.4,df1.5,df1.6)
 
-write_xlsx(VarsSelectedStep2,"VarsSelectedStep2.xlsx")
+write_xlsx(VarsSelectedStep2,"VarsSelectedStep2_06.09.xlsx")
 
 stargazer(VarsSelectedStep2,                 # Export txt
           summary = FALSE,
         type = "html",
           out = "VarsSelectedStep2Lasso.html")
+
+```
+create dataframe of estimates for info and field to average it then
+```{r}
+coefs_1.0_fabric_copy <- as.data.frame(coefs_1.0_fabric)
+coefs_1.0_fabric_copy<-coefs_1.0_fabric_copy[-c(2:4)]
+coefs_1.0_fabric_copy$names <- rownames(coefs_1.0_fabric_copy)
+
+coefs_1.0_verband_copy <- as.data.frame(coefs_1.0_verband)
+coefs_1.0_verband_copy<-coefs_1.0_verband_copy[-c(2:4)]
+coefs_1.0_verband_copy$names <- rownames(coefs_1.0_verband_copy)
+
+coefs_1.1_fabric_copy <- as.data.frame(coefs_1.1_fabric)
+coefs_1.1_fabric_copy<-coefs_1.1_fabric_copy[-c(2:4)]
+coefs_1.1_fabric_copy$names <- rownames(coefs_1.1_fabric_copy)
+
+coefs_1.2_fabric_copy <- as.data.frame(coefs_1.2_fabric)
+coefs_1.2_fabric_copy<-coefs_1.2_fabric_copy[-c(2:4)]
+coefs_1.2_fabric_copy$names <- rownames(coefs_1.2_fabric_copy)
+
+coefs_1.3_fabric_copy <- as.data.frame(coefs_1.3_fabric)
+coefs_1.3_fabric_copy<-coefs_1.3_fabric_copy[-c(2:4)]
+coefs_1.3_fabric_copy$names <- rownames(coefs_1.3_fabric_copy)
+
+coefs_1.4_fabric_copy <- as.data.frame(coefs_1.4_fabric)
+coefs_1.4_fabric_copy<-coefs_1.4_fabric_copy[-c(2:4)]
+coefs_1.4_fabric_copy$names <- rownames(coefs_1.4_fabric_copy)
+
+coefs_1.5_fabric_copy <- as.data.frame(coefs_1.5_fabric)
+coefs_1.5_fabric_copy<-coefs_1.5_fabric_copy[-c(2:4)]
+coefs_1.5_fabric_copy$names <- rownames(coefs_1.5_fabric_copy)
+
+coefs_1.6_fabric_copy <- as.data.frame(coefs_1.6_fabric)
+coefs_1.6_fabric_copy<-coefs_1.6_fabric_copy[-c(2:4)]
+coefs_1.6_fabric_copy$names <- rownames(coefs_1.6_fabric_copy)
+
+
+df.Coefficients_Lasso <- full_join(coefs_1.0_fabric_copy, coefs_1.0_verband_copy, by = "names")
+df.Coefficients_Lasso <- full_join(df.Coefficients_Lasso, coefs_1.1_fabric_copy, by = "names")
+df.Coefficients_Lasso <- full_join(df.Coefficients_Lasso, coefs_1.2_fabric_copy, by = "names")
+df.Coefficients_Lasso <- full_join(df.Coefficients_Lasso, coefs_1.3_fabric_copy, by = "names")
+df.Coefficients_Lasso <- full_join(df.Coefficients_Lasso, coefs_1.4_fabric_copy, by = "names")
+df.Coefficients_Lasso <- full_join(df.Coefficients_Lasso, coefs_1.5_fabric_copy, by = "names")
+df.Coefficients_Lasso <- full_join(df.Coefficients_Lasso, coefs_1.6_fabric_copy, by = "names")
+
+
+
+#reorder
+df.Coefficients_Lasso<-df.Coefficients_Lasso[,c(2,1,3:9)]
+df.Coefficients_Lasso$mean_coef <- rowMeans(df.Coefficients_Lasso[,2:9], na.rm = TRUE)
+
+#adjust col name sto models
+df.Coefficients_Lasso <- dplyr::rename(df.Coefficients_Lasso, "Variable"= 1, "1.0_fabric"= 2, "1.0_verband"= 3,"1.1_fabric"= 4,"1.2_fabric" =5,"1.3_fabric" =6,"1.4_fabric" =7,"1.5_fabric" =8,"1.6_fabric" =9, "mean_coef"=10)
+
+write_xlsx(df.Coefficients_Lasso,"Lasso_coefficients_06.09.xlsx")
+
+
+
 
 ```
 
