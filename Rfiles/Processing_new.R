@@ -5,7 +5,7 @@
 #rm(list = ls())
 #load packages
 library(readxl)
-library(dplyr)
+library(plyr)
 library(jsonlite)
 library(stringr)
 library(geosphere)
@@ -25,7 +25,6 @@ library(readr)
 library(sf)
 library(ggplot2)
 library(stringr)
-library(plyr)
 library(tibble)
 library(mfx)
 library(jtools)
@@ -38,7 +37,7 @@ library(gtools)
 library(rlist)
 library(writexl)
 library(splitstackshape)
-
+library(dplyr)
 
 ###load data
 #directly as json
@@ -797,7 +796,10 @@ df.SoilSlope<- df.SoilSlope %>% dplyr::select(-c(Lat, Long))
 
 df.Soil_fieldlevel<-df.SoilSlope %>%
   dplyr::group_by(date) %>%
-  dplyr::summarise_at(vars(2:5), list(mean = mean))
+  dplyr::summarise_at(vars(1:4), list(mean = mean))
+
+write_xlsx(df.Kreise_Lasso,"Processed/df.Kreise_lasso.xlsx")
+df.Kreise_Lasso<-read_xlsx("Processed/df.Kreise_lasso.xlsx")
 
 
 #match soil and slope dara to Sample IV
@@ -1085,7 +1087,7 @@ df.Kreise$areaDens <- df.Kreise$UAA/df.Kreise$Area
 df.Kreise$areaDens <-as.numeric(df.Kreise$areaDens)
 #sugar beet area per arable area
 
-df.Kreise$ShareSB<-as.numeric(df.Kreise$ShareSB)
+#df.Kreise$ShareSB<-as.numeric(df.Kreise$ShareSB)
 df.Kreise$ShareSmallFarms<- (df.Kreise$lwBetrUnter5_Anzahl + df.Kreise$lwBetr5b10_Anzahl) /df.Kreise$lwBetr_Anzahl
 df.Kreise$ShareSmallFarms<-as.numeric(df.Kreise$ShareSmallFarms)
 
@@ -1145,14 +1147,14 @@ df.Kreise_Lasso <- dplyr::rename(df.Kreise_Lasso, population = "Bevölkerung" ,p
 
 
 
-df.Kreise_Lasso$meanFarmSize <- as.numeric(df.Kreise_Lasso$meanFarmSize)
+df.Kreise_Lasso$meanFarmSize2 <- as.numeric(df.Kreise_Lasso$meanFarmSize2)
 df.Kreise_Lasso$population <- as.numeric(df.Kreise_Lasso$population)
 df.Kreise_Lasso$populationdensity <- as.numeric(df.Kreise_Lasso$populationdensity)
-df.Kreise_Lasso<-df.Kreise_Lasso[!duplicated(df.Kreise_Lasso$KREISE), ]
+df.Kreise_Lasso<-df.Kreise_Lasso[!duplicated(df.Kreise_Lasso$KREISE.x), ]
 vtable(df.Kreise_Lasso,missing = TRUE )
 
 write_xlsx(df.Kreise_Lasso,"Processed/df.Kreise_lasso.xlsx")
-df.Kreise_lasso<-read_xlsx("Processed/df.Kreise_lasso.xlsx")
+df.Kreise_Lasso<-read_xlsx("Processed/df.Kreise_lasso.xlsx")
 #tabelle for Enola missing UAA unter5
 df.missingUAAunter5 <- FullSample %>% dplyr::select(Kreis.x, UAA_unter5)
 df.missingUAAunter5 <-df.missingUAAunter5[is.na(df.missingUAAunter5$UAA_unter5),]
@@ -1160,7 +1162,10 @@ df.missingUAAunter5<-df.missingUAAunter5[!duplicated(df.missingUAAunter5$Kreis.x
 #write_xlsx(df.missingUAAunter5,"df.missingUAAunter5.xlsx")
 
 
-
-
+#get data for landkreise where share of sugabreet is missing
+df.missingShareSB <- FullSample %>% dplyr::select(Kreis.x, ShareSB)
+df.missingShareSB <-df.missingShareSB[is.na(df.missingShareSB$ShareSB),]
+df.missingShareSB<-df.missingShareSB[!duplicated(df.missingShareSB$Kreis.x), ]
+#write_xlsx(df.missingShareSB,"df.missingShareSB.xlsx")
 
 
