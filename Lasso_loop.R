@@ -138,7 +138,7 @@ coefAdoptmin <- coef(list.cvfit_AdoptExog[[i]],s ="lambda.min")
 assign( paste("coefAdoptmin",i, sep = "_") ,coefAdoptmin)
 list.coefAdoptmin<- do.call("list",mget(ls(pattern = "^coefAdoptmin.*")))
 lstCoefAdoptmin <- list.coefAdoptmin[[i]]@Dimnames[[1]][which(list.coefAdoptmin[[i]] != 0 ) ] #feature names: intercept included
-lstCoefAdoptmin <- tail(list.coefAdoptmin[[i]],-1) # exclude constant
+lstCoefAdoptmin <- lstCoefAdoptmin[-1] # exclude constant
 assign( paste("lstCoefAdoptmin",i, sep = "_") ,lstCoefAdoptmin)
 }
 final.lstCoefAdoptmin<- do.call("list",mget(ls(pattern = "^lstCoefAdoptmin.*")))
@@ -161,7 +161,7 @@ for (i in 1:length(nfolds)){
   assign( paste("coefinfomin",i, sep = "_") ,coefinfomin)
   list.coefinfomin<- do.call("list",mget(ls(pattern = "^coefinfomin.*")))
   lstCoefinfomin <- list.coefinfomin[[i]]@Dimnames[[1]][which(list.coefinfomin[[i]] != 0 ) ] #feature names: intercept included
-  lstCoefinfomin <- tail(list.coefinfomin[[i]],-1) # exclude constant
+  lstCoefinfomin <- lstCoefinfomin[-1] # exclude constant
   assign( paste("lstCoefinfomin",i, sep = "_") ,lstCoefinfomin)
 }
 final.lstCoefinfomin<- do.call("list",mget(ls(pattern = "^lstCoefinfomin.*")))
@@ -184,8 +184,8 @@ for (i in 1:length(nfolds)){
   coeffieldsmin <- coef(list.cvfit_fields[[i]],s ="lambda.min")
   assign( paste("coeffieldsmin",i, sep = "_") ,coeffieldsmin)
   list.coeffieldsmin<- do.call("list",mget(ls(pattern = "^coeffieldsmin.*")))
-  lstCoeffieldsmin <- list.coeffieldsmin[[i]]@Dimnames[[1]][which(list.coeffieldsmin[[i]] != 0 ) ] #feature names: intercept included
-  lstCoeffieldsmin <- tail(list.coeffieldsmin[[i]],-1) # exclude constant
+  lstCoeffieldsmin <- list.coeffieldsmin[[i]]@Dimnames[[1]][which(list.coeffieldsmin[[i]] != 0) ]#feature names: intercept included
+  lstCoeffieldsmin <- lstCoeffieldsmin[-1] # exclude constant
   assign( paste("lstCoeffieldsmin",i, sep = "_") ,lstCoeffieldsmin)
 }
 final.lstCoeffieldsmin<- do.call("list",mget(ls(pattern = "^lstCoeffieldsmin.*")))
@@ -197,20 +197,33 @@ final.lstCoeffieldsmin<- do.call("list",mget(ls(pattern = "^lstCoeffieldsmin.*")
 
 #save lists of vars selected in different steps
 for (i in 1:length(nfolds)){
-lstvarsselected <- lst(final.lstCoefAdoptmin[[i]],final.lstCoefinfomin[[i]],final.lstCoeffieldsmin[i])
+lstvarsselected <- lst(final.lstCoefAdoptmin[[i]],final.lstCoefinfomin[[i]],final.lstCoeffieldsmin[[i]])
 assign( paste("lstvarsselected",i, sep = "_") ,lstvarsselected)
 }
+
+#save lists of vars selected in different steps
 final.lstvarsselected<- do.call("list",mget(ls(pattern = "^lstvarsselected.*")))
 
 
+for (i in 1:length(nfolds)){
+dfDouble1<- dat[,union(union(final.lstCoeffieldsmin[[i]],final.lstCoefAdoptmin[[i]]),c("q1_adopt","fields_b"))]
+assign( paste("dfDouble1",i, sep = "_") ,dfDouble1)
 
-dfDouble1 <- dat[,union(union(lstCoeffieldsmin,lstCoefAdoptmin),c("q1_adopt","fields_b"))]
-dfDouble2 <- dat[,union(union(lstCoefinfomin,lstCoefAdoptmin),c("q1_adopt", "info_b"))]
-dfDouble3 <- dat[,union(union(lstCoefinfomin,lstCoeffieldsmin),c("fields_b", "info_b"))]
+dfDouble2 <- dat[,union(union(final.lstCoefinfomin[[i]],final.lstCoefAdoptmin[[i]]),c("q1_adopt", "info_b"))]
+assign( paste("dfDouble2",i, sep = "_") ,dfDouble1)
+
+dfDouble3 <- dat[,union(union(final.lstCoefinfomin[[i]],final.lstCoeffieldsmin[[i]]),c("fields_b", "info_b"))]
+assign( paste("dfDouble3",i, sep = "_") ,dfDouble1)
+
+}
+
+#continue here, save double df for each nfolds selection
+
 
 dfDouble <- cbind(dfDouble1,dfDouble2,dfDouble3)
 dfDouble <-dfDouble %>% 
   dplyr::select(unique(colnames(.)))
+
 
 reg_double <- glm(q1_adopt ~ .,data=dfDouble, family = "binomial")
 summary(reg_double)

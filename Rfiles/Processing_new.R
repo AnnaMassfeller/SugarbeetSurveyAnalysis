@@ -794,12 +794,12 @@ df.SoilSlope<- df.SoilSlope %>% dplyr::select(-c(Lat, Long))
 
 #need to calculate mean for each observation
 
-df.Soil_fieldlevel<-df.SoilSlope %>%
-  dplyr::group_by(date) %>%
-  dplyr::summarise_at(vars(1:4), list(mean = mean))
+#df.Soil_fieldlevel<-df.SoilSlope %>%
+ # dplyr::group_by(date) %>%
+  #dplyr::summarise_at(vars(1:4), list(mean = mean))
 
-write_xlsx(df.Kreise_Lasso,"Processed/df.Kreise_lasso.xlsx")
-df.Kreise_Lasso<-read_xlsx("Processed/df.Kreise_lasso.xlsx")
+#write_xlsx(df.Soil_fieldlevel,"Processed/df.Soil_fieldlevel.xlsx")
+df.Soil_fieldlevel<-read_xlsx("Processed/df.Soil_fieldlevel.xlsx")
 
 
 #match soil and slope dara to Sample IV

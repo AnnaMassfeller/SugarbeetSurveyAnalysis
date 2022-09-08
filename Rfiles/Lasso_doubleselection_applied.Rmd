@@ -268,7 +268,7 @@ relevant once we want to be more conservative here.
 
 ```{r}
 #save lists of vars selected in different steps
-lstvarsselected3_kreisdummy <- lst(lstCoefAdoptmin,lstCoeffieldsmin,lstCoefinfomin)
+lstvarsselected <- lst(lstCoefAdoptmin,lstCoeffieldsmin,lstCoefinfomin)
 
 dfDouble1 <- dat[,union(union(lstCoeffieldsmin,lstCoefAdoptmin),c("q1_adopt","fields_b"))]
 dfDouble2 <- dat[,union(union(lstCoefinfomin,lstCoefAdoptmin),c("q1_adopt", "info_b"))]
@@ -278,21 +278,21 @@ dfDouble <- cbind(dfDouble1,dfDouble2,dfDouble3)
 dfDouble <-dfDouble %>% 
   dplyr::select(unique(colnames(.)))
 
-reg_double3_kreisdummy <- glm(q1_adopt ~ .,data=dfDouble, family = "binomial")
-summary(reg_double3_kreisdummy)
-df.Lasso_selected3_kreisdummy <- reg_double3_kreisdummy[["model"]] 
-vtable(df.Lasso_selected3_kreisdummy, values = TRUE, missing = TRUE)
+reg_double <- glm(q1_adopt ~ .,data=dfDouble, family = "binomial")
+summary(reg_double)
+df.Lasso_selected <- reg_double[["model"]] 
+vtable(df.Lasso_selected, values = TRUE, missing = TRUE)
 #marginal effects
-m.Lasso_select_mfx3_kreisdummy <-probitmfx(reg_double3_kreisdummy, data = dfDouble)
-m.Lasso_select_mfx3_kreisdummy
-coefs_3_kreisdummy <-  m.Lasso_select_mfx3_kreisdummy[["mfxest"]]
+m.Lasso_select_mfx <-probitmfx(reg_double, data = dfDouble)
+m.Lasso_select_mfx
+coefs_ <-  m.Lasso_select_mfx[["mfxest"]]
 ```
 Compare that to the result that we would obtained for OLS on all variables
 ```{r}
-reg_Full3_kreisdummy <- glm(q1_adopt ~ .,data=dat,family = "binomial")
-summary(reg_Full3_kreisdummy)
-m.reg_Full3_kreisdummy_mfx <-probitmfx(reg_Full3_kreisdummy, data = dat)
-m.reg_Full3_kreisdummy_mfx
+reg_Full <- glm(q1_adopt ~ .,data=dat,family = "binomial")
+summary(reg_Full)
+m.reg_Full_mfx <-probitmfx(reg_Full, data = dat)
+m.reg_Full_mfx
 ```
 
 
