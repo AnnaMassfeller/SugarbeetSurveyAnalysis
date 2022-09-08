@@ -205,7 +205,9 @@ df.Coord <- left_join(df.Coord, df.Centroids, by = "number")
  #reverse_geocode(lat = Lat_Centroid, long = Long_Centroid, method = 'osm',
   #          address = "address", full_results = TRUE)
 
-rev_geo <- reverse_geocoding %>% dplyr::select(Long_Centroid, Lat_Centroid,county, state, postcode)
+#rev_geo <- reverse_geocoding %>% dplyr::select(Long_Centroid, Lat_Centroid,county, state, postcode)
+#write_xlsx(rev_geo,"Processed/rev_geo.xlsx")
+rev_geo<-read_xlsx("Processed/rev_geo.xlsx")
 
 #add info to allcoords df now
 df.Coord <- left_join(df.Coord, rev_geo, by = "Lat_Centroid")
@@ -293,7 +295,7 @@ df.Coord$Lat_Centroid<-ifelse(!is.na(df.Coord$PLZ_lon) == TRUE, df.Coord$PLZ_lon
 #1.run zensus_api file
 #source("C:/Users/Massfeller/sciebo/PhD/Paper/Paper2_socioSpat/SurveyAnalysis/Rfiles/zensus_api.R")
 #subset d.full from zensus-api to what we need
-Organic_lkr <- d.full[d.full$JAHR == "2016",] %>% dplyr::select(1,2,4,5,7,12, 41,42,43,44,67,71)
+Organic_lkr <- d.full[d.full$JAHR == "2016",]# %>% dplyr::select(1,4,5,7,12, 41,42,43,44,67,71)
 
 df.MeanFarmSize <- read_xlsx("Backgrounddata/durchschnittlicheBetriebsgröße.XLSX")#data from 2020
 df.MeanFarmSize <- dplyr::rename(df.MeanFarmSize, "KREISE" = 1)
@@ -364,7 +366,9 @@ Modell_organic_addresses<- as.data.frame(Modell_organic_addresses)
 Modell_organic_addresses <- dplyr::rename(Modell_organic_addresses, addresses = Modell_organic_addresses)
 
 #geocode addresses
-DemoOrganic_coord<-mutate_geocode(Modell_organic_addresses, addresses)
+#DemoOrganic_coord<-mutate_geocode(Modell_organic_addresses, addresses)
+#write_xlsx(DemoOrganic_coord,"Processed/DemoOrganic_coord.xlsx")
+DemoOrganic_coord<-read_xlsx("Processed/DemoOrganic_coord.xlsx")
 DemoOrganic_coord <- dplyr::rename(DemoOrganic_coord,DemoOrg_lon = lon, DemoOrg_lat = lat)
 Demo_coord <- dplyr::select(DemoOrganic_coord,DemoOrg_lon, DemoOrg_lat)
 
@@ -642,6 +646,9 @@ FullSample$FLC047 <-ifelse(FullSample$Kreis == "Landkreis Bad Dürkheim",1302,Fu
 df.organic_rhlpflz <- read_xlsx("Backgrounddata/Organic_rhlpfz.xlsx")
 
 #first map county id
+#add name of landkreis
+mapping.CountyID_lkrname <- Organic_lkr %>% dplyr::select(KREISE,Kreis)
+#calculate mean farm size for landkreise where info is missing
 mapping.CountyID_lkrname$Kreis <- as.character(mapping.CountyID_lkrname$Kreis)
 df.organic_rhlpflz <- left_join(df.organic_rhlpflz, mapping.CountyID_lkrname, by = "Kreis")
 
@@ -790,7 +797,7 @@ df.SoilSlope<- df.SoilSlope %>% dplyr::select(-c(Lat, Long))
 
 df.Soil_fieldlevel<-df.SoilSlope %>%
   dplyr::group_by(date) %>%
-  dplyr::summarise_at(vars(slope_in_degrees:elevation_in_m), list(mean = mean))
+  dplyr::summarise_at(vars(2:5), list(mean = mean))
 
 
 #match soil and slope dara to Sample IV
@@ -1045,6 +1052,8 @@ SampleIV$Fabrikstandort_agg <- droplevels(SampleIV$Fabrikstandort_agg )
 SampleIV$Verband_agg <- droplevels(SampleIV$Verband_agg)
 
 vtable(SampleIV,missing = TRUE )
+write_xlsx(SampleIV,"Processed/SampleIV.xlsx")
+SampleIV<-read_xlsx("Processed/SampleIV.xlsx")
 #create dataframe with all info we have at Kreislevel to then identify outliers
 
 df.Kreise <- d.full[d.full$JAHR == 2016,]
@@ -1088,9 +1097,7 @@ df.Kreise$sq.elev_mean <- df.Kreise$elev_mean^2
 df.Kreise$sq.sand_content <- df.Kreise$sand_content^2
 df.Kreise$sq.clay_content <- df.Kreise$clay_content^2
 df.Kreise$ShareSB<-df.Kreise$UAA_Sugarbeet/df.Kreise$UAA_arable
-#add name of landkreis
-mapping.CountyID_lkrname <- Organic_lkr %>% dplyr::select(KREISE,Kreis)
-#calculate mean farm size for landkreise where info is missing
+
 df.Kreise$meanFarmSize2 <- (df.Kreise$UAA/df.Kreise$lwBetr_Anzahl)*100
 
 
@@ -1144,6 +1151,8 @@ df.Kreise_Lasso$populationdensity <- as.numeric(df.Kreise_Lasso$populationdensit
 df.Kreise_Lasso<-df.Kreise_Lasso[!duplicated(df.Kreise_Lasso$KREISE), ]
 vtable(df.Kreise_Lasso,missing = TRUE )
 
+write_xlsx(df.Kreise_Lasso,"Processed/df.Kreise_lasso.xlsx")
+df.Kreise_lasso<-read_xlsx("Processed/df.Kreise_lasso.xlsx")
 #tabelle for Enola missing UAA unter5
 df.missingUAAunter5 <- FullSample %>% dplyr::select(Kreis.x, UAA_unter5)
 df.missingUAAunter5 <-df.missingUAAunter5[is.na(df.missingUAAunter5$UAA_unter5),]

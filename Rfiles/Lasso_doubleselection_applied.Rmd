@@ -75,13 +75,13 @@ SampleIV <- apply_labels(SampleIV,q1_adopt="Adoption mechanical weeding binary",
 
 Get explanatory variables and create subsample including dependant and independant variable
 ```{r}
-dat<-SampleIV %>% dplyr::select("q1_adopt","fields_b","info_b","minDist_demo","sq.demodist","farmsize_b","AES_b","age_b","farm_organic","mainly_crop", "Kreis.x")
+dat<-SampleIV %>% dplyr::select("q1_adopt","fields_b","info_b","minDist_demo","sq.demodist","farmsize_b","AES_b","age_b","farm_organic","mainly_crop", "meanFarmSize2","ShareOrgFarms","ShareOrgArea","populationdensity","farmDens","areaDens","ShareSmallFarms","elevation_in_m_mean","sand_content_percent_mean","clay_content_percent_mean","sq.elevation_in_m_mean","sq.sand_content_percent_mean","sq.clay_content_percent_mean", "ShareArableUAA", "ShareArableInTotalArea","Fabrikstandort_agg")
 
 #take kreislevel data away:
-#"meanFarmSize2","ShareOrgFarms","ShareOrgArea","populationdensity","farmDens","areaDens","ShareSmallFarms","elevation_in_m_mean","sand_content_percen#t_mean","clay_content_percent_mean","sq.elevation_in_m_mean","sq.sand_content_percent_mean","sq.clay_content_percent_mean", "ShareArableUAA", #"ShareArableInTotalArea","Fabrikstandort_agg"
+#
 
 
-XVars <- c("fields_b","info_b","minDist_demo","sq.demodist","farmsize_b","AES_b","age_b","farm_organic","mainly_crop", "Kreis.x")
+XVars <- c("fields_b","info_b","minDist_demo","sq.demodist","farmsize_b","AES_b","age_b","farm_organic","mainly_crop", "meanFarmSize2","ShareOrgFarms","ShareOrgArea","populationdensity","farmDens","areaDens","ShareSmallFarms","elevation_in_m_mean","sand_content_percent_mean","clay_content_percent_mean","sq.elevation_in_m_mean","sq.sand_content_percent_mean","sq.clay_content_percent_mean", "ShareArableUAA", "ShareArableInTotalArea","Fabrikstandort_agg")
 
 
 df <-dat[XVars]
@@ -159,6 +159,7 @@ First get all the exogenous variables (excluding info and field)
 dfExog <- df[ , !names(df) %in% c("info_b", "fields_b")]
 #create df for corss-check for fields w/o info
 dfExog2 <- df[ , !names(df) %in% c("info_b")]
+dfExog3 <- df[ , !names(df) %in% c("fields_b")]
 ```
 
 ### 1) Perform model selection explaining adoption by all the exogenous variables 
@@ -228,6 +229,14 @@ reg_Fullfields <- glm(fields_b ~ .,data=dfExog2,family = "binomial")
 summary(reg_Fullfields)
 m.reg_Fullfields_mfx <-probitmfx(reg_Fullfields, data = dfExog2)
 m.reg_Fullfields_mfx
+plot_summs(m.reg_Fullfields_mfx, robust = TRUE, scale = TRUE)
+
+#cross-check full model on info
+reg_Fullinfo <- glm(info_b ~ .,data=dfExog3,family = "binomial")
+summary(reg_Fullinfo)
+m.reg_Fullinfo_mfx <-probitmfx(reg_Fullinfo, data = dfExog3)
+m.reg_Fullinfo_mfx
+plot_summs(m.reg_Fullinfo_mfx, robust = TRUE, scale = TRUE)
 ```
 
 Get list of variables for "lambda.min"
@@ -306,7 +315,7 @@ plot.reg_compare <- plot_summs(m.Full.comp_mfx3,
                               m.Lasso_select_mfx1.4_fabric,
                               m.Lasso_select_mfx1.5_fabric,
                               m.Lasso_select_mfx1.6_fabric,
-                              m.reg_Full2_kreisdummy_mfx,
+                            #  m.reg_Full2_kreisdummy_mfx,
                             #  m.reg_Full3_kreisdummy_mfx,
                                coefs = c("knowing other farmers (info)"="info_b1",
                     "Info_IV =knowing other farmers"="info_iv",
@@ -314,22 +323,22 @@ plot.reg_compare <- plot_summs(m.Full.comp_mfx3,
                       "Field_IV = observing fields"="fields_iv"),
        colors = c("Grey","Grey","Green","Blue","Red","Orange","Brown","Black","Pink","Purple", "yellow", "darkgreen", "lightblue", "darkblue", "lightgreen", "red4"),#c("Spectral"),
            legend.title = "marginal effects",
-        model.names = c(#"M_prereg", 
+        model.names = c("M_prereg", 
                        #  "M_preregIV", 
                         #"M_prereg_extended", 
-                       # "FullM1.0_verband",
-                        #"FullM3.0_fabric",
-                        #"LassoM3.0_verband_s20nf20",
-                        #"LassoM3.0_fabric_s20nf20",
+                        "FullM1.0_verband",
+                        "FullM1.0_fabric",
+                        "LassoM1.0_verband_s20nf20",
+                        "LassoM1.0_fabric_s20nf20",
                         #"LassoM3.1_verband_s40nf20",
-                        #"LassoM3.1_fabric_s40nf20",
+                        "LassoM1.1_fabric_s40nf20",
                         #"LassoM3.2_verband_s20nf10",
-                        #"LassoM3.2_fabric_s20nf10",
+                        "LassoM1.2_fabric_s20nf10",
                         #"LassoM3.3_verband_s40nf40",
-                        #"LassoM3.3_fabric_s40nf40",
-                       #"LassoM3.4_fabric_s40nf80",
-                        #"LassoM3.5_fabric_s20nf40",
-                        #"LassoM3.6_fabric_s200nf40", 
+                        "LassoM1.3_fabric_s40nf40",
+                       "LassoM1.4_fabric_s20nf40",
+                        "LassoM1.5_fabric_s200nf40",
+                        "LassoM1.6_fabric_s40nf80" 
                         #"FullM3.8_kreisdummy"
                       
                ),

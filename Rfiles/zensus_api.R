@@ -138,8 +138,8 @@ View(d.full)
 
 
 label(d.full)
-
-
+#write_xlsx(d.full,"Processed/d.full.xlsx")
+d.full<-read_xlsx("Processed/d.full.xlsx")
 # merge with spatial data
 
 # set worknig directory
@@ -169,6 +169,8 @@ spdf<-spdf[!duplicated(spdf$RS), ]
 #remove columns that are not needed in spdf
 
 #spdf <- spdf %>% dplyr::select(BEZ, geometry.x, Kreis.x,elev_mean, sand_content,clay_content,ShareAdopters, Verband, ShareSB)
+#write_xlsx(spdf,"Processed/spdf.xlsx")
+#spdf<-read_xlsx("Processed/spdf.xlsx")
 
 mapview::mapview(spdf, zcol="FLC047")
 
