@@ -225,18 +225,18 @@ lstCoefinfo1se
 cvfit_fields <- cv.glmnet(data.matrix(dfExog), dat$fields_b,nfolds=40,family = "binomial",type.measure = "class")
 plot(cvfit_fields)
 #cross-check full model on fields
-reg_Fullfields <- glm(fields_b ~ .,data=dfExog2,family = "binomial")
-summary(reg_Fullfields)
-m.reg_Fullfields_mfx <-probitmfx(reg_Fullfields, data = dfExog2)
-m.reg_Fullfields_mfx
-plot_summs(m.reg_Fullfields_mfx, robust = TRUE, scale = TRUE)
+#reg_Fullfields <- glm(fields_b ~ .,data=dfExog2,family = "binomial")
+#summary(reg_Fullfields)
+#m.reg_Fullfields_mfx <-probitmfx(reg_Fullfields, data = dfExog2)
+#m.reg_Fullfields_mfx
+#plot_summs(m.reg_Fullfields_mfx, robust = TRUE, scale = TRUE)
 
 #cross-check full model on info
-reg_Fullinfo <- glm(info_b ~ .,data=dfExog3,family = "binomial")
-summary(reg_Fullinfo)
-m.reg_Fullinfo_mfx <-probitmfx(reg_Fullinfo, data = dfExog3)
-m.reg_Fullinfo_mfx
-plot_summs(m.reg_Fullinfo_mfx, robust = TRUE, scale = TRUE)
+#reg_Fullinfo <- glm(info_b ~ .,data=dfExog3,family = "binomial")
+#summary(reg_Fullinfo)
+#m.reg_Fullinfo_mfx <-probitmfx(reg_Fullinfo, data = dfExog3)
+#m.reg_Fullinfo_mfx
+#plot_summs(m.reg_Fullinfo_mfx, robust = TRUE, scale = TRUE)
 ```
 
 Get list of variables for "lambda.min"
@@ -278,6 +278,8 @@ dfDouble <- cbind(dfDouble1,dfDouble2,dfDouble3)
 dfDouble <-dfDouble %>% 
   dplyr::select(unique(colnames(.)))
 
+dfDouble$q1_adopt <- as.factor(dfDouble$q1_adopt)
+
 reg_double <- glm(q1_adopt ~ .,data=dfDouble, family = "binomial")
 summary(reg_double)
 df.Lasso_selected <- reg_double[["model"]] 
@@ -289,10 +291,16 @@ coefs_ <-  m.Lasso_select_mfx[["mfxest"]]
 ```
 Compare that to the result that we would obtained for OLS on all variables
 ```{r}
+dat$q1_adopt <- as.factor(dat$q1_adopt)
 reg_Full <- glm(q1_adopt ~ .,data=dat,family = "binomial")
 summary(reg_Full)
 m.reg_Full_mfx <-probitmfx(reg_Full, data = dat)
 m.reg_Full_mfx
+
+plot_summs(m.reg_Full_mfx,m.Lasso_select_mfx, coefs = c("knowing other farmers (info)"="info_b1",
+                    "Info_IV =knowing other farmers"="info_iv",
+                     "observing fields (fields)"="fields_b1",
+                      "Field_IV = observing fields"="fields_iv"))
 ```
 
 

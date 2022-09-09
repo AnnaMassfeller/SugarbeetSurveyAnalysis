@@ -62,7 +62,7 @@ SampleIV <- apply_labels(SampleIV,q1_adopt="Adoption mechanical weeding binary",
                          ShareArableUAA = "share of arable area in total UAA", 
                          ShareArableInTotalArea = "share of arable area in total county area")
 
-
+SampleIV$q1_adopt <- as.factor(SampleIV$q1_adopt)
 
 
 #Get explanatory variables and create subsample including dependant and independant variable
@@ -210,57 +210,65 @@ dfDouble1<- dat[,union(union(final.lstCoeffieldsmin[[i]],final.lstCoefAdoptmin[[
 assign( paste("dfDouble1",i, sep = "_") ,dfDouble1)
 
 dfDouble2 <- dat[,union(union(final.lstCoefinfomin[[i]],final.lstCoefAdoptmin[[i]]),c("q1_adopt", "info_b"))]
-assign( paste("dfDouble2",i, sep = "_") ,dfDouble1)
+assign( paste("dfDouble2",i, sep = "_") ,dfDouble2)
 
 dfDouble3 <- dat[,union(union(final.lstCoefinfomin[[i]],final.lstCoeffieldsmin[[i]]),c("fields_b", "info_b"))]
-assign( paste("dfDouble3",i, sep = "_") ,dfDouble1)
+assign( paste("dfDouble3",i, sep = "_") ,dfDouble3)
 
 }
 
-#continue here, save double df for each nfolds selection
+final.dfDouble1<- do.call("list",mget(ls(pattern = "^dfDouble1_*")))
+final.dfDouble2<- do.call("list",mget(ls(pattern = "^dfDouble2_*")))
+final.dfDouble3<- do.call("list",mget(ls(pattern = "^dfDouble3_*")))
+
+#save double df for each nfolds selection
+
+for (i in 1:length(nfolds)){
+dfDouble_forLasso <- cbind(final.dfDouble1[[i]],final.dfDouble2[[i]],final.dfDouble3[[i]])
+dfDouble_forLasso <-dfDouble_forLasso %>% 
+ dplyr::select(unique(colnames(.)))
+assign( paste("dfDouble_forLasso",i, sep = "_") ,dfDouble_forLasso)
+}
+final.dfDouble_forLasso<- do.call("list",mget(ls(pattern = "^dfDouble_forLasso*")))
+
+#run final regression with vars choosen before
+for (i in 1:length(nfolds)){
+reg_double <- glm(q1_adopt ~ .,data=final.dfDouble_forLasso[[i]], family = "binomial")
+assign( paste("reg_double",i, sep = "_") ,reg_double)
+}
+lst.reg_double<- do.call("list",mget(ls(pattern = "reg_double*")))
+#summary(reg_double_1)
+
+#save variables used in final lasso model
+for (i in 1:length(nfolds)){
+df.Lasso_selected <- lst.reg_double[[i]][["coefficients"]] 
+assign( paste("df.Lasso_selected",i, sep = "_") ,df.Lasso_selected)
+}
+lst.df.Lasso_selected<- do.call("list",mget(ls(pattern = "df.Lasso_selected*")))
 
 
-dfDouble <- cbind(dfDouble1,dfDouble2,dfDouble3)
-dfDouble <-dfDouble %>% 
-  dplyr::select(unique(colnames(.)))
-
-
-reg_double <- glm(q1_adopt ~ .,data=dfDouble, family = "binomial")
-summary(reg_double)
-df.Lasso_selected <- reg_double[["model"]] 
-vtable(df.Lasso_selected, values = TRUE, missing = TRUE)
 #marginal effects
-m.Lasso_select_mfx <-probitmfx(reg_double, data = dfDouble)
-m.Lasso_select_mfx
-coefs <-  m.Lasso_select_mfx[["mfxest"]]
+for (i in 1:length(nfolds)){
+m.Lasso_select_mfx <-probitmfx(lst.reg_double[[i]], data = final.dfDouble_forLasso[[i]])
+marg.effects_lasso <-  m.Lasso_select_mfx[["mfxest"]]
+assign( paste("m.Lasso_select_mfx",i, sep = "_") ,m.Lasso_select_mfx)
+assign( paste("marg.effects_lasso",i, sep = "_") ,marg.effects_lasso)
+}
+lst.m.Lasso_select_mfx<- do.call("list",mget(ls(pattern = "m.Lasso_select_mfx*")))
+lst.marg.effects_lasso<- do.call("list",mget(ls(pattern = "marg.effects_lasso*")))
+
 
 #Compare that to the result that we would obtained for OLS on all variables
-
+#ne loop needed as we only have one full model for all
 reg_Full <- glm(q1_adopt ~ .,data=dat,family = "binomial")
 summary(reg_Full)
 m.reg_Full_mfx <-probitmfx(reg_Full, data = dat)
 m.reg_Full_mfx
 
+#now get lists of all vars choosen
 
 
 
-
-
-#loop ofer different nfolds
-
-nfolds <- c(20,30,40,50)
-# LIST OF GLM FITTED MODELS
-for (i in nfolds) {
-  model <- cv.glmnet(data.matrix(dfExog), dat$q1_adopt,nfolds= i, family = "binomial",type.measure = "class")
-  assign( paste("models_orig",i, sep = "_") ,model)
-  }
-
-list.lassomodels_orig<- do.call("list",mget(ls(pattern = "^models_orig.*")))
-
-
-
-plot(models_orig_50)
-coef(models_orig_50 ,s ="lambda.min")
 
 
 
