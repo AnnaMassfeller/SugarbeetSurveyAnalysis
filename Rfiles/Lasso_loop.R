@@ -5,9 +5,11 @@ library(dplyr)
 library(expss)
 library(qpcR)
 
+#read processed data
+SampleIV<-read_xlsx("Processed/SampleIV.xlsx")
 
 # Set random number seed
-set.seed(40)
+set.seed(200)
 ## Clear workspace 
 #rm(list = ls())
 
@@ -67,7 +69,13 @@ SampleIV$q1_adopt <- as.factor(SampleIV$q1_adopt)
 
 #Get explanatory variables and create subsample including dependant and independant variable
 
-dat<-SampleIV %>% dplyr::select("q1_adopt","fields_b","info_b","minDist_demo","sq.demodist","farmsize_b","AES_b","age_b","farm_organic","mainly_crop", "meanFarmSize2","ShareOrgFarms","ShareOrgArea","populationdensity","farmDens","areaDens","ShareSmallFarms","elevation_in_m_mean","sand_content_percent_mean","clay_content_percent_mean","sq.elevation_in_m_mean","sq.sand_content_percent_mean","sq.clay_content_percent_mean", "ShareArableUAA", "ShareArableInTotalArea","Fabrikstandort_agg")
+dat<-SampleIV %>% dplyr::select("q1_adopt","fields_b","info_b","minDist_demo",
+                                "sq.demodist","farmsize_b","AES_b","age_b","farm_organic",
+                                "mainly_crop", "meanFarmSize2","ShareOrgFarms","ShareOrgArea",
+                                "populationdensity","farmDens","areaDens","ShareSmallFarms",
+                                "elevation_in_m_mean","sand_content_percent_mean","clay_content_percent_mean",
+                                "sq.elevation_in_m_mean","sq.sand_content_percent_mean","sq.clay_content_percent_mean", 
+                                "ShareArableUAA", "ShareArableInTotalArea","Fabrikstandort_agg")
 
 #take kreislevel data away:
 #
@@ -96,7 +104,7 @@ vars.identified8 <-SampleIV %>% dplyr::select("q1_adopt","fields_b","info_b","mi
 
 
 
-vtable(dat, missing = TRUE)
+#vtable(dat, missing = TRUE)
 
 
 
@@ -120,7 +128,7 @@ dfExog3 <- df[ , !names(df) %in% c("fields_b")]
 #(excluding info and field)
 
 #set nfolds
-nfolds <- c(20,30,40,50,60,70)
+nfolds <- c(10,30,40,50,60,90)
 
 
 # Run cross validation
@@ -128,8 +136,12 @@ for (i in nfolds) {
 cvfit_AdoptExog <- cv.glmnet(data.matrix(dfExog), dat$q1_adopt,nfolds=i, family = "binomial",type.measure = "class")
 assign( paste("cvfit_AdoptExog",i, sep = "_") ,cvfit_AdoptExog)
 }
-plot(cvfit_AdoptExog_70)
-list.cvfit_AdoptExog<- do.call("list",mget(ls(pattern = "^cvfit_AdoptExog.*")))
+
+list.cvfit_AdoptExog<- do.call("list",mget(ls(pattern = "^cvfit_AdoptExog_.*")))
+plot(list.cvfit_AdoptExog[[1]])
+
+
+
 
 #Get list of variables for "lambda.min"
 
@@ -141,7 +153,7 @@ lstCoefAdoptmin <- list.coefAdoptmin[[i]]@Dimnames[[1]][which(list.coefAdoptmin[
 lstCoefAdoptmin <- lstCoefAdoptmin[-1] # exclude constant
 assign( paste("lstCoefAdoptmin",i, sep = "_") ,lstCoefAdoptmin)
 }
-final.lstCoefAdoptmin<- do.call("list",mget(ls(pattern = "^lstCoefAdoptmin.*")))
+final.lstCoefAdoptmin<- do.call("list",mget(ls(pattern = "^lstCoefAdoptmin_.*")))
 
 
 ### 2) Perform model selection explaining info by all the exogenous variables 
@@ -151,8 +163,9 @@ for (i in nfolds) {
 cvfit_info <- cv.glmnet(data.matrix(dfExog), dat$info_b,nfolds=i,family = "binomial",type.measure = "class")
 assign( paste("cvfit_info",i, sep = "_") ,cvfit_info)
 }
-plot(cvfit_info_20)
-list.cvfit_info<- do.call("list",mget(ls(pattern = "^cvfit_info.*")))
+list.cvfit_info<- do.call("list",mget(ls(pattern = "^cvfit_info_.*")))
+
+plot(list.cvfit_info[[5]])
 
 #Get list of variables for "lambda.min"
 
@@ -164,7 +177,7 @@ for (i in 1:length(nfolds)){
   lstCoefinfomin <- lstCoefinfomin[-1] # exclude constant
   assign( paste("lstCoefinfomin",i, sep = "_") ,lstCoefinfomin)
 }
-final.lstCoefinfomin<- do.call("list",mget(ls(pattern = "^lstCoefinfomin.*")))
+final.lstCoefinfomin<- do.call("list",mget(ls(pattern = "^lstCoefinfomin_.*")))
 
 
 
@@ -175,8 +188,9 @@ for (i in nfolds) {
   cvfit_fields <- cv.glmnet(data.matrix(dfExog), dat$fields_b,nfolds=i,family = "binomial",type.measure = "class")
   assign( paste("cvfit_fields",i, sep = "_") ,cvfit_fields)
 }
-plot(cvfit_fields_20)
-list.cvfit_fields<- do.call("list",mget(ls(pattern = "^cvfit_fields.*")))
+list.cvfit_fields<- do.call("list",mget(ls(pattern = "^cvfit_fields_.*")))
+
+plot(list.cvfit_fields[[3]])
 
 #Get list of variables for "lambda.min"
 
@@ -188,7 +202,7 @@ for (i in 1:length(nfolds)){
   lstCoeffieldsmin <- lstCoeffieldsmin[-1] # exclude constant
   assign( paste("lstCoeffieldsmin",i, sep = "_") ,lstCoeffieldsmin)
 }
-final.lstCoeffieldsmin<- do.call("list",mget(ls(pattern = "^lstCoeffieldsmin.*")))
+final.lstCoeffieldsmin<- do.call("list",mget(ls(pattern = "^lstCoeffieldsmin_.*")))
 
 
 
@@ -202,7 +216,7 @@ assign( paste("lstvarsselected",i, sep = "_") ,lstvarsselected)
 }
 
 #save lists of vars selected in different steps
-final.lstvarsselected<- do.call("list",mget(ls(pattern = "^lstvarsselected.*")))
+final.lstvarsselected<- do.call("list",mget(ls(pattern = "^lstvarsselected_.*")))
 
 
 for (i in 1:length(nfolds)){
@@ -217,9 +231,9 @@ assign( paste("dfDouble3",i, sep = "_") ,dfDouble3)
 
 }
 
-final.dfDouble1<- do.call("list",mget(ls(pattern = "^dfDouble1_*")))
-final.dfDouble2<- do.call("list",mget(ls(pattern = "^dfDouble2_*")))
-final.dfDouble3<- do.call("list",mget(ls(pattern = "^dfDouble3_*")))
+final.dfDouble1<- do.call("list",mget(ls(pattern = "^dfDouble1_.*")))
+final.dfDouble2<- do.call("list",mget(ls(pattern = "^dfDouble2_.*")))
+final.dfDouble3<- do.call("list",mget(ls(pattern = "^dfDouble3_.*")))
 
 #save double df for each nfolds selection
 
@@ -229,14 +243,14 @@ dfDouble_forLasso <-dfDouble_forLasso %>%
  dplyr::select(unique(colnames(.)))
 assign( paste("dfDouble_forLasso",i, sep = "_") ,dfDouble_forLasso)
 }
-final.dfDouble_forLasso<- do.call("list",mget(ls(pattern = "^dfDouble_forLasso*")))
+final.dfDouble_forLasso<- do.call("list",mget(ls(pattern = "^dfDouble_forLasso_.*")))
 
 #run final regression with vars choosen before
 for (i in 1:length(nfolds)){
 reg_double <- glm(q1_adopt ~ .,data=final.dfDouble_forLasso[[i]], family = "binomial")
 assign( paste("reg_double",i, sep = "_") ,reg_double)
 }
-lst.reg_double<- do.call("list",mget(ls(pattern = "reg_double*")))
+lst.reg_double<- do.call("list",mget(ls(pattern = "reg_double_.*")))
 #summary(reg_double_1)
 
 #save variables used in final lasso model
@@ -244,7 +258,7 @@ for (i in 1:length(nfolds)){
 df.Lasso_selected <- lst.reg_double[[i]][["coefficients"]] 
 assign( paste("df.Lasso_selected",i, sep = "_") ,df.Lasso_selected)
 }
-lst.df.Lasso_selected<- do.call("list",mget(ls(pattern = "df.Lasso_selected*")))
+lst.df.Lasso_selected<- do.call("list",mget(ls(pattern = "df.Lasso_selected_.*")))
 
 
 #marginal effects
@@ -254,8 +268,8 @@ marg.effects_lasso <-  m.Lasso_select_mfx[["mfxest"]]
 assign( paste("m.Lasso_select_mfx",i, sep = "_") ,m.Lasso_select_mfx)
 assign( paste("marg.effects_lasso",i, sep = "_") ,marg.effects_lasso)
 }
-lst.m.Lasso_select_mfx<- do.call("list",mget(ls(pattern = "m.Lasso_select_mfx*")))
-lst.marg.effects_lasso<- do.call("list",mget(ls(pattern = "marg.effects_lasso*")))
+lst.m.Lasso_select_mfx<- do.call("list",mget(ls(pattern = "m.Lasso_select_mfx_.*")))
+lst.marg.effects_lasso<- do.call("list",mget(ls(pattern = "marg.effects_lasso_.*")))
 
 
 #Compare that to the result that we would obtained for OLS on all variables
@@ -266,31 +280,87 @@ m.reg_Full_mfx <-probitmfx(reg_Full, data = dat)
 m.reg_Full_mfx
 
 #now get lists of all vars choosen
+#first vars choosen in step 1 (adoption)
+for (i in 1:length(nfolds)){
+vars_adoption<-as.data.frame(final.lstvarsselected[[i]][["final.lstCoefAdoptmin[[i]]"]])
+vars_adoption$number <- 1
+vars_adoption <- dplyr::rename(vars_adoption, "Variable"= 1)
+assign( paste("vars_adoption",i, sep = "_") ,vars_adoption)
+}
+lst.vars_adoption<- do.call("list",mget(ls(pattern = "vars_adoption_.*")))
+
+#create dataframe and calculate number of occurence of the certain variables
+df.vars_adoption<-full_join(lst.vars_adoption[[1]], lst.vars_adoption[[2]], by = "Variable")
+df.vars_adoption<-full_join(df.vars_adoption, lst.vars_adoption[[3]], by = "Variable")
+df.vars_adoption<-full_join(df.vars_adoption, lst.vars_adoption[[4]], by = "Variable")
+df.vars_adoption<-full_join(df.vars_adoption, lst.vars_adoption[[5]], by = "Variable")
+df.vars_adoption<-full_join(df.vars_adoption, lst.vars_adoption[[6]], by = "Variable")
+rownames(df.vars_adoption) <- df.vars_adoption$Variable #make first col row names
+df.vars_adoption<-df.vars_adoption[,-c(1)] #remove first col
+df.vars_adoption$sum <- rowSums(df.vars_adoption, na.rm = TRUE) #caulcuate sum of occurences
+df.vars_adoption$Variables <- rownames(df.vars_adoption)
+df.vars_adoption<-df.vars_adoption[,-c(1:6)]  #remove cols we don't need anymore
+df.vars_adoption <- df.vars_adoption[ , c("Variables", "sum")]#swap col order
+write_xlsx(df.vars_adoption,"Output/df.vars_adoption_seed200.xlsx")
+
+
+#do the same for the vars selected in step 2(info)
+for (i in 1:length(nfolds)){
+  vars_info<-as.data.frame(final.lstvarsselected[[i]][["final.lstCoefinfomin[[i]]"]])
+  vars_info$number <- 1
+  vars_info <- dplyr::rename(vars_info, "Variable"= 1)
+  assign( paste("vars_info",i, sep = "_") ,vars_info)
+}
+lst.vars_info<- do.call("list",mget(ls(pattern = "vars_info_.*")))
+
+#create dataframe and calculate number of occurence of the certain variables
+df.vars_info<-full_join(lst.vars_info[[1]], lst.vars_info[[2]], by = "Variable")
+df.vars_info<-full_join(df.vars_info, lst.vars_info[[3]], by = "Variable")
+df.vars_info<-full_join(df.vars_info, lst.vars_info[[4]], by = "Variable")
+df.vars_info<-full_join(df.vars_info, lst.vars_info[[5]], by = "Variable")
+df.vars_info<-full_join(df.vars_info, lst.vars_info[[6]], by = "Variable")
+rownames(df.vars_info) <- df.vars_info$Variable #make first col row names
+df.vars_info<-df.vars_info[,-c(1)] #remove first col
+df.vars_info$sum <- rowSums(df.vars_info, na.rm = TRUE) #caulcuate sum of occurences
+df.vars_info$Variables <- rownames(df.vars_info)
+df.vars_info<-df.vars_info[,-c(1:6)]  #remove cols we don't need anymore
+df.vars_info <- df.vars_info[ , c("Variables", "sum")]#swap col order
+write_xlsx(df.vars_info,"Output/df.vars_info_seed200.xlsx")
+
+
+#now we also want the mean marginal effect for info and field over all specifications
+#save marg. effects as data frames
+for (i in 1:length(nfolds)){
+marg_effects<- as.data.frame(lst.marg.effects_lasso[[i]])
+marg_effects$Variable <- rownames(marg_effects)
+marg_effects <- marg_effects[,-c(2:4)]
+marg_effects<- marg_effects[,c(2,1)]
+assign( paste("marg_effects",i, sep = "_") ,marg_effects)
+lst.marg_effects<- do.call("list",mget(ls(pattern = "marg_effects_.*")))
+}
+
+df.marg_effects<-full_join(lst.marg_effects[[1]], lst.marg_effects[[2]], by = "Variable")
+df.marg_effects<-full_join(df.marg_effects, lst.marg_effects[[3]], by = "Variable")
+df.marg_effects<-full_join(df.marg_effects, lst.marg_effects[[4]], by = "Variable")
+df.marg_effects<-full_join(df.marg_effects, lst.marg_effects[[5]], by = "Variable")
+df.marg_effects<-full_join(df.marg_effects, lst.marg_effects[[6]], by = "Variable")
+df.marg_effects$mean_marg_effect <- rowMeans(df.marg_effects[,2:7], na.rm = TRUE)
+df.marg_effects<-df.marg_effects[,-c(2:7)]
+write_xlsx(df.marg_effects,"Output/df.marg_effects_seed200.xlsx")
 
 
 
+plot_seed200 <- plot_summs(m.Lasso_select_mfx_1, m.Lasso_select_mfx_2,m.Lasso_select_mfx_3,m.Lasso_select_mfx_4,m.Lasso_select_mfx_5,m.Lasso_select_mfx_6,
+           scale = TRUE, robust = TRUE, colors = c("YlOrRd"),
+           coefs = c("knowing other farmers (info)"="info_b1",
+                    # "Info_IV =knowing other farmers"="info_iv",
+                     "observing fields (fields)"="fields_b1",
+                     "Field_IV = observing fields"="fields_iv")) + theme(legend.position="bottom")
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ggarrange(plot_seed10, plot_seed35, plot_seed50, plot_seed100,plot_seed200, ncol = 1, legend = FALSE,
+          labels = c("seed 20", "seed 35", "seed 50", "seed 100", "seed 200"), font.label = list(size=10, face = "bold") )+ theme(legend.position="bottom")
 
 
 
