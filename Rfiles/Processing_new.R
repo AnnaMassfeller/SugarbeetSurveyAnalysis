@@ -174,8 +174,10 @@ for(i in seq_along(fields)){
   fields.spat <- SpatialPointsDataFrame(coords = coord.fields, data = coord.fields)
   centroids.farms= gCentroid(fields.spat)
   assign( paste("farms.spat", i, sep = "_") , centroids.farms)
+  assign( paste("ownfields.spat", i, sep = "_") , fields.spat)#save coordinates of own fields
 }
 list.centroids <- do.call("list",mget(ls(pattern = "^farms.spat.*")))
+list.ownfields.spat <- do.call("list",mget(ls(pattern = "^ownfields.spat.*")))
 
 #save centroids in a data frame
 CentroidsFields <- as.data.frame(list.centroids)
@@ -197,6 +199,11 @@ df.Centroids <- cbind(df.Centroids, number)#now I know which observation belongs
 #now add the centroids to the dataset which contains all that have coordinates
 df.Coord$number <- rownames(df.Coord)
 df.Coord <- left_join(df.Coord, df.Centroids, by = "number")
+
+#create mapping of numbers in lists and date/ id
+mapping.date_number <- df.Coord %>% dplyr::select(date, number)
+
+
 
 #we now have centroids for each observation that has coordinates
 #based on that we now get the postalcode etc.
@@ -1041,6 +1048,43 @@ FullSample <- dplyr::rename(FullSample, population = "Bevölkerung" ,populationd
 FullSample$population <- as.numeric(FullSample$population)
 FullSample$populationdensity <- as.numeric(FullSample$populationdensity)
 
+
+####create distance between own fields
+
+for (i in 1:233){
+  ownfields_dist<-as.data.frame(pointDistance(list.centroids[[i]], list.ownfields.spat[[i]]@coords,lonlat = TRUE)/1000)
+  ownfields_dist$mean_ownfields_dist <- colMeans(ownfields_dist)
+  assign( paste("ownfields_dist",i, sep = "_") ,ownfields_dist)
+}
+lst.ownfields_dist<- do.call("list",mget(ls(pattern = "ownfields_dist_.*")))
+
+#save all ownfields distances as dataframe
+for (i in 1:233){
+mean_ownfields_dist<-lst.ownfields_dist[[i]][["mean_ownfields_dist"]][1]
+assign( paste("mean_ownfields_dist",i, sep = "_") ,mean_ownfields_dist)
+}
+lst.mean_ownfields_dist<- do.call("list",mget(ls(pattern = "mean_ownfields_dist_.*")))
+
+#create df
+df.ownfields_dist <- data.frame(ID = rep(names(lst.mean_ownfields_dist), sapply(lst.mean_ownfields_dist, length)),
+                                      Mean_ownfield_dist = unlist(lst.mean_ownfields_dist))
+
+
+#now calculated distances have to be merged with sample
+#first get rid of unneccessary characters in the ID column
+
+df.ownfields_dist$ID<- gsub("[^0-9.-]", "", df.ownfields_dist$ID)
+
+#get date based on number
+df.ownfields_dist <- left_join(df.ownfields_dist, mapping.date_number, by = c("ID"="number"))
+
+#jpin to full sample
+FullSample <- left_join(FullSample, df.ownfields_dist, by = "date")
+
+###################################################
+##############  SAMPLE IV ########################
+##################################################
+
 #create sampel for IV/for models with complete observations
 #remove those for which we have no spatial data
 SampleIV<-FullSample[!is.na(FullSample$Kreis.x),]
@@ -1057,6 +1101,10 @@ vtable(SampleIV,missing = TRUE )
 write_xlsx(SampleIV,"Processed/SampleIV.xlsx")
 SampleIV<-read_xlsx("Processed/SampleIV.xlsx")
 #create dataframe with all info we have at Kreislevel to then identify outliers
+
+###########################################################
+###### df.Kreise                                      ####
+##########################################################
 
 df.Kreise <- d.full[d.full$JAHR == 2016,]
 df.Kreise <- left_join(df.Kreise, mapping.CountyID_NUTS, by = c("KREISE" = "CountyID"))

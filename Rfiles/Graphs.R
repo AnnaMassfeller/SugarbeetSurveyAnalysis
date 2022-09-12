@@ -902,16 +902,15 @@ ggplot(df.Kreise_Lasso_long, aes(x = variable, y = value)) +
   scale_y_log10() +
   theme(axis.text.x=element_text(angle = 45, hjust = 1))
 
-#get outliers
 
-get_outliers = function(x){
-  which(x > quantile(x)[4] + 1.5*IQR(x) | x < quantile(x)[2] - 1.5*IQR(x))
-}
+#check distance between own fields
+#subsampel of those who selected own fields via map 
+OwnFieldsSample<-SampleIV[SampleIV$Mean_ownfield_dist !=0,]
+
+ggplot(OwnFieldsSample,aes(Mean_ownfield_dist, fill = "age_b")) +            
+  geom_density(alpha = 0.5, position = "identity")+
+  scale_x_continuous(limits = c(0, 100))
 
 
-
-outliers <- get_outliers(df.Kreise_Lasso_long_prep$lwBetr_Anzahl)
-
-df2 = df.Kreise_Lasso_long_prep[outliers,]
 
 

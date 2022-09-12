@@ -9,7 +9,7 @@ library(qpcR)
 SampleIV<-read_xlsx("Processed/SampleIV.xlsx")
 
 # Set random number seed
-set.seed(200)
+set.seed(50)
 ## Clear workspace 
 #rm(list = ls())
 
@@ -301,7 +301,7 @@ df.vars_adoption$sum <- rowSums(df.vars_adoption, na.rm = TRUE) #caulcuate sum o
 df.vars_adoption$Variables <- rownames(df.vars_adoption)
 df.vars_adoption<-df.vars_adoption[,-c(1:6)]  #remove cols we don't need anymore
 df.vars_adoption <- df.vars_adoption[ , c("Variables", "sum")]#swap col order
-write_xlsx(df.vars_adoption,"Output/df.vars_adoption_seed200.xlsx")
+write_xlsx(df.vars_adoption,"Output/df.vars_adoption_seed50.xlsx")
 
 
 #do the same for the vars selected in step 2(info)
@@ -325,7 +325,7 @@ df.vars_info$sum <- rowSums(df.vars_info, na.rm = TRUE) #caulcuate sum of occure
 df.vars_info$Variables <- rownames(df.vars_info)
 df.vars_info<-df.vars_info[,-c(1:6)]  #remove cols we don't need anymore
 df.vars_info <- df.vars_info[ , c("Variables", "sum")]#swap col order
-write_xlsx(df.vars_info,"Output/df.vars_info_seed200.xlsx")
+write_xlsx(df.vars_info,"Output/df.vars_info_seed50.xlsx")
 
 
 #now we also want the mean marginal effect for info and field over all specifications
@@ -345,12 +345,12 @@ df.marg_effects<-full_join(df.marg_effects, lst.marg_effects[[4]], by = "Variabl
 df.marg_effects<-full_join(df.marg_effects, lst.marg_effects[[5]], by = "Variable")
 df.marg_effects<-full_join(df.marg_effects, lst.marg_effects[[6]], by = "Variable")
 df.marg_effects$mean_marg_effect <- rowMeans(df.marg_effects[,2:7], na.rm = TRUE)
-df.marg_effects<-df.marg_effects[,-c(2:7)]
-write_xlsx(df.marg_effects,"Output/df.marg_effects_seed200.xlsx")
+#df.marg_effects<-df.marg_effects[,-c(2:7)]
+write_xlsx(df.marg_effects,"Output/df.marg_effects_seed50.xlsx")
 
 
 
-plot_seed200 <- plot_summs(m.Lasso_select_mfx_1, m.Lasso_select_mfx_2,m.Lasso_select_mfx_3,m.Lasso_select_mfx_4,m.Lasso_select_mfx_5,m.Lasso_select_mfx_6,
+plot_seed50 <- plot_summs(m.Lasso_select_mfx_1, m.Lasso_select_mfx_2,m.Lasso_select_mfx_3,m.Lasso_select_mfx_4,m.Lasso_select_mfx_5,m.Lasso_select_mfx_6,
            scale = TRUE, robust = TRUE, colors = c("YlOrRd"),
            coefs = c("knowing other farmers (info)"="info_b1",
                     # "Info_IV =knowing other farmers"="info_iv",
@@ -359,7 +359,7 @@ plot_seed200 <- plot_summs(m.Lasso_select_mfx_1, m.Lasso_select_mfx_2,m.Lasso_se
 
 
 
-ggarrange(plot_seed10, plot_seed35, plot_seed50, plot_seed100,plot_seed200, ncol = 1, legend = FALSE,
+ggarrange(plot_seed10, plot_seed35, plot_seed50, plot_seed50,plot_seed50, ncol = 1, legend = FALSE,
           labels = c("seed 20", "seed 35", "seed 50", "seed 100", "seed 200"), font.label = list(size=10, face = "bold") )+ theme(legend.position="bottom")
 
 
