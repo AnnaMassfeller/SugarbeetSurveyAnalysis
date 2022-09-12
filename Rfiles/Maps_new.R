@@ -214,13 +214,13 @@ ggsave(OrgArea_plot,file="Output/map_shareorgarea_fabrics.tiff",dpi = 300,unit="
 ShareAdopters_plot<-ggplot(data = spdf_formaps) +
   #add filling of landkreise accoridng to variable of choice
   geom_sf(aes(fill = ShareAdopters ))+#,size = 0.01, alpha = 1)+
-  scale_fill_distiller("Share of adopters",palette = "Greens", direction = 1)+
+  scale_fill_distiller("Share of adopters",palette = "Greens", direction = 1,na.value="white")+
   #now add SB fabrics and farms that participated in the survey
   # farms
-  # geom_point(data = df.Coordinates,
-  #            aes(x = Long_Centroid, y = Lat_Centroid,colour = factor(q1_adopt)),
-  #           alpha=4,size = 2)+
-  #scale_color_manual("Mechanical weeding",values = c("0" = "orange", "1" = "darkgreen"),labels = c("No", "Yes"))+
+   geom_point(data = df.Coordinates,
+              aes(x = Long_Centroid, y = Lat_Centroid,colour = factor(q1_adopt)),
+             alpha=4,size = 2)+
+  scale_color_manual("Mechanical weeding",values = c("0" = "orange", "1" = "darkblue"),labels = c("No", "Yes"))+
   #general make up of map
   theme_bw()+
   labs(x = "", y = "") +
@@ -231,12 +231,12 @@ ShareAdopters_plot<-ggplot(data = spdf_formaps) +
         panel.grid.minor = element_blank(), axis.line = element_line(colour = "white"))+
   coord_sf()+
   #sb fabrics
-  geom_point(data = df.SB_fabriken,
-             aes(x = Long, y = Lat),
-             alpha=1,shape = 23,size = 2, fill = "darkred")+
-  geom_label_repel(data=df.SB_fabriken, aes(Long, Lat, label=Fabrikstandort), size = 4,
-                   min.segment.length = 0,box.padding = 0.5)#+
-#theme(legend.position="none")
+  #geom_point(data = df.SB_fabriken,
+   #          aes(x = Long, y = Lat),
+    #         alpha=1,shape = 23,size = 3, fill = "darkred")+
+  #geom_label_repel(data=df.SB_fabriken, aes(Long, Lat, label=Fabrikstandort), size = 5,
+   #                min.segment.length = 0,box.padding = 0.5)+
+theme(legend.position="none")
 ggsave(ShareAdopters_plot,file="Output/map_shareadopters_fabrics.tiff",dpi = 300,unit="cm",height=35,width=50)
 
 #farm density
@@ -464,12 +464,12 @@ SB_plot<-ggplot(data = spdf_formaps) +
         panel.grid.minor = element_blank(), axis.line = element_line(colour = "white"))+
   coord_sf()+
   #sb fabrics
-  geom_point(data = df.SB_fabriken,
-             aes(x = Long, y = Lat),
-             alpha=1,shape = 23,size = 2, fill = "darkred")+
-  geom_label_repel(data=df.SB_fabriken, aes(Long, Lat, label=Fabrikstandort), size = 4,
-                   min.segment.length = 0,box.padding = 0.5)#+
-#theme(legend.position="none")
+#  geom_point(data = df.SB_fabriken,
+ #            aes(x = Long, y = Lat),
+  #           alpha=1,shape = 23,size = 2, fill = "darkred")+
+  #geom_label_repel(data=df.SB_fabriken, aes(Long, Lat, label=Fabrikstandort), size = 4,
+   #                min.segment.length = 0,box.padding = 0.5)#+
+theme(legend.position="none")
 ggsave(SB_plot,file="Output/map_SB_fabrics.tiff",dpi = 300,unit="cm",height=35,width=50)
 
 

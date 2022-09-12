@@ -792,7 +792,56 @@ chisq.test(table(SampleObserver$selection_distance, SampleObserver$NrFields))
 chisq.test(table(SampleObserver$q1_adopt, SampleObserver$NrFields))
 
 
+OwnFieldsSample$Mean_ownfield_dist <- as.numeric(OwnFieldsSample$Mean_ownfield_dist)
+OwnFieldsSample$q1_adopt <- as.factor(OwnFieldsSample$q1_adopt)
+#check for role of distance between own fields
+summary(m.Observers_Ownfielddist<- glm(q1_adopt ~  info_b +
+                                      # fields_b +
+                                      #  meanDist+
+                                      # sq.meanDist+
+                                     # fields_dist+ #0 if no fields observed, otherwise km to fields observed 
+                                      #sq.fields_dist+
+                                       Mean_ownfield_dist+
+                                      I(Mean_ownfield_dist^2)+
+                                      minDist_demo + 
+                                      sq.demodist+
+                                      age_b + 
+                                      farmsize_b + 
+                                      AES_b +
+                                      # advisory +
+                                      Fabrikstandort_agg 
+                                    ,data = OwnFieldsSample, family = binomial("probit")))
 
+
+#p.2<-effect_plot(m.dist, pred = sq.minDist_demo,interval = TRUE)#,outcome.scale = "link")
+p.own_fields1<-effect_plot(m.Observers_Ownfielddist, pred = Mean_ownfield_dist, y.label = "probability",
+                 x.label = "mean distance to own fields (km)")+#, interval = TRUE)+#outcome.scale = "link")+
+  theme_bw()+
+ # xlim(0,5)+
+ scale_x_continuous(limits = c(0, 5))+
+  #scale_y_continuous(limits = c(0, 0.4))+
+  theme(#panel.border = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+#p.4<-effect_plot(m.dist, pred = sq.meanDist,interval = TRUE)#,outcome.scale = "link")
+
+
+#add density plot above
+p.own_fields2<-ggplot(OwnFieldsSample,aes(Mean_ownfield_dist)) +            
+  geom_density()+
+  theme_bw()+
+  scale_x_continuous(limits = c(0, 5))+
+  theme_bw()+
+  theme(panel.border = element_blank(), 
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "white"),
+        axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())+
+  labs(x = "", y = "")
+ 
+
+p.effect_ownFields<-ggarrange(p.own_fields2, p.own_fields1, ncol =1, nrow = 2, heights = c(1,2))
 
 #check "new" regional variables
 
@@ -944,6 +993,16 @@ models_Intention <- plot_summs(m.Intention1_mfx,m.Intention2_mfx,m.Intention3_mf
 
 
 models_Intention +theme(legend.position="bottom")
+
+
+#test effect of distance between own fields on info and field
+
+t.test(InfoIV$Mean_ownfield_dist, NonInfoIV$Mean_ownfield_dist)
+t.test(FieldsIV$Mean_ownfield_dist, NonFieldsIV$Mean_ownfield_dist)
+t.test(AdoptersIV$Mean_ownfield_dist, NonAdoptersIV$Mean_ownfield_dist)
+
+
+
 
 
 

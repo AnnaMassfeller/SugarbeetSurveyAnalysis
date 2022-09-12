@@ -40,3 +40,4 @@ df.Kreise_lasso<-read_xlsx("Processed/df.Kreise_lasso.xlsx")
 DemoOrganic_coord<-read_xlsx("Processed/DemoOrganic_coord.xlsx")
 SampleIV<-read_xlsx("Processed/SampleIV.xlsx")
 
+SampleIV$q1_adopt <- as.factor(SampleIV$q1_adopt)

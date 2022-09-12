@@ -905,12 +905,18 @@ ggplot(df.Kreise_Lasso_long, aes(x = variable, y = value)) +
 
 #check distance between own fields
 #subsampel of those who selected own fields via map 
-OwnFieldsSample<-SampleIV[SampleIV$Mean_ownfield_dist !=0,]
+OwnFieldsSample<-SampleIV[!is.na(SampleIV$Mean_ownfield_dist),]
 
-ggplot(OwnFieldsSample,aes(Mean_ownfield_dist, fill = "age_b")) +            
+ggplot(OwnFieldsSample,aes(Mean_ownfield_dist, fill = fields_b)) +            
   geom_density(alpha = 0.5, position = "identity")+
-  scale_x_continuous(limits = c(0, 100))
+  scale_x_continuous(limits = c(0, 10))
 
+mean(SampleIV$Mean_ownfield_dist, na.rm = TRUE)
+mean(SampleIV$fields_dist, na.rm = TRUE)
+
+
+table(is.na(SampleIV$Mean_ownfield_dist))
+table(is.na(SampleIV$fields_dist))
 
 
 
