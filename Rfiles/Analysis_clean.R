@@ -308,7 +308,8 @@ p.mFull_mfx_compareIV <- plot_summs(m.Full.comp_mfx3,m.Full.IV_mfx,scale = TRUE,
                               #   "older than 45 years"="age_b1",
                                #  "farm size > 50 ha"="farmsize_b1",
                                 # "AES participation"="AES_b1",
-                        model.names = c("Probit model", "Probit model with 3SLS-IV"))
+                      colors = c("#FB9A99", "#E31A1C"),
+                        model.names = c("Pre-registration model", "3SLS-IV Model"))
                          #,colors = c("grey60", "grey36"))
 
 p.mFull_mfx_compareIV +theme(legend.position="bottom")
@@ -449,7 +450,7 @@ p.mFull2_mfx <- plot_summs(m.Full2_mfx,
 
 
 
-models_cat <-plot_summs(m.Full2_mfx,m.Allin2_mfx, m.Full_mfx, 
+models_cat <-plot_summs(m.Allin2_mfx,m.Full2_mfx, m.Full_mfx, 
            coefs = c("1-5 adopters known"="q3_info1",
                      "6-10 adopters known"="q3_info2",
                      "more than 10 adopters known"="q3_info3",
@@ -465,6 +466,7 @@ models_cat <-plot_summs(m.Full2_mfx,m.Allin2_mfx, m.Full_mfx,
                      "more than 15 fields observed"="NrFields4",
                      "knowing other farmers"="info_b1",
                      "observing fields" = "fields_b1"),
+           colors = c("Paired"),
                    #  "minimal distance to demo farm" = "minDist_demo",
                     # "distance to fields observed"="fields_dist",
                     # "squared distance to fields observed"="sq.fields_dist",
@@ -476,7 +478,7 @@ models_cat <-plot_summs(m.Full2_mfx,m.Allin2_mfx, m.Full_mfx,
                     # "older than 45 years"="age_b1",
                     # "farm size > 50 ha"="farmsize_b1",
                     # "AES participation"="AES_b1"),
-         model.names = c("Model3_NrAdopters","Model4_FieldDistance", "Model5_NrFields"),
+         model.names = c("NrInfo","NrFields","FieldDistance"),
            scale = TRUE, robust = TRUE)#, colors = c("grey60", "grey36", "grey76"))
 
 models_cat +theme(legend.position="bottom")
@@ -802,7 +804,7 @@ summary(m.Observers_Ownfielddist<- glm(q1_adopt ~  info_b +
                                      # fields_dist+ #0 if no fields observed, otherwise km to fields observed 
                                       #sq.fields_dist+
                                        Mean_ownfield_dist+
-                                      I(Mean_ownfield_dist^2)+
+                                   #   I(Mean_ownfield_dist^2)+
                                       minDist_demo + 
                                       sq.demodist+
                                       age_b + 
@@ -818,7 +820,7 @@ p.own_fields1<-effect_plot(m.Observers_Ownfielddist, pred = Mean_ownfield_dist, 
                  x.label = "mean distance to own fields (km)")+#, interval = TRUE)+#outcome.scale = "link")+
   theme_bw()+
  # xlim(0,5)+
- scale_x_continuous(limits = c(0, 5))+
+# scale_x_continuous(limits = c(0, 5))+
   #scale_y_continuous(limits = c(0, 0.4))+
   theme(#panel.border = element_blank(),
     panel.grid.major = element_blank(),
@@ -830,7 +832,7 @@ p.own_fields1<-effect_plot(m.Observers_Ownfielddist, pred = Mean_ownfield_dist, 
 p.own_fields2<-ggplot(OwnFieldsSample,aes(Mean_ownfield_dist)) +            
   geom_density()+
   theme_bw()+
-  scale_x_continuous(limits = c(0, 5))+
+ # scale_x_continuous(limits = c(0, 5))+
   theme_bw()+
   theme(panel.border = element_blank(), 
         panel.grid.major = element_blank(),
@@ -968,12 +970,13 @@ orderedprobit3<-polr(q6_col3 ~ info_b + fields_b+
 
 m.Intention3_mfx <-probitmfx(orderedprobit3, data = SampleIV, robust = TRUE)
 
-models_Intention <- plot_summs(m.Intention1_mfx,m.Intention2_mfx,m.Intention3_mfx,
+models_Intention <- plot_summs(m.Full.comp_mfx3, m.Intention1_mfx,m.Intention2_mfx,m.Intention3_mfx,
            coefs = c("knowing other farmers (info)"="info_b1",
                      "Info_IV =knowing other farmers"="info_iv",
                      "observing fields (field)"="fields_b1",
                      "Field_IV = observing fields"="fields_iv",
                      "distance to fields observed"="fields_dist"),
+           colors = c("#FB9A99", "dodgerblue", "royalblue2", "royalblue4"),
                    #  "squared distance to fields observed"="sq.fields_dist",
                   #   "minimal distance to demo farm" = "minDist_demo",
                   #   "squared minimal distance to demo farm" = "sq.demodist",
@@ -987,12 +990,13 @@ models_Intention <- plot_summs(m.Intention1_mfx,m.Intention2_mfx,m.Intention3_mf
                   #   "mean farm size (ha)/ county" = "meanFarmSize2",
                   #   "sand content/ county"="sand_content",
                   #   "elevation (m)"="elev_mean"),
-           model.names = c("traditional weeding techniques","modern weeding techniques", "autonomous weeding"),
+           model.names = c("pre-registration model","Intention traditional weeding ","Intention modern weeding ", "Intention autonomous weeding"),
            scale = TRUE, robust = TRUE
            )
 
 
-models_Intention +theme(legend.position="bottom")
+models_Intention +theme(legend.position="bottom")+
+  guides(color = guide_legend(nrow = 2, byrow = TRUE))
 
 
 #test effect of distance between own fields on info and field

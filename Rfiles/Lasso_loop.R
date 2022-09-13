@@ -6,10 +6,10 @@ library(expss)
 library(qpcR)
 
 #read processed data
-SampleIV<-read_xlsx("Processed/SampleIV.xlsx")
+#SampleIV<-read_xlsx("Processed/SampleIV.xlsx")
 
 # Set random number seed
-set.seed(50)
+set.seed(2000)
 ## Clear workspace 
 #rm(list = ls())
 
@@ -128,7 +128,7 @@ dfExog3 <- df[ , !names(df) %in% c("fields_b")]
 #(excluding info and field)
 
 #set nfolds
-nfolds <- c(10,30,40,50,60,90)
+nfolds <- c(10,20,30,40,50,60,70,80,90,100) #in10er schritten bis 100
 
 
 # Run cross validation
@@ -295,13 +295,17 @@ df.vars_adoption<-full_join(df.vars_adoption, lst.vars_adoption[[3]], by = "Vari
 df.vars_adoption<-full_join(df.vars_adoption, lst.vars_adoption[[4]], by = "Variable")
 df.vars_adoption<-full_join(df.vars_adoption, lst.vars_adoption[[5]], by = "Variable")
 df.vars_adoption<-full_join(df.vars_adoption, lst.vars_adoption[[6]], by = "Variable")
+df.vars_adoption<-full_join(df.vars_adoption, lst.vars_adoption[[7]], by = "Variable")
+df.vars_adoption<-full_join(df.vars_adoption, lst.vars_adoption[[8]], by = "Variable")
+df.vars_adoption<-full_join(df.vars_adoption, lst.vars_adoption[[9]], by = "Variable")
+df.vars_adoption<-full_join(df.vars_adoption, lst.vars_adoption[[10]], by = "Variable")
 rownames(df.vars_adoption) <- df.vars_adoption$Variable #make first col row names
 df.vars_adoption<-df.vars_adoption[,-c(1)] #remove first col
 df.vars_adoption$sum <- rowSums(df.vars_adoption, na.rm = TRUE) #caulcuate sum of occurences
 df.vars_adoption$Variables <- rownames(df.vars_adoption)
-df.vars_adoption<-df.vars_adoption[,-c(1:6)]  #remove cols we don't need anymore
+df.vars_adoption<-df.vars_adoption[,-c(1:10)]  #remove cols we don't need anymore
 df.vars_adoption <- df.vars_adoption[ , c("Variables", "sum")]#swap col order
-write_xlsx(df.vars_adoption,"Output/df.vars_adoption_seed50.xlsx")
+write_xlsx(df.vars_adoption,"Output/df.vars_adoption_seed2000.xlsx")
 
 
 #do the same for the vars selected in step 2(info)
@@ -319,13 +323,17 @@ df.vars_info<-full_join(df.vars_info, lst.vars_info[[3]], by = "Variable")
 df.vars_info<-full_join(df.vars_info, lst.vars_info[[4]], by = "Variable")
 df.vars_info<-full_join(df.vars_info, lst.vars_info[[5]], by = "Variable")
 df.vars_info<-full_join(df.vars_info, lst.vars_info[[6]], by = "Variable")
+df.vars_info<-full_join(df.vars_info, lst.vars_info[[7]], by = "Variable")
+df.vars_info<-full_join(df.vars_info, lst.vars_info[[8]], by = "Variable")
+df.vars_info<-full_join(df.vars_info, lst.vars_info[[9]], by = "Variable")
+df.vars_info<-full_join(df.vars_info, lst.vars_info[[10]], by = "Variable")
 rownames(df.vars_info) <- df.vars_info$Variable #make first col row names
 df.vars_info<-df.vars_info[,-c(1)] #remove first col
 df.vars_info$sum <- rowSums(df.vars_info, na.rm = TRUE) #caulcuate sum of occurences
 df.vars_info$Variables <- rownames(df.vars_info)
-df.vars_info<-df.vars_info[,-c(1:6)]  #remove cols we don't need anymore
+df.vars_info<-df.vars_info[,-c(1:10)]  #remove cols we don't need anymore
 df.vars_info <- df.vars_info[ , c("Variables", "sum")]#swap col order
-write_xlsx(df.vars_info,"Output/df.vars_info_seed50.xlsx")
+write_xlsx(df.vars_info,"Output/df.vars_info_seed2000.xlsx")
 
 
 #now we also want the mean marginal effect for info and field over all specifications
@@ -344,23 +352,34 @@ df.marg_effects<-full_join(df.marg_effects, lst.marg_effects[[3]], by = "Variabl
 df.marg_effects<-full_join(df.marg_effects, lst.marg_effects[[4]], by = "Variable")
 df.marg_effects<-full_join(df.marg_effects, lst.marg_effects[[5]], by = "Variable")
 df.marg_effects<-full_join(df.marg_effects, lst.marg_effects[[6]], by = "Variable")
-df.marg_effects$mean_marg_effect <- rowMeans(df.marg_effects[,2:7], na.rm = TRUE)
+df.marg_effects<-full_join(df.marg_effects, lst.marg_effects[[7]], by = "Variable")
+df.marg_effects<-full_join(df.marg_effects, lst.marg_effects[[8]], by = "Variable")
+df.marg_effects<-full_join(df.marg_effects, lst.marg_effects[[9]], by = "Variable")
+df.marg_effects<-full_join(df.marg_effects, lst.marg_effects[[10]], by = "Variable")
+df.marg_effects$mean_marg_effect <- rowMeans(df.marg_effects[,2:11], na.rm = TRUE)
 #df.marg_effects<-df.marg_effects[,-c(2:7)]
-write_xlsx(df.marg_effects,"Output/df.marg_effects_seed50.xlsx")
+write_xlsx(df.marg_effects,"Output/df.marg_effects_seed2000.xlsx")
 
 
 
-plot_seed50 <- plot_summs(m.Lasso_select_mfx_1, m.Lasso_select_mfx_2,m.Lasso_select_mfx_3,m.Lasso_select_mfx_4,m.Lasso_select_mfx_5,m.Lasso_select_mfx_6,
-           scale = TRUE, robust = TRUE, colors = c("YlOrRd"),
+#######################
+
+plot_seed2000 <- plot_summs(m.Lasso_select_mfx_1, m.Lasso_select_mfx_2,m.Lasso_select_mfx_3,m.Lasso_select_mfx_4,m.Lasso_select_mfx_5,m.Lasso_select_mfx_6,
+                          m.Lasso_select_mfx_7,
+                          m.Lasso_select_mfx_8,
+                          m.Lasso_select_mfx_9,
+                          m.Lasso_select_mfx_10,
+           scale = TRUE, robust = TRUE, colors = c("#33A02C","#33A02C","#33A02C","#33A02C","#33A02C","#33A02C","#33A02C","#33A02C","#33A02C","#33A02C"),
            coefs = c("knowing other farmers (info)"="info_b1",
                     # "Info_IV =knowing other farmers"="info_iv",
                      "observing fields (fields)"="fields_b1",
                      "Field_IV = observing fields"="fields_iv")) + theme(legend.position="bottom")
 
+#"#A6CEE3" "#1F78B4" "#B2DF8A" "#33A02C" "#FB9A99" "#E31A1C" "#FDBF6F" "#FF7F00"
 
-
-ggarrange(plot_seed10, plot_seed35, plot_seed50, plot_seed50,plot_seed50, ncol = 1, legend = FALSE,
-          labels = c("seed 20", "seed 35", "seed 50", "seed 100", "seed 200"), font.label = list(size=10, face = "bold") )+ theme(legend.position="bottom")
+ggarrange(plot_seed10, plot_seed50, plot_seed100, plot_seed2000, ncol = 1, legend = FALSE,
+         # labels = c("seed 20", "seed 35", "seed 50", "seed 100", "seed 200"),
+          font.label = list(size=10, face = "bold") )+ theme(legend.position="bottom")
 
 
 

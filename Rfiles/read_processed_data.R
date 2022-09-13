@@ -1,7 +1,7 @@
 ##################################
 ###file to read in processed data#
 ##################################
-
+library(readxl)
 #########################
 ####from zensus_api######
 #########################
@@ -41,3 +41,19 @@ DemoOrganic_coord<-read_xlsx("Processed/DemoOrganic_coord.xlsx")
 SampleIV<-read_xlsx("Processed/SampleIV.xlsx")
 
 SampleIV$q1_adopt <- as.factor(SampleIV$q1_adopt)
+SampleIV$info_b <- as.factor(SampleIV$info_b)
+SampleIV$fields_b <- as.factor(SampleIV$fields_b)
+SampleIV$age_b <- as.factor(SampleIV$age_b)
+SampleIV$AES_b <- as.factor(SampleIV$AES_b)
+SampleIV$farm_organic <- as.factor(SampleIV$farm_organic)
+SampleIV$mainly_crop <- as.factor(SampleIV$mainly_crop)
+SampleIV$Fabrikstandort_agg <- as.factor(SampleIV$Fabrikstandort_agg)
+SampleIV$Verband_agg <- as.factor(SampleIV$Verband_agg )
+SampleIV$q6_col1 <- as.factor(SampleIV$q6_col1)
+SampleIV$q6_col2 <- as.factor(SampleIV$q6_col2)
+SampleIV$q6_col3 <- as.factor(SampleIV$q6_col3)
+
+
+
+
+

@@ -217,10 +217,10 @@ ShareAdopters_plot<-ggplot(data = spdf_formaps) +
   scale_fill_distiller("Share of adopters",palette = "Greens", direction = 1,na.value="white")+
   #now add SB fabrics and farms that participated in the survey
   # farms
-   geom_point(data = df.Coordinates,
-              aes(x = Long_Centroid, y = Lat_Centroid,colour = factor(q1_adopt)),
-             alpha=4,size = 2)+
-  scale_color_manual("Mechanical weeding",values = c("0" = "orange", "1" = "darkblue"),labels = c("No", "Yes"))+
+ #  geom_point(data = df.Coordinates,
+  #            aes(x = Long_Centroid, y = Lat_Centroid,colour = factor(q1_adopt)),
+   #          alpha=4,size = 2)+
+  #scale_color_manual("Mechanical weeding",values = c("0" = "orange", "1" = "darkblue"),labels = c("No", "Yes"))+
   #general make up of map
   theme_bw()+
   labs(x = "", y = "") +
@@ -237,7 +237,7 @@ ShareAdopters_plot<-ggplot(data = spdf_formaps) +
   #geom_label_repel(data=df.SB_fabriken, aes(Long, Lat, label=Fabrikstandort), size = 5,
    #                min.segment.length = 0,box.padding = 0.5)+
 theme(legend.position="none")
-ggsave(ShareAdopters_plot,file="Output/map_shareadopters_fabrics.tiff",dpi = 300,unit="cm",height=35,width=50)
+ggsave(ShareAdopters_plot,file="Output/map_shareadopters_fabrics_formagazines.tiff",dpi = 300,unit="cm",height=35,width=50)
 
 #farm density
 FarmDensity_plot<-ggplot(data = spdf_formaps) +

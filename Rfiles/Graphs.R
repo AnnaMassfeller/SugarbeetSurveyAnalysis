@@ -7,6 +7,7 @@ library(leafem)
 library(webshot)
 library(htmlwidgets)
 library(reshape2) 
+library(ggtext)
 #file to create Graphs
 #source("C:/Users/Massfeller/sciebo/PhD/Paper/Paper2_socioSpat/SurveyAnalysis/Rfiles/DataPreProcessing.R")
 
@@ -211,7 +212,7 @@ freq.ReasonsNo["Reason"][freq.ReasonsNo["Reason"] == "10"] <-"Ich möchte noch w
 freq.ReasonsNo["Reason"][freq.ReasonsNo["Reason"] == "11"] <-"Es gibt für mich keinen Grund für eine Umstellung des Anbaus"#"no reason for me to change cultivation"
 #freq.ReasonNo$Reason <-arrange(desc(sum))
 g.ReasonsNo <- ggplot(freq.ReasonsNo,aes(x=reorder(factor(Reason),-sum),y=sum))+
-  geom_col(fill='#08306B')+ #brewer.pal(9,"Blues") find one colour form the "blues" scheme#blue. #08306B
+  geom_col(fill='#F46D43')+ #brewer.pal(9,"Spectral") find one colour form the "blues" scheme#blue. #08306B #08306B
   labs(x = "", y = "Anzahl")+#, title = "Reasons for Non-adoption")+
   theme_bw()+
   theme(axis.text.x = element_text(angle = 45, hjust = 1),legend.position = "bottom",
@@ -256,7 +257,7 @@ g.Intentions<-ggplot(freq.intentions_long,aes(x= factor(Intention, level = c("ke
 gering = Ich plane mich zu informieren und aktuelle Diskussionen und die Fachliteratur zu dem Thema zu verfolgen
 mittel = Ich plane aktiv innerhalb der nächsten 5 Jahren Angebote einzuholen und Beratungsmöglichkeiten anzunehmen
 hoch = Ich plane diese Technik innerhalb der nächsten 5 Jahren einzusetzen (Eigene Anschaffung, Lohnunternehmer, ...)")+#, title = "Intention to use different types of mechancial weeding in the future")+
-  scale_fill_brewer(name = "Technik zur mechanischen Unkrautbekämpfung", labels = c("traditionell", "modern", "autonom"),palette = "Blues")
+  scale_fill_brewer(name = "Technik zur mechanischen Unkrautbekämpfung", labels = c("traditionell", "modern", "autonom"),palette = "Spectral")
 g.Intentions
 
 #mean distance to demonstration farm
@@ -389,40 +390,6 @@ g.DistFields_SF2<- ggplot(SampleIV)+
 ggarrange(g.NrPeers_SF2, g.NrFields_SF2, g.DistFields_SF2,nrow = 3, ncol = 1)
 
 
-
-g.NrFields_SF<- ggplot(SampleIV)+
-  geom_bar(aes(NrFields,fill = as.factor(advisory)),position= "dodge")+
- # scale_y_continuous(labels=scales::percent)+
-ylab("")+
-  theme_bw()+
-  scale_fill_manual(values = c("darkblue","darkgreen","darkred"))+
-  # xlab("number of adopters known")
-  # labs(title= "PfeifferLangen")+
-  labs(x = "number of fields observed")+ 
-  # y = "Count")+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1),
-        panel.border = element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"), legend.position = "none")+
-  scale_x_discrete(labels = c("0", "1-5","6-10","11-15","more than 15"))
-
-g.DistFields_SF<- ggplot(SampleIV)+
-  geom_bar(aes(FieldDist,fill = as.factor(advisory)),position= "dodge")+
-  #scale_y_continuous(labels=scales::percent)+
-  scale_fill_manual(values = c("darkblue","darkgreen","darkred"))+
- ylab("")+
-  theme_bw()+
-  # xlab("number of adopters known")
-  # labs(title= "PfeifferLangen")+
-  labs(x = "distance to fields observed [km]", fill = "sugar company")+ 
-  # legend("Sugar factories")+
-  # y = "Count")+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1),
-        panel.border = element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),legend.position = "none")+
-  scale_x_discrete(labels = c("0-5", "6-10","11-15","16-20","21-30","more than 30","no fields observed"))
-
-
-ggarrange(g.NrPeers_SF, g.NrFields_SF, g.DistFields_SF,nrow = 2, ncol = 2)
  
 
 #to compare adopters and non-adopters create barplot
@@ -652,7 +619,7 @@ g.ownersip_technology<- ggplot(df.technique)+
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         panel.border = element_blank(), panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))+#, legend.position = "none")+
- scale_x_discrete(labels = c("Eigene Mschine", "Teile mit Nachbarn","Maschinenring","Lohnunternehmer","Andere"))
+ scale_x_discrete(labels = c("Eigene Maschine", "Teile mit Nachbarn","Maschinenring","Lohnunternehmer","Andere"))
 
 g.technology_ownership<- ggplot(df.technique)+
   geom_bar(aes(type_tech,fill = as.factor(q2_machine)),position= "fill")+
@@ -664,7 +631,7 @@ g.technology_ownership<- ggplot(df.technique)+
         panel.grid.minor = element_blank(), axis.line = element_line(colour = "white"))+
   
   theme_bw()+
-  scale_fill_discrete(name = "Wem gehört die Maschine?", labels = c("Eigene Mschine", "Teile mit Nachbarn","Maschinenring","Lohnunternehmer","Andere"))+
+  scale_fill_discrete(name = "Wem gehört die Maschine?", labels = c("Eigene Maschine", "Teile mit Nachbarn","Maschinenring","Lohnunternehmer","Andere"))+
   xlab("Technik")
   
 
@@ -720,8 +687,9 @@ chisq.test(table(Sample_dist$selection_distance, Sample_dist$FieldDist))
 #peer effecrs and adoption
 g.NrPeers_Adopt<- ggplot(SampleIV)+
   geom_bar(aes(q1_adopt,fill = as.factor(q3_info)),position = position_fill(reverse = TRUE))+#y = (..count..)/sum(..count..)
+  coord_flip()+
   scale_y_continuous(labels=scales::percent)+
-  scale_fill_brewer(labels = c("0", "1-5","6-10","mehr als 10"),palette = "Greens")+
+  scale_fill_brewer(labels = c("0", "1-5","6-10","mehr als 10"),palette = "Spectral")+
   ylab("")+
  scale_x_discrete(name = "Nutzen Sie selbst mechanische Unkrautbekämpfung?",labels = c("Nein", "Ja"))+
   theme_bw()+
@@ -733,6 +701,7 @@ g.NrPeers_Adopt<- ggplot(SampleIV)+
   theme(panel.border = element_blank(), panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")
         , legend.position = "bottom",
+        plot.title = element_textbox_simple(),
         legend.title=element_blank())#,
        # axis.title.x=element_blank(),
       #  axis.text.x = element_blank(),
@@ -906,8 +875,9 @@ ggplot(df.Kreise_Lasso_long, aes(x = variable, y = value)) +
 #check distance between own fields
 #subsampel of those who selected own fields via map 
 OwnFieldsSample<-SampleIV[!is.na(SampleIV$Mean_ownfield_dist),]
+#OwnFieldsSample$Mean_ownfield_dist<- ifelse(OwnFieldsSample$Mean_ownfield_dist >= 5,5,OwnFieldsSample$Mean_ownfield_dist)
 
-ggplot(OwnFieldsSample,aes(Mean_ownfield_dist, fill = fields_b)) +            
+ggplot(OwnFieldsSample,aes(Mean_ownfield_dist))+#, fill = fields_b)) +            
   geom_density(alpha = 0.5, position = "identity")+
   scale_x_continuous(limits = c(0, 10))
 
@@ -917,6 +887,99 @@ mean(SampleIV$fields_dist, na.rm = TRUE)
 
 table(is.na(SampleIV$Mean_ownfield_dist))
 table(is.na(SampleIV$fields_dist))
+
+ggplot(SampleIV, aes(q6_col3, fill = q1_adopt)) +            
+  geom_bar()
+
+fisher.test(table(SampleIV$q1_adopt, SampleIV$q6_col3))
+
+
+
+####descriptive reuslts fro paper
+g.NrPeers_SF<- ggplot(SampleIV)+
+  geom_bar(aes(q3_info))+#,position = position_fill(reverse = TRUE))+#y = (..count..)/sum(..count..)
+  # scale_y_continuous(labels=scales::percent)+
+  # scale_fill_brewer(labels = c("0", "1-5","6-10","mehr al 10"),palette = "Greens")+
+  ylab("")+
+  theme_bw()+
+  # xlab("number of adopters known")
+  labs(x="number of adopters known", fill= "Wie viele LandwirtInnen kennen Sie, die mechanische Unkrautbekämpfung nutzen?")+
+  # labs(x = "Zuckerhersteller")+ 
+  # legend("Wie viele LandwirtInnen kennen Sie, die mechanische Unkrautbekämpfung nutzen?")+
+  # y = "Count")+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        panel.border = element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"), legend.position = "none")+
+  scale_x_discrete(labels = c("0", "1-5","6-10","more than 10"))
+
+g.NrFields_SF<- ggplot(SampleIV)+
+  geom_bar(aes(NrFields))+#,fill = as.factor(advisory)),position= "dodge")+
+  # scale_y_continuous(labels=scales::percent)+
+  ylab("")+
+  theme_bw()+
+  scale_fill_manual(values = c("darkblue","darkgreen","darkred"))+
+  # xlab("number of adopters known")
+  # labs(title= "PfeifferLangen")+
+  labs(x = "number of fields observed")+ 
+  # y = "Count")+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        panel.border = element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"), legend.position = "none")+
+  scale_x_discrete(labels = c("0", "1-5","6-10","11-15","more than 15"))
+
+g.DistFields_SF<- ggplot(SampleIV)+
+  geom_bar(aes(FieldDist))+#,fill = as.factor(advisory)),position= "dodge")+
+  #scale_y_continuous(labels=scales::percent)+
+  scale_fill_manual(values = c("darkblue","darkgreen","darkred"))+
+  ylab("")+
+  theme_bw()+
+  # xlab("number of adopters known")
+  # labs(title= "PfeifferLangen")+
+  labs(x = "distance to fields observed [km]", fill = "sugar company")+ 
+  # legend("Sugar factories")+
+  # y = "Count")+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        panel.border = element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),legend.position = "none")+
+  scale_x_discrete(labels = c("0-5", "6-10","11-15","16-20","21-30","more than 30","no fields obs."))
+
+#make into ctegorcial
+OwnFieldsSample$Mean_ownfield_dist_cat <- cut(OwnFieldsSample$Mean_ownfield_dist,
+                                              breaks=c(0, 1, 2, 3, 4,5, 1000),
+                                              labels=c('A', 'B', 'C', 'D','E','F'))
+
+g.ownfields_cat<- ggplot(OwnFieldsSample)+
+  geom_bar(aes(Mean_ownfield_dist_cat))+#,fill = as.factor(advisory)),position= "dodge")+
+  #scale_y_continuous(labels=scales::percent)+
+  scale_fill_manual(values = c("darkblue","darkgreen","darkred"))+
+  ylab("")+
+  theme_bw()+
+  # xlab("number of adopters known")
+  # labs(title= "PfeifferLangen")+
+  labs(x = "distance to own fields [km]", fill = "sugar company")+ 
+  # legend("Sugar factories")+
+  # y = "Count")+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        panel.border = element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),legend.position = "none")+
+  scale_x_discrete(labels = c("0-1", ">1-2",">2-3",">3-4",">4-5","more than 5"))
+
+
+p.own_fields2<-ggplot(OwnFieldsSample,aes(Mean_ownfield_dist)) +            
+  geom_histogram(bins = 10)+
+  theme_bw()+
+  xlim(limits = c(0, 5.5))+
+  labs(x = "distance to own fields [km]")+
+  # scale_x_discrete(labels = c("0-5", "6-10","11-15","16-20","21-30","more than 30","no fields observed"))
+  theme_bw()+
+  theme(axis.text.x = element_text( hjust = 1),
+        panel.border = element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),legend.position = "none")#+
+
+
+
+
+ggarrange(g.NrPeers_SF, g.NrFields_SF, g.DistFields_SF,g.ownfields_cat,nrow = 2, ncol = 2)
 
 
 
