@@ -896,7 +896,7 @@ fisher.test(table(SampleIV$q1_adopt, SampleIV$q6_col3))
 
 
 ####descriptive reuslts fro paper
-g.NrPeers_SF<- ggplot(SampleIV)+
+g.NrPeers_SF<- ggplot(FullSample)+
   geom_bar(aes(q3_info))+#,position = position_fill(reverse = TRUE))+#y = (..count..)/sum(..count..)
   # scale_y_continuous(labels=scales::percent)+
   # scale_fill_brewer(labels = c("0", "1-5","6-10","mehr al 10"),palette = "Greens")+
@@ -912,7 +912,7 @@ g.NrPeers_SF<- ggplot(SampleIV)+
         panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"), legend.position = "none")+
   scale_x_discrete(labels = c("0", "1-5","6-10","more than 10"))
 
-g.NrFields_SF<- ggplot(SampleIV)+
+g.NrFields_SF<- ggplot(FullSample)+
   geom_bar(aes(NrFields))+#,fill = as.factor(advisory)),position= "dodge")+
   # scale_y_continuous(labels=scales::percent)+
   ylab("")+
@@ -927,7 +927,7 @@ g.NrFields_SF<- ggplot(SampleIV)+
         panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"), legend.position = "none")+
   scale_x_discrete(labels = c("0", "1-5","6-10","11-15","more than 15"))
 
-g.DistFields_SF<- ggplot(SampleIV)+
+g.DistFields_SF<- ggplot(Fullsample)+
   geom_bar(aes(FieldDist))+#,fill = as.factor(advisory)),position= "dodge")+
   #scale_y_continuous(labels=scales::percent)+
   scale_fill_manual(values = c("darkblue","darkgreen","darkred"))+
