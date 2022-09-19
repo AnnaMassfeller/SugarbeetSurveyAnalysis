@@ -113,6 +113,9 @@ assign( paste("df.vars_selected_Fields", s, sep = "_") , df.vars_selected_Fields
  }
 }
 
+#save all mfx_models in a huge list
+finalfinal.lstlasso_mfx<- do.call("list",mget(ls(pattern = "^final.lstlasso_mfx_.*")))
+
 #now bind the dfs of the different runs of seeds
 df.margEffects <- cbind(df.margEffects_1, df.margEffects_2, df.margEffects_3, df.margEffects_4, df.margEffects_5)
 df.vars_selected_Adopt <- cbind(df.vars_selected_Adopt_1, df.vars_selected_Adopt_2, df.vars_selected_Adopt_3, df.vars_selected_Adopt_4, df.vars_selected_Adopt_5)
@@ -149,9 +152,13 @@ reg_Full <- glm(q1_adopt ~ .,data=dat,family = "binomial")
 reg_Full_mfx <- probitmfx(reg_Full, data = dat)
 plot_summs(reg_Full_mfx,robust = TRUE, standard = TRUE, coefs = c("fields_b1", "info_b1") )
 
+#all same seeds, different nfolds
 plot_summs(final.lstlasso_mfx_1,
-           robust = TRUE, standard = TRUE, coefs = c("fields_b1", "info_b1"),
-           colors = c("black","black","black","black","black","black","black","black","black","black","black","black","black","black","black","black","black"))+ theme(legend.position="none")
+           robust = TRUE, standard = TRUE,  coefs = c("knowing other farmers (info)"="info_b1",
+                                                      "observing fields (fields)"="fields_b1"),
+           colors = c("#B2DF8A","#B2DF8A","#B2DF8A","#B2DF8A","#B2DF8A","#B2DF8A","#B2DF8A","#B2DF8A","#B2DF8A","#B2DF8A"))+ theme(legend.position="none")
 
 
+#library("dotwhisker")
+#dwplot(final.lstlasso_mfx_1,final.lstlasso_mfx_2, vars_order = c("info_b1", "fields_b1"))+ theme(legend.position="none")
 
