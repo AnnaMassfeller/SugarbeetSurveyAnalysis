@@ -61,6 +61,7 @@ Backgrounddata/
 *.js
 *.fgb
 *.pptx
+*.tiff
 Output/
 map_sandcontent_files/
 map_Fabrikstandorte_files/
