@@ -12,15 +12,18 @@ library(qpcR)
 ##3. Adoption, Info and fields
 
 #first get data we need
-dat<-SampleIV %>% dplyr::select("q1_adopt","fields_b","info_b","minDist_demo","sq.demodist","farmsize_b","AES_b","age_b","farm_organic","mainly_crop", "meanFarmSize2","ShareOrgFarms","ShareOrgArea","populationdensity","farmDens","areaDens","ShareSmallFarms","ShareSB","ShareSmallArea","elevation_in_m_mean","sand_content_percent_mean","clay_content_percent_mean","sq.elevation_in_m_mean","sq.sand_content_percent_mean","sq.clay_content_percent_mean", "ShareArableUAA", "ShareArableInTotalArea","Verband_agg")#,"Fabrikstandort_agg")
-XVars <- c("fields_b","info_b","minDist_demo","sq.demodist","farmsize_b","AES_b","age_b","farm_organic","mainly_crop", "meanFarmSize2","ShareOrgFarms","ShareOrgArea","populationdensity","farmDens","areaDens","ShareSmallFarms","ShareSB","ShareSmallArea","elevation_in_m_mean","sand_content_percent_mean","clay_content_percent_mean","sq.elevation_in_m_mean","sq.sand_content_percent_mean","sq.clay_content_percent_mean", "ShareArableUAA", "ShareArableInTotalArea","Verband_agg")#Fabrikstandort_agg")
+dat<-SampleIV %>% dplyr::select("q1_adopt","fields_b","info_b","minDist_demo","sq.demodist","farmsize_b","AES_b","age_b","farm_organic","mainly_crop"
+                                , "meanFarmSize2","ShareOrgFarms","ShareOrgArea","populationdensity","farmDens","areaDens","ShareSmallFarms","ShareSmallArea","elevation_in_m_mean","sand_content_percent_mean","clay_content_percent_mean","sq.elevation_in_m_mean","sq.sand_content_percent_mean","sq.clay_content_percent_mean", "ShareArableUAA", "ShareArableInTotalArea","Verband_agg")#,"Fabrikstandort_agg")
+XVars <- c("fields_b","info_b","minDist_demo","sq.demodist","farmsize_b","AES_b","age_b","farm_organic","mainly_crop", "meanFarmSize2","ShareOrgFarms"
+           ,"ShareOrgArea","populationdensity","farmDens","areaDens","ShareSmallFarms","ShareSmallArea","elevation_in_m_mean","sand_content_percent_mean","clay_content_percent_mean","sq.elevation_in_m_mean","sq.sand_content_percent_mean","sq.clay_content_percent_mean", "ShareArableUAA", "ShareArableInTotalArea","Verband_agg")#Fabrikstandort_agg")
 df <-dat[XVars]
 df<-df %>% drop_na()
 dat<-dat %>% drop_na()
 dfExog <- df[ , !names(df) %in% c("info_b", "fields_b")]
 
 #create table for paper
-dat_for_paper<-SampleIV %>% dplyr::select("q1_adopt","fields_b","info_b","minDist_demo","sq.demodist","farmsize_b","AES_b","age_b","farm_organic","mainly_crop", "meanFarmSize2","ShareOrgFarms","ShareOrgArea","populationdensity","farmDens","areaDens","ShareSB","ShareSmallFarms","ShareSmallArea","elevation_in_m_mean","sand_content_percent_mean","clay_content_percent_mean","sq.elevation_in_m_mean","sq.sand_content_percent_mean","sq.clay_content_percent_mean", "ShareArableUAA", "ShareArableInTotalArea","Verband_agg","Fabrikstandort_agg")
+dat_for_paper<-SampleIV %>% dplyr::select("q1_adopt","fields_b","info_b","minDist_demo","sq.demodist","farmsize_b","AES_b","age_b","farm_organic","mainly_crop"
+                                          , "meanFarmSize2","ShareOrgFarms","ShareOrgArea","populationdensity","farmDens","areaDens","ShareSmallFarms","ShareSmallArea","elevation_in_m_mean","sand_content_percent_mean","clay_content_percent_mean","sq.elevation_in_m_mean","sq.sand_content_percent_mean","sq.clay_content_percent_mean", "ShareArableUAA", "ShareArableInTotalArea","Verband_agg","Fabrikstandort_agg")
 vtable(dat_for_paper, missing = TRUE,summ=c('mean(x)'), class = FALSE)
 #st(dat_for_paper), summ='mean(x)')
 
@@ -29,8 +32,8 @@ vtable(dat_for_paper, missing = TRUE,summ=c('mean(x)'), class = FALSE)
 #indicating via 0 or 1 if the variable was choosen
 #we need one df for Adoption, one for info and one for field
 #assuming 5 different seeds and 10 different nfolds we have 50 models = 50 columns
-XExog <- c("minDist_demo","sq.demodist","farmsize_b","AES_b","age_b","farm_organic","mainly_crop", "meanFarmSize2","ShareOrgFarms","ShareOrgArea","populationdensity","farmDens","areaDens","ShareSmallFarms","elevation_in_m_mean","sand_content_percent_mean","clay_content_percent_mean","sq.elevation_in_m_mean","sq.sand_content_percent_mean",
-                    "sq.clay_content_percent_mean", "ShareArableUAA", "ShareArableInTotalArea","Verband_agg")
+XExog <- c("minDist_demo","sq.demodist","farmsize_b","AES_b","age_b","farm_organic","mainly_crop", "meanFarmSize2","ShareOrgFarms","ShareOrgArea","populationdensity",
+           "farmDens","areaDens","ShareSmallFarms","ShareSmallArea","elevation_in_m_mean","sand_content_percent_mean","clay_content_percent_mean","sq.elevation_in_m_mean","sq.sand_content_percent_mean","sq.clay_content_percent_mean", "ShareArableUAA", "ShareArableInTotalArea","Verband_agg")
 df.vars_selected <- as.data.frame(matrix(data = NA, nrow= length(XExog), ncol = 10))
 rownames(df.vars_selected) <- XExog 
 
@@ -117,7 +120,7 @@ assign( paste("df.vars_selected_Fields", s, sep = "_") , df.vars_selected_Fields
 }
 
 #save all mfx_models in a huge list
-finalfinal.lstlasso_mfx<- do.call("list",mget(ls(pattern = "^final.lstlasso_mfx_.*")))
+#finalfinal.lstlasso_mfx<- do.call("list",mget(ls(pattern = "^final.lstlasso_mfx_.*")))
 
 #now bind the dfs of the different runs of seeds
 df.margEffects <- cbind(df.margEffects_1, df.margEffects_2, df.margEffects_3, df.margEffects_4, df.margEffects_5)
@@ -156,10 +159,14 @@ reg_Full_mfx <- probitmfx(reg_Full, data = dat)
 plot_summs(reg_Full_mfx,robust = TRUE, standard = TRUE, coefs = c("fields_b1", "info_b1") )
 
 #all same seeds, different nfolds
-plot_summs(final.lstlasso_mfx_1,
-           robust = TRUE, standard = TRUE,  coefs = c("knowing other farmers (info)"="info_b1",
+plot_summs(final.lstlasso_mfx_1,final.lstlasso_mfx_3,final.lstlasso_mfx_5,
+           robust = TRUE, standard = TRUE,point.shape = FALSE,  coefs = c("knowing other farmers (info)"="info_b1",
                                                       "observing fields (fields)"="fields_b1"),
-           colors = c("#B2DF8A","#B2DF8A","#B2DF8A","#B2DF8A","#B2DF8A","#B2DF8A","#B2DF8A","#B2DF8A","#B2DF8A","#B2DF8A"))+ theme(legend.position="none")
+          # model.names = c("10","20","30","40","50"),
+           #legend.title = "Nr. of folds",
+           colors = c(#"Paired"
+             "#B2DF8A","#B2DF8A","#B2DF8A","#B2DF8A","#B2DF8A","#B2DF8A","#B2DF8A","#B2DF8A","#B2DF8A","#B2DF8A","#B2DF8A","#B2DF8A","#B2DF8A","#B2DF8A","#B2DF8A")
+             )+ theme(legend.position="bottom")
 
 
 #library("dotwhisker")
