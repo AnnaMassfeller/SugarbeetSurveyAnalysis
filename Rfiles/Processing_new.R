@@ -738,7 +738,7 @@ df.counties$`Schlüssel-nummer` <- ifelse(df.counties$Kreis == "Göttingen","031
 FullSample <- dplyr::rename(FullSample, "CountyID" = "KREISE")
 df.counties <- dplyr::rename(df.counties, "CountyID" = "Schlüssel-nummer")
 df.counties <- df.counties %>% dplyr::select(1,4,5,6,9)
-FullSample$Kreis <- as.character(FullSample$Kreis)
+#FullSample$Kreis <- as.character(FullSample$Kreis)
 df.counties <- df.counties[-c(1,2,3),]
 df.counties <- df.counties[!is.na(df.counties$CountyID),]
 #FullSample$CountyID <- ifelse(FullSample$CountyID == "03522", "03159",df.counties$CountyID)
@@ -746,7 +746,8 @@ df.counties <- df.counties[!is.na(df.counties$CountyID),]
 
 
 #FullSample$county
-FullSample$CountyID <- ifelse(FullSample$county == "Wittenberg", 15091,FullSample$CountyID)
+FullSample[FullSample$date == "2022-06-26 08:59:31",]$CountyID <- "15091" #set manually for wittenberg
+
 FullSample <- left_join(FullSample, df.counties, by = "CountyID")
 FullSample<-FullSample[!duplicated(FullSample$date), ]
 
@@ -855,9 +856,9 @@ sf.ZR_fabriken<- st_as_sf(df.SB_fabriken, coords = c("Long", "Lat"), crs = 4326)
 
 #get overview: 
 #how many landkreise do we have?
-FullSample$Kreis<- as.factor(FullSample$Kreis)
-levels(FullSample$Kreis) # 87
-table((FullSample[!is.na(FullSample$q4_own),]$Kreis))#18 without coordinates
+#FullSample$Kreis<- as.factor(FullSample$Kreis)
+#levels(FullSample$Kreis) # 87
+#table((FullSample[!is.na(FullSample$q4_own),]$Kreis))#18 without coordinates
 
 #calculate distance from each centroid to sugar beet fabric
 
@@ -909,7 +910,7 @@ FullSample$NUTS3 <- coalesce(FullSample$NUTS3,FullSample$NUTS_ID)
 
 
 #get share of adopters per county
-table(FullSample$q1_adopt, FullSample$Kreis)
+#table(FullSample$q1_adopt, FullSample$Kreis)
 
 df.Adopters_County <- FullSample %>% dplyr::select(q1_adopt, Kreis,NUTS_ID)
 df.Adopters_County<-df.Adopters_County %>% dplyr::group_by(Kreis) %>% dplyr::mutate(count = n())
@@ -1234,4 +1235,4 @@ df.missingShareSB<-df.missingShareSB[!duplicated(df.missingShareSB$Kreis.x), ]
 #write_xlsx(df.missingShareSB,"df.missingShareSB.xlsx")
 
 #no sb area:
-SampleIV[is.na(SampleIV$clay_content_percent_mean),]$Kreis.x
+SampleIV[is.na(SampleIV$meanFarmSize2),]$county
