@@ -214,6 +214,9 @@ mapping.date_number <- df.Coord %>% dplyr::select(date, number)
 #rev_geo <- reverse_geocoding %>% dplyr::select(Long_Centroid, Lat_Centroid,county, state, postcode)
 #write_xlsx(rev_geo,"Processed/rev_geo.xlsx")
 rev_geo<-read_xlsx("Processed/rev_geo.xlsx")
+#add manually where missing
+rev_geo$postcode <-ifelse(rev_geo$county == "Wittenberg", "06925",rev_geo$postcode)
+
 
 #add info to allcoords df now
 df.Coord <- left_join(df.Coord, rev_geo, by = "Lat_Centroid")
@@ -221,8 +224,20 @@ df.Coord<- df.Coord[ -c(45)]
 names(df.Coord)[names(df.Coord) == "Long_Centroid.x"] <- "Long_Centroid"
 df.Coord<-df.Coord[!duplicated(df.Coord$date), ]
 df.Coord <- df.Coord %>% dplyr::select(date, Long_Centroid, Lat_Centroid, county, state, postcode)
+df.Coord$postcode <-ifelse(df.Coord$date == "2022-03-02 12:04:44", "38229",df.Coord$postcode) #Salzgitter
+df.Coord$postcode <-ifelse(df.Coord$date == "2022-03-09 19:24:00", "38229",df.Coord$postcode)
+df.Coord$postcode <-ifelse(df.Coord$date == "2022-03-17 20:06:56", "59069",df.Coord$postcode)#Hamm
+df.Coord$postcode <-ifelse(df.Coord$date == "2022-03-19 07:38:43", "04626",df.Coord$postcode)
+df.Coord$postcode <-ifelse(df.Coord$date == "2022-03-31 10:17:58", "37589",df.Coord$postcode)
+df.Coord$postcode <-ifelse(df.Coord$date == "2022-04-04 08:38:50", "93055",df.Coord$postcode)#kreisfreie Stadt Regensburg
+df.Coord$postcode <-ifelse(df.Coord$date == "2022-04-08 08:18:39", "97320",df.Coord$postcode)
+df.Coord$postcode <-ifelse(df.Coord$date == "2022-04-20 11:06:02", "23570",df.Coord$postcode) #kreisfreie Stadt Lübeck
 
-
+df.Coord$county <-ifelse(df.Coord$date == "2022-03-02 12:04:44", "Salzgitter",df.Coord$county)
+df.Coord$county <-ifelse(df.Coord$date == "2022-03-09 19:24:00", "Salzgitter",df.Coord$county)
+df.Coord$county <-ifelse(df.Coord$date == "2022-03-17 20:06:56", "Hamm",df.Coord$county)
+df.Coord$county <-ifelse(df.Coord$date == "2022-04-04 08:38:50", "Landkreis Regensburg",df.Coord$county)
+df.Coord$county <-ifelse(df.Coord$date == "2022-04-20 11:06:02", "Lübeck",df.Coord$county)
 
 #map postal code and counties
 
@@ -345,7 +360,9 @@ FullSample$Kreis <- lapply(FullSample$Kreis, function(x) gsub("Landkreis Nienbur
 FullSample$Kreis <- lapply(FullSample$Kreis, function(x) gsub("Städteregion Aachen", "Städteregion Aachen (einschl. Stadt Aachen)", x))
 Organic_lkr$Kreis <- lapply(Organic_lkr$Kreis, function(x) gsub("kreisfreie Stadt Salzgitter", "Salzgitter", x))
 Organic_lkr$Kreis <- lapply(Organic_lkr$Kreis, function(x) gsub("kreisfreie Stadt Lübeck, Hansestadt", "Lübeck", x))
-
+Organic_lkr$Kreis <- lapply(Organic_lkr$Kreis, function(x) gsub("Landkreis Wittenberg", "Wittenberg", x))
+FullSample$Kreis <- lapply(FullSample$Kreis, function(x) gsub("Landkreis Wittenberg", "Wittenberg", x))
+Organic_lkr$Kreis <- lapply(Organic_lkr$Kreis, function(x) gsub("Landkreis Rendsburg-Eckernförde", "Kreis Rendsburg-Eckernförde", x))
 table(FullSample$Kreis %in% Organic_lkr$Kreis)
 
 #FullSample <- dplyr::select(FullSample, - c("BTR030","FLC048"))
@@ -704,9 +721,12 @@ FullSample$ShareOrgFarms <-ifelse(FullSample$Kreis == "Wittenberg",0.32,FullSamp
 FullSample$lwBetr_Anzahl <-ifelse(FullSample$Kreis == "Wittenberg",306,FullSample$lwBetr_Anzahl)
 FullSample$UAA <-ifelse(FullSample$Kreis == "Wittenberg",69616,FullSample$UAA)
 
-
-
-
+#add manually where is missing
+FullSample$UAA_Sugarbeet <-ifelse(FullSample$KREISE == "03152",2900,FullSample$UAA_Sugarbeet)
+FullSample$UAA_Sugarbeet <-ifelse(FullSample$KREISE == "06535",96,FullSample$UAA_Sugarbeet)
+FullSample$UAA_Sugarbeet <-ifelse(FullSample$KREISE == "01003",102,FullSample$UAA_Sugarbeet)
+FullSample$UAA_Sugarbeet <-ifelse(FullSample$KREISE == "06411",41,FullSample$UAA_Sugarbeet)
+FullSample$UAA_Sugarbeet <-ifelse(FullSample$KREISE == "06532",8,FullSample$UAA_Sugarbeet)
 
 #get dichte land. betriebe
 df.counties <-read_xlsx("Backgrounddata/kreise.xlsx")
@@ -726,6 +746,7 @@ df.counties <- df.counties[!is.na(df.counties$CountyID),]
 
 
 #FullSample$county
+FullSample$CountyID <- ifelse(FullSample$county == "Wittenberg", 15091,FullSample$CountyID)
 FullSample <- left_join(FullSample, df.counties, by = "CountyID")
 FullSample<-FullSample[!duplicated(FullSample$date), ]
 
@@ -751,18 +772,14 @@ FullSample$areaDens <-as.numeric(FullSample$areaDens)
 FullSample$ShareSB<-FullSample$UAA_Sugarbeet/FullSample$UAA_arable
 FullSample$ShareSB<-as.numeric(FullSample$ShareSB)
 
-#add manually where is missing
-FullSample$UAA_Sugarbeet <-ifelse(FullSample$CountyID == "03152",2900,FullSample$UAA_Sugarbeet)
-FullSample$UAA_Sugarbeet <-ifelse(FullSample$CountyID == "06535",96,FullSample$UAA_Sugarbeet)
-FullSample$UAA_Sugarbeet <-ifelse(FullSample$CountyID == "01003",102,FullSample$UAA_Sugarbeet)
-FullSample$UAA_Sugarbeet <-ifelse(FullSample$CountyID == "06411",41,FullSample$UAA_Sugarbeet)
+
 
 #share of farms <10ha
 FullSample$ShareSmallFarms<- (FullSample$lwBetrUnter5_Anzahl + FullSample$lwBetr5b10_Anzahl) /FullSample$lwBetr_Anzahl
 FullSample$ShareSmallFarms<-as.numeric(FullSample$ShareSmallFarms)
 
 #share of area of small farm sin total UAA
-FullSample$ShareSmallArea<- (FullSample$UAA_5b10 ) /FullSample$UAA
+FullSample$ShareSmallArea<- (sum(FullSample$UAA_unter5,FullSample$UAA_5b10,na.rm = TRUE)) /FullSample$UAA
 FullSample$ShareSmallArea<-as.numeric(FullSample$ShareSmallArea)
 
 #share of arable area in UAA
@@ -1216,4 +1233,5 @@ df.missingShareSB <-df.missingShareSB[is.na(df.missingShareSB$ShareSB),]
 df.missingShareSB<-df.missingShareSB[!duplicated(df.missingShareSB$Kreis.x), ]
 #write_xlsx(df.missingShareSB,"df.missingShareSB.xlsx")
 
-
+#no sb area:
+SampleIV[is.na(SampleIV$clay_content_percent_mean),]$Kreis.x

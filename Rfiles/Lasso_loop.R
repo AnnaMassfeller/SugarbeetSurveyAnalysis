@@ -104,7 +104,7 @@ vars.identified8 <-SampleIV %>% dplyr::select("q1_adopt","fields_b","info_b","mi
 
 
 
-#vtable(dat, missing = TRUE)
+vtable(dat, missing = FALSE,summ=c('mean(x)'), class = FALSE)
 
 
 
