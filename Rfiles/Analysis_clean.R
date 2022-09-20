@@ -308,8 +308,9 @@ p.mFull_mfx_compareIV <- plot_summs(m.Full.comp_mfx3,m.Full.IV_mfx,scale = TRUE,
                               #   "older than 45 years"="age_b1",
                                #  "farm size > 50 ha"="farmsize_b1",
                                 # "AES participation"="AES_b1",
-                      colors = c("#FB9A99", "#E31A1C"),
-                        model.names = c("Pre-registration model", "3SLS-IV Model"))
+                        colors= c("Black", "Grey 50","Black", "Grey 50"),
+                    #  groups = list(pane1 = c("info_b1", "info_iv"), pane2 = c("fields_b1", "fields_iv")),
+                        model.names = c("Pre-Registration model", "3SLS-IV model"))
                          #,colors = c("grey60", "grey36"))
 
 p.mFull_mfx_compareIV +theme(legend.position="bottom")
@@ -450,7 +451,7 @@ p.mFull2_mfx <- plot_summs(m.Full2_mfx,
 
 
 
-models_cat <-plot_summs(m.Allin2_mfx,m.Full2_mfx, m.Full_mfx, 
+models_cat <-plot_summs(m.Full2_mfx,m.Allin2_mfx, m.Full_mfx, 
            coefs = c("1-5 adopters known"="q3_info1",
                      "6-10 adopters known"="q3_info2",
                      "more than 10 adopters known"="q3_info3",
@@ -466,7 +467,7 @@ models_cat <-plot_summs(m.Allin2_mfx,m.Full2_mfx, m.Full_mfx,
                      "more than 15 fields observed"="NrFields4",
                      "knowing other farmers"="info_b1",
                      "observing fields" = "fields_b1"),
-           colors = c("Paired"),
+           colors = c("Grey28", "Grey45", "Grey55"),
                    #  "minimal distance to demo farm" = "minDist_demo",
                     # "distance to fields observed"="fields_dist",
                     # "squared distance to fields observed"="sq.fields_dist",
@@ -478,7 +479,7 @@ models_cat <-plot_summs(m.Allin2_mfx,m.Full2_mfx, m.Full_mfx,
                     # "older than 45 years"="age_b1",
                     # "farm size > 50 ha"="farmsize_b1",
                     # "AES participation"="AES_b1"),
-         model.names = c("NrInfo","NrFields","FieldDistance"),
+         model.names = c("NrInfo","FieldDistance","NrFields"),
            scale = TRUE, robust = TRUE)#, colors = c("grey60", "grey36", "grey76"))
 
 models_cat +theme(legend.position="bottom")
@@ -973,10 +974,10 @@ m.Intention3_mfx <-probitmfx(orderedprobit3, data = SampleIV, robust = TRUE)
 models_Intention <- plot_summs(m.Full.comp_mfx3, m.Intention1_mfx,m.Intention2_mfx,m.Intention3_mfx,
            coefs = c("knowing other farmers (info)"="info_b1",
                      "Info_IV =knowing other farmers"="info_iv",
-                     "observing fields (field)"="fields_b1",
+                     "observing fields (fields)"="fields_b1",
                      "Field_IV = observing fields"="fields_iv",
                      "distance to fields observed"="fields_dist"),
-           colors = c("#FB9A99", "dodgerblue", "royalblue2", "royalblue4"),
+           colors = c("Black", "Grey38", "Grey48", "Grey58"),
                    #  "squared distance to fields observed"="sq.fields_dist",
                   #   "minimal distance to demo farm" = "minDist_demo",
                   #   "squared minimal distance to demo farm" = "sq.demodist",
@@ -990,7 +991,7 @@ models_Intention <- plot_summs(m.Full.comp_mfx3, m.Intention1_mfx,m.Intention2_m
                   #   "mean farm size (ha)/ county" = "meanFarmSize2",
                   #   "sand content/ county"="sand_content",
                   #   "elevation (m)"="elev_mean"),
-           model.names = c("pre-registration model","Intention traditional weeding ","Intention modern weeding ", "Intention autonomous weeding"),
+           model.names = c("Pre-Registration model","Intention traditional weeding ","Intention modern weeding ", "Intention autonomous weeding"),
            scale = TRUE, robust = TRUE
            )
 
@@ -1006,7 +1007,24 @@ t.test(FieldsIV$Mean_ownfield_dist, NonFieldsIV$Mean_ownfield_dist)
 t.test(AdoptersIV$Mean_ownfield_dist, NonAdoptersIV$Mean_ownfield_dist)
 
 
+#check effect of selection of fields
+SampleIV$selection_distance <- as.factor(SampleIV$selection_distance)
+summary(m.Full.comp3_select <- glm(q1_adopt ~  info_b +
+                              selection_distance+
+                              #  meanDist+
+                              # sq.meanDist+
+                              #fields_dist+ #0 if no fields observed, otherwise km to fields observed 
+                              #sq.fields_dist+
+                              minDist_demo + 
+                              sq.demodist+
+                              age_b + 
+                              farmsize_b + 
+                              AES_b +
+                              # advisory +
+                              Fabrikstandort_agg 
+                            ,data = SampleObserver, family = binomial("probit")))
 
 
+m.Full.comp3_select_mfx <- probitmfx(m.Full.comp3_select, data = SampleObserver)
 
 

@@ -880,28 +880,28 @@ FullSample <- left_join(FullSample, farms_coord_done, by = "date")
 
 #create data frame for Josef with all field coordinates in it
 #first own fields
-#df.coordinates_forJosef <- FullSample[!is.na(FullSample$q4_own),]#|!is.na(FullSample$q5_other),]
-#df.coordinates_forJosef<- df.coordinates_forJosef %>%  dplyr::select(date, q4_own)#, q5_other)
-#df2 <- cSplit(df.coordinates_forJosef, "q4_own", sep = ",", direction = "long")
-#df2b<-as.data.frame(matrix(df2$q4_own, ncol = 2, byrow = TRUE))
-#df2<- left_join(df2,df2b, by= c("q4_own" = "V1"))
-#df2<-df2[!is.na(df2$V2),]
-#df2 <- dplyr::rename(df2, "Long" = 2)
-#df2 <- dplyr::rename(df2, "Lat" = 3)
+df.coordinates_forJosef <- FullSample[!is.na(FullSample$q4_own),]#|!is.na(FullSample$q5_other),]
+df.coordinates_forJosef<- df.coordinates_forJosef %>%  dplyr::select(date, q4_own)#, q5_other)
+df2 <- cSplit(df.coordinates_forJosef, "q4_own", sep = ",", direction = "long")
+df2b<-as.data.frame(matrix(df2$q4_own, ncol = 2, byrow = TRUE))
+df2<- left_join(df2,df2b, by= c("q4_own" = "V1"))
+df2<-df2[!is.na(df2$V2),]
+df2 <- dplyr::rename(df2, "Long" = 2)
+df2 <- dplyr::rename(df2, "Lat" = 3)
 
 #then nei_fields fields
-#df.coordinates_forJosef <- FullSample[!is.na(FullSample$q5_other),]#|!is.na(FullSample$q5_other),]
-#df.coordinates_forJosef<- df.coordinates_forJosef %>%  dplyr::select(date, q5_other)#, q5_other)
-#df3 <- cSplit(df.coordinates_forJosef, "q5_other", sep = ",", direction = "long")
-#df3b<-as.data.frame(matrix(df3$q5_other, ncol = 2, byrow = TRUE))
-#df3<- left_join(df3,df3b, by= c("q5_other" = "V1"))
-#df3<-df3[!is.na(df3$V2),]
-#df3 <- dplyr::rename(df3, "Long" = 2)
-#df3 <- dplyr::rename(df3, "Lat" = 3)
+df.coordinates_forJosef <- FullSample[!is.na(FullSample$q5_other),]#|!is.na(FullSample$q5_other),]
+df.coordinates_forJosef<- df.coordinates_forJosef %>%  dplyr::select(date, q5_other)#, q5_other)
+df3 <- cSplit(df.coordinates_forJosef, "q5_other", sep = ",", direction = "long")
+df3b<-as.data.frame(matrix(df3$q5_other, ncol = 2, byrow = TRUE))
+df3<- left_join(df3,df3b, by= c("q5_other" = "V1"))
+df3<-df3[!is.na(df3$V2),]
+df3 <- dplyr::rename(df3, "Long" = 2)
+df3 <- dplyr::rename(df3, "Lat" = 3)
 
-#df.coordinates_forJosef_final<- rbind(df2,df3)
+df.coordinates_forJosef_final<- rbind(df2,df3)
 
-#write_xlsx(df.coordinates_forJosef_final,"df.Coordinates14.06b.xlsx")
+write_xlsx(df.coordinates_forJosef_final,"df.Coordinates14.06b.xlsx")
 #get NUTS regions right
 #table(FullSample$NUTS3 %in% FullSample$NUTS_ID)
 #table(FullSample$NUTS_ID %in% FullSample$NUTS3)

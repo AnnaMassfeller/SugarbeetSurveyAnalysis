@@ -75,13 +75,14 @@ SampleIV <- apply_labels(SampleIV,q1_adopt="Adoption mechanical weeding binary",
 
 Get explanatory variables and create subsample including dependant and independant variable
 ```{r}
-dat<-SampleIV %>% dplyr::select("q1_adopt","fields_b","info_b","minDist_demo","sq.demodist","farmsize_b","AES_b","age_b","farm_organic","mainly_crop", "meanFarmSize2","ShareOrgFarms","ShareOrgArea","populationdensity","farmDens","areaDens","ShareSmallFarms","elevation_in_m_mean","sand_content_percent_mean","clay_content_percent_mean","sq.elevation_in_m_mean","sq.sand_content_percent_mean","sq.clay_content_percent_mean", "ShareArableUAA", "ShareArableInTotalArea","Verband_agg")#,"Fabrikstandort_agg")
+dat<-SampleIV %>% dplyr::select("q1_adopt","fields_b","info_b","minDist_demo","sq.demodist","farmsize_b","AES_b","age_b","farm_organic","mainly_crop", "meanFarmSize2","ShareOrgFarms","ShareOrgArea","populationdensity","farmDens","areaDens","ShareSmallFarms","ShareSmallArea","elevation_in_m_mean","sand_content_percent_mean","clay_content_percent_mean","sq.elevation_in_m_mean","sq.sand_content_percent_mean","sq.clay_content_percent_mean", "ShareArableUAA", "ShareArableInTotalArea","Verband_agg")#,"Fabrikstandort_agg")
+
 
 #take kreislevel data away:
 #
 
 
-XVars <- c("fields_b","info_b","minDist_demo","sq.demodist","farmsize_b","AES_b","age_b","farm_organic","mainly_crop", "meanFarmSize2","ShareOrgFarms","ShareOrgArea","populationdensity","farmDens","areaDens","ShareSmallFarms","elevation_in_m_mean","sand_content_percent_mean","clay_content_percent_mean","sq.elevation_in_m_mean","sq.sand_content_percent_mean","sq.clay_content_percent_mean", "ShareArableUAA", "ShareArableInTotalArea","Verband_agg")#Fabrikstandort_agg")
+XVars <- c("fields_b","info_b","minDist_demo","sq.demodist","farmsize_b","AES_b","age_b","farm_organic","mainly_crop", "meanFarmSize2","ShareOrgFarms","ShareOrgArea","populationdensity","farmDens","areaDens","ShareSmallFarms","ShareSmallArea","elevation_in_m_mean","sand_content_percent_mean","clay_content_percent_mean","sq.elevation_in_m_mean","sq.sand_content_percent_mean","sq.clay_content_percent_mean", "ShareArableUAA", "ShareArableInTotalArea","Verband_agg")#Fabrikstandort_agg")
 
 
 df <-dat[XVars]
@@ -280,31 +281,31 @@ dfDouble <-dfDouble %>%
 
 dfDouble$q1_adopt <- as.factor(dfDouble$q1_adopt)
 
-reg_double_fabric <- glm(q1_adopt ~ .,data=dfDouble, family = "binomial")
-summary(reg_double_fabric)
-df.Lasso_selected_fabric <- reg_double_fabric[["model"]] 
-vtable(df.Lasso_selected_fabric, values = TRUE, missing = TRUE)
+reg_double_verband <- glm(q1_adopt ~ .,data=dfDouble, family = "binomial")
+summary(reg_double_verband)
+df.Lasso_selected_verband <- reg_double_verband[["model"]] 
+vtable(df.Lasso_selected_verband, values = TRUE, missing = TRUE)
 #marginal effects
-m.Lasso_select_mfx_fabric <-probitmfx(reg_double_fabric, data = dfDouble)
-m.Lasso_select_mfx_fabric
-coefs_fabric <-  m.Lasso_select_mfx_fabric[["mfxest"]]
+m.Lasso_select_mfx_verband <-probitmfx(reg_double_verband, data = dfDouble)
+m.Lasso_select_mfx_verband
+coefs_verband <-  m.Lasso_select_mfx_verband[["mfxest"]]
 ```
 Compare that to the result that we would obtained for OLS on all variables
 ```{r}
 dat$q1_adopt <- as.factor(dat$q1_adopt)
-reg_Full_fabric <- glm(q1_adopt ~ .,data=dat,family = "binomial")
-summary(reg_Full_fabric)
-m.reg_Full_fabric_mfx <-probitmfx(reg_Full_fabric, data = dat)
-m.reg_Full_fabric_mfx
+reg_Full_verband <- glm(q1_adopt ~ .,data=dat,family = "binomial")
+summary(reg_Full_verband)
+m.reg_Full_verband_mfx <-probitmfx(reg_Full_verband, data = dat)
+m.reg_Full_verband_mfx
 
-plot_summs(m.reg_Full_mfx,m.reg_Full_fabric_mfx,m.Lasso_select_mfx,m.Lasso_select_mfx_fabric,m.Full.comp_mfx3, 
+plot_summs(m.Full.comp_mfx3, m.reg_Full_verband_mfx,m.reg_Full_fabric_mfx,m.Lasso_select_mfx_verband,m.Lasso_select_mfx_fabric,
            coefs = c("knowing other farmers (info)"="info_b1",
                     "Info_IV =knowing other farmers"="info_iv",
                      "observing fields (fields)"="fields_b1",
                       "Field_IV = observing fields"="fields_iv"),
            
-           colors = c("Paired"),
-           model.names = c("Full Verband", "Full Fabrikstanddort", "Lasso Verband", "Lasso Fabrikstandort", "Preregistration"),
+           colors = c("Black","Grey38", "Grey58","Grey38", "Grey58"),
+           model.names = c("Pre-Registration model","FullModel_Association", "FullModel_Factory location", "LASSO_Association", "LASSO_ Factory location"),
            scale = TRUE, robust = TRUE) + theme(legend.position="bottom")+
   guides(color = guide_legend(nrow = 2, byrow = TRUE))
 ```
