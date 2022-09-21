@@ -804,15 +804,18 @@ df.Coordinates<-df.Coordinates[!is.na(df.Coordinates$Long_Centroid),]
 
 #get soil and altitude data from josef
 #read soil data on nuts3 ebene von josef
-df.NUTS3 <-read_csv("Backgrounddata/DE_NUTS3_geodata.csv")
-mapping_plz_NUTS<- read.csv("Backgrounddata/pc2020_DE_NUTS-2021_v3.0.csv", sep = ";")
-mapping_plz_NUTS[] <- lapply(mapping_plz_NUTS, function(x) gsub("[]'[()]", "", x))
+#df.NUTS3 <-read_csv("Backgrounddata/DE_NUTS3_geodata.csv")
+#mapping_plz_NUTS<- read.csv("Backgrounddata/pc2020_DE_NUTS-2021_v3.0.csv", sep = ";")
+#mapping_plz_NUTS[] <- lapply(mapping_plz_NUTS, function(x) gsub("[]'[()]", "", x))
 #join PLZ and NUTS3
-df.NUTS3 <- left_join(df.NUTS3, mapping_plz_NUTS, by = c("NUTS_ID"="NUTS3"))
-df.Nuts3_forAnalysis <- df.NUTS3%>% dplyr::select(NUTS_ID,elev_mean, sand_content, clay_content, PLZ)
+#df.NUTS3 <- left_join(df.NUTS3, mapping_plz_NUTS, by = c("NUTS_ID"="NUTS3"))
+#df.Nuts3_forAnalysis <- df.NUTS3%>% dplyr::select(NUTS_ID,elev_mean, sand_content, clay_content, PLZ)
+df.Nuts3_forAnalysis <- read_excel("Backgrounddata/df.NUTS3_forAnalysis_withslope.xlsx")
 df.Nuts3_forAnalysis$PLZ <- as.character(df.Nuts3_forAnalysis$PLZ)
-write_xlsx(df.Nuts3_forAnalysis,"Processed/df.NUTS3_forAnalysis.xlsx")
-FullSample<-left_join(FullSample, df.Nuts3_forAnalysis, by = c("plz"="PLZ"))
+#write_xlsx(df.Nuts3_forAnalysis,"Processed/df.NUTS3_forAnalysis.xlsx")
+
+FullSample<-left_join(FullSample, df.Nuts3_forAnalysis, by = c("NUTS3"="NUTS_ID"))
+
 
 #get soil and slope data at coordinate level
 df.SoilSlope <-read_xlsx("Backgrounddata/df_coordinates_field_JB.xlsx")
@@ -824,15 +827,18 @@ df.SoilSlope<- df.SoilSlope %>% dplyr::select(-c(Lat, Long, LatLong))
  #dplyr::group_by(date) %>%
   #dplyr::summarise_at(vars(1:4), list(mean = mean))
 
-write_xlsx(df.Soil_fieldlevel,"Processed/df.Soil_fieldlevel.xlsx")
+#write_xlsx(df.Soil_fieldlevel,"Processed/df.Soil_fieldlevel.xlsx")
 df.Soil_fieldlevel<-read_xlsx("Processed/df.Soil_fieldlevel.xlsx")
 
 
 #match soil and slope dara to Sample IV
 FullSample<- left_join(FullSample,df.Soil_fieldlevel, by = "date")
 
+#remove duplciates
+FullSample <-FullSample[!duplicated(FullSample$date), ]
+
 #for those hwre we have only PLZ as sptial data, we take soil data from NUTS3 level
-#FullSample$slope_in_degrees_mean <- coalesce(FullSample$slope_in_degrees_mean, FullSample$slope_in_degrees) #slope missing at NUTS level
+FullSample$slope_in_degrees_mean <- coalesce(FullSample$slope_in_degrees_mean, FullSample$median_slope_in_percent) #slope missing at NUTS level
 FullSample$sand_content_percent_mean <- coalesce(FullSample$sand_content_percent_mean, FullSample$sand_content)
 FullSample$clay_content_percent_mean <- coalesce(FullSample$clay_content_percent_mean, FullSample$clay_content)
 FullSample$elevation_in_m_mean <- coalesce(FullSample$elevation_in_m_mean, FullSample$elev_mean)
@@ -882,32 +888,32 @@ FullSample <- left_join(FullSample, farms_coord_done, by = "date")
 
 #create data frame for Josef with all field coordinates in it
 #first own fields
-df.coordinates_forJosef <- FullSample[!is.na(FullSample$q4_own),]#|!is.na(FullSample$q5_other),]
-df.coordinates_forJosef<- df.coordinates_forJosef %>%  dplyr::select(date, q4_own)#, q5_other)
-df2 <- cSplit(df.coordinates_forJosef, "q4_own", sep = ",", direction = "long")
-df2b<-as.data.frame(matrix(df2$q4_own, ncol = 2, byrow = TRUE))
-df2<- left_join(df2,df2b, by= c("q4_own" = "V1"))
-df2<-df2[!is.na(df2$V2),]
-df2 <- dplyr::rename(df2, "Long" = 2)
-df2 <- dplyr::rename(df2, "Lat" = 3)
+#df.coordinates_forJosef <- FullSample[!is.na(FullSample$q4_own),]#|!is.na(FullSample$q5_other),]
+#df.coordinates_forJosef<- df.coordinates_forJosef %>%  dplyr::select(date, q4_own)#, q5_other)
+#df2 <- cSplit(df.coordinates_forJosef, "q4_own", sep = ",", direction = "long")
+#df2b<-as.data.frame(matrix(df2$q4_own, ncol = 2, byrow = TRUE))
+#df2<- left_join(df2,df2b, by= c("q4_own" = "V1"))
+#df2<-df2[!is.na(df2$V2),]
+#df2 <- dplyr::rename(df2, "Long" = 2)
+#df2 <- dplyr::rename(df2, "Lat" = 3)
 
 #then nei_fields fields
-df.coordinates_forJosef <- FullSample[!is.na(FullSample$q5_other),]#|!is.na(FullSample$q5_other),]
-df.coordinates_forJosef<- df.coordinates_forJosef %>%  dplyr::select(date, q5_other)#, q5_other)
-df3 <- cSplit(df.coordinates_forJosef, "q5_other", sep = ",", direction = "long")
-df3b<-as.data.frame(matrix(df3$q5_other, ncol = 2, byrow = TRUE))
-df3<- left_join(df3,df3b, by= c("q5_other" = "V1"))
-df3<-df3[!is.na(df3$V2),]
-df3 <- dplyr::rename(df3, "Long" = 2)
-df3 <- dplyr::rename(df3, "Lat" = 3)
+#df.coordinates_forJosef <- FullSample[!is.na(FullSample$q5_other),]#|!is.na(FullSample$q5_other),]
+#df.coordinates_forJosef<- df.coordinates_forJosef %>%  dplyr::select(date, q5_other)#, q5_other)
+#df3 <- cSplit(df.coordinates_forJosef, "q5_other", sep = ",", direction = "long")
+#df3b<-as.data.frame(matrix(df3$q5_other, ncol = 2, byrow = TRUE))
+#df3<- left_join(df3,df3b, by= c("q5_other" = "V1"))
+#df3<-df3[!is.na(df3$V2),]
+#df3 <- dplyr::rename(df3, "Long" = 2)
+#df3 <- dplyr::rename(df3, "Lat" = 3)
 
-df.coordinates_forJosef_final<- rbind(df2,df3)
+#df.coordinates_forJosef_final<- rbind(df2,df3)
 
-write_xlsx(df.coordinates_forJosef_final,"df.Coordinates14.06b.xlsx")
+#write_xlsx(df.coordinates_forJosef_final,"df.Coordinates14.06b.xlsx")
 #get NUTS regions right
 #table(FullSample$NUTS3 %in% FullSample$NUTS_ID)
 #table(FullSample$NUTS_ID %in% FullSample$NUTS3)
-FullSample$NUTS3 <- coalesce(FullSample$NUTS3,FullSample$NUTS_ID)
+FullSample$NUTS_ID <- FullSample$NUTS3
 #table(is.na(FullSample$NUTS_ID))
 
 
@@ -1012,6 +1018,7 @@ df.Beratungsregionen <- left_join(df.Beratungsregionen, mapping.CountyID_NUTS, b
 FullSample$sq.sand_content_percent_mean <- FullSample$sand_content_percent_mean*FullSample$sand_content_percent_mean
 FullSample$sq.clay_content_percent_mean <- FullSample$clay_content_percent_mean*FullSample$clay_content_percent_mean
 FullSample$sq.elevation_in_m_mean <- FullSample$elevation_in_m_mean*FullSample$elevation_in_m_mean
+FullSample$sq.slope_in_degrees_mean <- FullSample$slope_in_degrees_mean*FullSample$slope_in_degrees_mean
 
 #minimize cell size of Verband and Fabrikstandort by combining regions close to each other
 FullSample$Fabrikstandort_agg <- FullSample$Fabrikstandort
@@ -1118,7 +1125,7 @@ SampleIV$Fabrikstandort_agg <- droplevels(SampleIV$Fabrikstandort_agg )
 SampleIV$Verband_agg <- droplevels(SampleIV$Verband_agg)
 
 vtable(SampleIV,missing = TRUE )
-write_xlsx(SampleIV,"Processed/SampleIV.xlsx")
+write_xlsx(SampleIV,"Processed/SampleIV_21.09.xlsx")
 SampleIV<-read_xlsx("Processed/SampleIV.xlsx")
 #create dataframe with all info we have at Kreislevel to then identify outliers
 
@@ -1237,4 +1244,4 @@ df.missingShareSB<-df.missingShareSB[!duplicated(df.missingShareSB$Kreis.x), ]
 #write_xlsx(df.missingShareSB,"df.missingShareSB.xlsx")
 
 #no sb area:
-SampleIV[is.na(SampleIV$meanFarmSize2),]$county
+SampleIV[is.na(SampleIV$elevation_in_m_mean),]$county

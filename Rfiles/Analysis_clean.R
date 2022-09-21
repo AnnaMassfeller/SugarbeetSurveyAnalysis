@@ -340,6 +340,7 @@ SampleIV<- FullSample[!is.na(FullSample$minDist_demo)&!is.na(FullSample$advisory
 
 SampleIV$advisory<- as.factor(SampleIV$advisory)
 SampleIV$advisory <- relevel(SampleIV$advisory, ref = "Nordzucker")
+SampleIV$FieldDist <- as.factor(SampleIV$FieldDist)
 SampleIV$FieldDist <- relevel(SampleIV$FieldDist, ref = "6")
 summary(m.Allin2 <- glm(q1_adopt ~  info_b #+ fields_b 
                         + FieldDist+#+ I(field_meanDist^2) 
@@ -384,8 +385,8 @@ p.Allin2_mfx
 
 #number of afields observed as cat.
 summary(m.Full <- glm(q1_adopt ~  NrFields +info_b+
-                      fields_dist+
-                        sq.fields_dist+
+                     # fields_dist+
+                      #  sq.fields_dist+
                         minDist_demo + 
                         sq.demodist+
                         age_b + 
@@ -418,8 +419,8 @@ p.mFull_mfx <- plot_summs(m.Full_mfx,
 
 #now enter nr, of adopters known as category
 summary(m.Full2 <- glm(q1_adopt ~   q3_info + fields_b+
-                       fields_dist+
-                         sq.fields_dist+
+                     #  fields_dist+
+                      #   sq.fields_dist+
                          minDist_demo + 
                          sq.demodist+
                          age_b + 
