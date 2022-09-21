@@ -13,19 +13,29 @@ library(MuMIn)
 ##3. Adoption, Info and fields
 
 #first get data we need
-dat<-SampleIV %>% dplyr::select("q1_adopt","fields_b","info_b","minDist_demo","sq.demodist","farmsize_b","AES_b","age_b","farm_organic","mainly_crop"
-                                , "meanFarmSize2","ShareOrgFarms","ShareOrgArea","populationdensity","farmDens","areaDens","ShareSmallFarms","ShareSmallArea","elevation_in_m_mean","sand_content_percent_mean","clay_content_percent_mean","sq.elevation_in_m_mean","sq.sand_content_percent_mean","sq.clay_content_percent_mean", "ShareArableUAA", "ShareArableInTotalArea","Fabrikstandort_agg")#,"Fabrikstandort_agg")
+dat<-SampleIV %>% dplyr::select("q1_adopt","fields_b","info_b","minDist_demo","sq.demodist","farmsize_b","AES_b","age_b","farm_organic","mainly_crop", 
+                                "meanFarmSize2","ShareOrgFarms","ShareOrgArea","populationdensity","farmDens","areaDens","ShareSmallFarms"
+                                ,"ShareSmallArea","elevation_in_m_mean","sand_content_percent_mean","clay_content_percent_mean",
+                                "slope_in_degrees_mean","sq.elevation_in_m_mean","sq.sand_content_percent_mean","sq.clay_content_percent_mean",
+                                "sq.slope_in_degrees_mean", "ShareArableUAA","ShareArableInTotalArea","Fabrikstandort_agg")
+
 XVars <- c("fields_b","info_b","minDist_demo","sq.demodist","farmsize_b","AES_b","age_b","farm_organic","mainly_crop", "meanFarmSize2","ShareOrgFarms"
-           ,"ShareOrgArea","populationdensity","farmDens","areaDens","ShareSmallFarms","ShareSmallArea","elevation_in_m_mean","sand_content_percent_mean","clay_content_percent_mean","sq.elevation_in_m_mean","sq.sand_content_percent_mean","sq.clay_content_percent_mean", "ShareArableUAA", "ShareArableInTotalArea","Fabrikstandort_agg")#Fabrikstandort_agg")
+           ,"ShareOrgArea","populationdensity","farmDens","areaDens","ShareSmallFarms","ShareSmallArea","elevation_in_m_mean","sand_content_percent_mean",
+           "clay_content_percent_mean","slope_in_degrees_mean","sq.elevation_in_m_mean","sq.sand_content_percent_mean","sq.clay_content_percent_mean",
+           "sq.slope_in_degrees_mean", "ShareArableUAA", "ShareArableInTotalArea","Fabrikstandort_agg")
 df <-dat[XVars]
 df<-df %>% drop_na()
 dat<-dat %>% drop_na()
 dfExog <- df[ , !names(df) %in% c("info_b", "fields_b")]
 
 #create table for paper
-dat_for_paper<-SampleIV %>% dplyr::select("q1_adopt","fields_b","info_b","minDist_demo","sq.demodist","farmsize_b","AES_b","age_b","farm_organic","mainly_crop"
-                                          , "meanFarmSize2","ShareOrgFarms","ShareOrgArea","populationdensity","farmDens","areaDens","ShareSmallFarms","ShareSmallArea","elevation_in_m_mean","sand_content_percent_mean","clay_content_percent_mean","sq.elevation_in_m_mean","sq.sand_content_percent_mean","sq.clay_content_percent_mean", "ShareArableUAA", "ShareArableInTotalArea","Verband_agg","Fabrikstandort_agg")
-vtable(dat_for_paper, missing = FALSE,summ=c('mean(x)'), class = FALSE)
+dat_for_paper<-SampleIV %>% dplyr::select("q1_adopt","fields_b","info_b","minDist_demo","sq.demodist","farmsize_b","AES_b","age_b","farm_organic","mainly_crop",
+                                          "meanFarmSize2","ShareOrgFarms","ShareOrgArea","populationdensity","farmDens","areaDens","ShareSmallFarms",
+                                          "ShareSmallArea","elevation_in_m_mean","sand_content_percent_mean","clay_content_percent_mean","slope_in_degrees_mean",
+                                          "sq.elevation_in_m_mean","sq.sand_content_percent_mean","sq.clay_content_percent_mean","sq.slope_in_degrees_mean", 
+                                          "ShareArableUAA", "ShareArableInTotalArea","Fabrikstandort_agg", "Verband_agg")
+
+vtable(dat_for_paper, missing =FALSE,summ=c('mean(x)'), class = FALSE)
 #st(dat_for_paper), summ='mean(x)')
 
 #1. create dataframe of objective of the loop
@@ -33,8 +43,11 @@ vtable(dat_for_paper, missing = FALSE,summ=c('mean(x)'), class = FALSE)
 #indicating via 0 or 1 if the variable was choosen
 #we need one df for Adoption, one for info and one for field
 #assuming 5 different seeds and 10 different nfolds we have 50 models = 50 columns
-XExog <- c("minDist_demo","sq.demodist","farmsize_b","AES_b","age_b","farm_organic","mainly_crop", "meanFarmSize2","ShareOrgFarms","ShareOrgArea","populationdensity",
-           "farmDens","areaDens","ShareSmallFarms","ShareSmallArea","elevation_in_m_mean","sand_content_percent_mean","clay_content_percent_mean","sq.elevation_in_m_mean","sq.sand_content_percent_mean","sq.clay_content_percent_mean", "ShareArableUAA", "ShareArableInTotalArea","Fabrikstandort_agg")
+XExog <- c("minDist_demo","sq.demodist","farmsize_b","AES_b","age_b","farm_organic","mainly_crop",
+           "meanFarmSize2","ShareOrgFarms","ShareOrgArea","populationdensity","farmDens","areaDens","ShareSmallFarms",
+           "ShareSmallArea","elevation_in_m_mean","sand_content_percent_mean","clay_content_percent_mean","slope_in_degrees_mean",
+           "sq.elevation_in_m_mean","sq.sand_content_percent_mean","sq.clay_content_percent_mean","sq.slope_in_degrees_mean", 
+           "ShareArableUAA", "ShareArableInTotalArea","Fabrikstandort_agg")
 df.vars_selected <- as.data.frame(matrix(data = NA, nrow= length(XExog), ncol = 10))
 rownames(df.vars_selected) <- XExog 
 

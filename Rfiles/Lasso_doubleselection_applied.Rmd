@@ -75,14 +75,23 @@ SampleIV <- apply_labels(SampleIV,q1_adopt="Adoption mechanical weeding binary",
 
 Get explanatory variables and create subsample including dependant and independant variable
 ```{r}
-dat<-SampleIV %>% dplyr::select("q1_adopt","fields_b","info_b","minDist_demo","sq.demodist","farmsize_b","AES_b","age_b","farm_organic","mainly_crop", "meanFarmSize2","ShareOrgFarms","ShareOrgArea","populationdensity","farmDens","areaDens","ShareSmallFarms","ShareSmallArea","elevation_in_m_mean","sand_content_percent_mean","clay_content_percent_mean","sq.elevation_in_m_mean","sq.sand_content_percent_mean","sq.clay_content_percent_mean", "ShareArableUAA", "ShareArableInTotalArea","Verband_agg")#,"Fabrikstandort_agg")
+dat<-SampleIV %>% dplyr::select("q1_adopt","fields_b","info_b","minDist_demo","sq.demodist","farmsize_b","AES_b","age_b","farm_organic","mainly_crop", 
+                                "meanFarmSize2","ShareOrgFarms","ShareOrgArea","populationdensity","farmDens","areaDens","ShareSmallFarms"
+                                ,"ShareSmallArea","elevation_in_m_mean","sand_content_percent_mean","clay_content_percent_mean",
+                                "slope_in_degrees_mean","sq.elevation_in_m_mean","sq.sand_content_percent_mean","sq.clay_content_percent_mean",
+                                "sq.slope_in_degrees_mean", "ShareArableUAA","ShareArableInTotalArea","Verband_agg")
+#,"Fabrikstandort_agg")
 
 
 #take kreislevel data away:
 #
 
 
-XVars <- c("fields_b","info_b","minDist_demo","sq.demodist","farmsize_b","AES_b","age_b","farm_organic","mainly_crop", "meanFarmSize2","ShareOrgFarms","ShareOrgArea","populationdensity","farmDens","areaDens","ShareSmallFarms","ShareSmallArea","elevation_in_m_mean","sand_content_percent_mean","clay_content_percent_mean","sq.elevation_in_m_mean","sq.sand_content_percent_mean","sq.clay_content_percent_mean", "ShareArableUAA", "ShareArableInTotalArea","Verband_agg")#Fabrikstandort_agg")
+XVars <- c("fields_b","info_b","minDist_demo","sq.demodist","farmsize_b","AES_b","age_b","farm_organic","mainly_crop", 
+                                "meanFarmSize2","ShareOrgFarms","ShareOrgArea","populationdensity","farmDens","areaDens","ShareSmallFarms"
+                                ,"ShareSmallArea","elevation_in_m_mean","sand_content_percent_mean","clay_content_percent_mean",
+                                "slope_in_degrees_mean","sq.elevation_in_m_mean","sq.sand_content_percent_mean","sq.clay_content_percent_mean",
+                                "sq.slope_in_degrees_mean", "ShareArableUAA","ShareArableInTotalArea","Verband_agg")#Fabrikstandort_agg")
 
 
 df <-dat[XVars]
