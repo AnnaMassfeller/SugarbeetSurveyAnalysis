@@ -811,19 +811,20 @@ mapping_plz_NUTS[] <- lapply(mapping_plz_NUTS, function(x) gsub("[]'[()]", "", x
 df.NUTS3 <- left_join(df.NUTS3, mapping_plz_NUTS, by = c("NUTS_ID"="NUTS3"))
 df.Nuts3_forAnalysis <- df.NUTS3%>% dplyr::select(NUTS_ID,elev_mean, sand_content, clay_content, PLZ)
 df.Nuts3_forAnalysis$PLZ <- as.character(df.Nuts3_forAnalysis$PLZ)
+write_xlsx(df.Nuts3_forAnalysis,"Processed/df.NUTS3_forAnalysis.xlsx")
 FullSample<-left_join(FullSample, df.Nuts3_forAnalysis, by = c("plz"="PLZ"))
 
 #get soil and slope data at coordinate level
 df.SoilSlope <-read_xlsx("Backgrounddata/df_coordinates_field_JB.xlsx")
-df.SoilSlope<- df.SoilSlope %>% dplyr::select(-c(Lat, Long))
+df.SoilSlope<- df.SoilSlope %>% dplyr::select(-c(Lat, Long, LatLong))
 
 #need to calculate mean for each observation
 
 #df.Soil_fieldlevel<-df.SoilSlope %>%
- # dplyr::group_by(date) %>%
+ #dplyr::group_by(date) %>%
   #dplyr::summarise_at(vars(1:4), list(mean = mean))
 
-#write_xlsx(df.Soil_fieldlevel,"Processed/df.Soil_fieldlevel.xlsx")
+write_xlsx(df.Soil_fieldlevel,"Processed/df.Soil_fieldlevel.xlsx")
 df.Soil_fieldlevel<-read_xlsx("Processed/df.Soil_fieldlevel.xlsx")
 
 
@@ -835,6 +836,7 @@ FullSample<- left_join(FullSample,df.Soil_fieldlevel, by = "date")
 FullSample$sand_content_percent_mean <- coalesce(FullSample$sand_content_percent_mean, FullSample$sand_content)
 FullSample$clay_content_percent_mean <- coalesce(FullSample$clay_content_percent_mean, FullSample$clay_content)
 FullSample$elevation_in_m_mean <- coalesce(FullSample$elevation_in_m_mean, FullSample$elev_mean)
+
 
 #make column for "specialzied in arable farming or not"
 
