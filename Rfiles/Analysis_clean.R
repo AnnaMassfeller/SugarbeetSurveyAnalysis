@@ -51,6 +51,10 @@ chisq.test(FullSample$NrFields, FullSample$ShareOrgArea)
 SampleIV$advisory <- as.factor(SampleIV$advisory)
 SampleIV$advisory <- relevel(SampleIV$advisory, ref = "Nordzucker")
 #to compare we need to run the full mdoel with binary variables for info and field on the SAMPLEIV
+SampleIV$q1_adopt <- as.factor(SampleIV$q1_adopt)
+SampleIV$fields_b <- as.factor(SampleIV$fields_b)
+SampleIV$info_b <- as.factor(SampleIV$info_b)
+
 summary(m.Full.comp <- glm(q1_adopt ~  info_b +
                              fields_b +
                            #  meanDist+
@@ -931,12 +935,14 @@ VIF(m.Full_regional)
 #SampleIV$Fabrikstandort_agg <- relevel(SampleIV$Fabrikstandort_agg, ref = "West")
 
 #try ordered probit model
+SampleIV$Fabrikstandort_agg <- droplevels(SampleIV$Fabrikstandort_agg)
+
 orderedprobit1<-polr(q6_col1 ~ info_b + fields_b+
-                      minDist_demo + 
-                      sq.demodist+
+                     minDist_demo + 
+                    #  sq.demodist +
                       age_b + 
                       farmsize_b + 
-                       AES_b +
+                      AES_b +
                        # advisory,
                        Fabrikstandort_agg
                        , 
@@ -1000,6 +1006,50 @@ models_Intention <- plot_summs(m.Full.comp_mfx3, m.Intention1_mfx,m.Intention2_m
 models_Intention +theme(legend.position="bottom")+
   guides(color = guide_legend(nrow = 2, byrow = TRUE))
 
+#improve plotting intentions for all three levels
+#only for first intention model (intention to adopt traditional weeding devices)
+#attempt A
+
+orderedprobit1_b <- update(orderedprobit1, Hess=TRUE)
+pr <- profile(orderedprobit1_b)
+confint(pr)
+plot(pr)
+pairs(pr)
+
+
+
+
+
+#attempt B
+## store table
+#(ctable <- coef(summary(orderedprobit1)))
+
+## calculate and store p values
+#p <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2
+
+## combined table
+#(ctable <- cbind(ctable, "p value" = p))
+
+#(ci <- confint(orderedprobit1)) # default method gives profiled CIs
+
+#confint.default(orderedprobit1) # CIs assuming normality
+
+## odds ratios
+#exp(coef(orderedprobit1))
+
+## OR and CI
+#exp(cbind(OR = coef(orderedprobit1), ci))
+
+#create new df with all values used for prediction
+#newdat <- SampleIV %>% dplyr::select(info_b, fields_b, minDist_demo, age_b, farmsize_b, AES_b, Fabrikstandort_agg)
+#newdat <- cbind(newdat, predict(orderedprobit1, newdat, type = "probs"))
+
+#lnewdat <- melt(newdat, id.vars = c("info_b", "fields_b", "minDist_demo", "age_b", "farmsize_b", "AES_b","Fabrikstandort_agg"),
+ #               variable.name = "Level", value.name="Probability")
+
+#ggplot(lnewdat, aes(x = fields_b, y = Probability, colour = Level)) +
+ # geom_line() + facet_grid(~info_b, labeller="label_both")
+
 
 #test effect of distance between own fields on info and field
 
@@ -1027,5 +1077,97 @@ summary(m.Full.comp3_select <- glm(q1_adopt ~  info_b +
 
 
 m.Full.comp3_select_mfx <- probitmfx(m.Full.comp3_select, data = SampleObserver)
+
+
+
+
+#intention for Sebastian
+orderedprobit1_NrAdopters<-polr(q6_col1 ~ q3_info + fields_b+
+                       minDist_demo + 
+                       #  sq.demodist +
+                       age_b + 
+                       farmsize_b + 
+                       AES_b +
+                       # advisory,
+                       Fabrikstandort_agg
+                     , 
+                     data = SampleIV,Hess= TRUE)
+summary(orderedprobit1_NrAdopters)
+
+orderedprobit1_NrFields<-polr(q6_col1 ~ NrFields + info_b+
+                                  minDist_demo + 
+                                  #  sq.demodist +
+                                  age_b + 
+                                  farmsize_b + 
+                                  AES_b +
+                                  # advisory,
+                                  Fabrikstandort_agg
+                                , 
+                                data = SampleIV,Hess= TRUE)
+summary(orderedprobit1_NrFields)
+
+orderedprobit1_FieldDist<-polr(q6_col1 ~ FieldDist+ info_b+
+                                  minDist_demo + 
+                                  #  sq.demodist +
+                                  age_b + 
+                                  farmsize_b + 
+                                  AES_b +
+                                  # advisory,
+                                  Fabrikstandort_agg
+                                , 
+                                data = SampleIV,Hess= TRUE)
+summary(orderedprobit1_FieldDist)
+
+
+#let's try multinomial model
+#library(nnet)
+#test <- multinom(q6_col1 ~ info_b + fields_b+
+ #                  minDist_demo + 
+  #                 #  sq.demodist +
+   #                age_b + 
+    #               farmsize_b + 
+     #              AES_b +
+      #             # advisory,
+       #            Fabrikstandort_agg
+        #         , 
+         #        data = SampleIV)
+#summary(test)
+#z values
+#z <- summary(test)$coefficients/summary(test)$standard.errors
+#z
+#p values
+#p <- (1 - pnorm(abs(z), 0, 1))*2
+#p
+
+#exp(coef(test))
+
+#newdat <- SampleIV %>% dplyr::select(info_b, fields_b, minDist_demo, age_b, farmsize_b, AES_b, Fabrikstandort_agg)
+#predicted=predict(test,newdat,type="probs")
+#head(predicted)
+
+#claculate orediction values
+
+#bpp=cbind(newdat, predicted)
+#Now we’ll calculate the mean probabilities within each level of fields_b
+#by(bpp[,8:12], bpp$fields_b, colMeans)
+
+#library("reshape2")
+
+#bpp2 <- melt(bpp, id.vars = c("info_b", "fields_b", "minDist_demo", "age_b", "farmsize_b", "AES_b","Fabrikstandort_agg"),
+  #                  variable.name = "Level", value.name="probability")
+
+
+#ggplot(bpp2, aes(x = fields_b, y = probability, colour = info_b)) +
+ # geom_point() + facet_grid(Level ~ ., scales="free")     
+
+
+library(effects)
+plot(Effect("q3_info",orderedprobit1_NrAdopters)) 
+#shows predictions with confidence bands
+plot(Effect("q3_info",orderedprobit1_NrAdopters),multiline=T)
+#shows multiple lines of predictions in the same plot
+plot(Effect("q3_info",orderedprobit1_NrAdopters),style="stacked")
+# shows a stacked vertical bar chart of predictions
+
 
 
