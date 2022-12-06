@@ -1119,6 +1119,65 @@ orderedprobit1_FieldDist<-polr(q6_col1 ~ FieldDist+ info_b+
 summary(orderedprobit1_FieldDist)
 
 
+
+
+orderedprobit1_NrFieldsPeers<-polr(q6_col1 ~ #FieldDist+
+                              NrFields+ 
+                              q3_info+
+                                 minDist_demo + 
+                                 #  sq.demodist +
+                                 age_b + 
+                                 farmsize_b + 
+                                 AES_b #+
+                                 # advisory,
+                                # Fabrikstandort_agg
+                               , 
+                               data = SampleIV,Hess= TRUE)
+summary(orderedprobit1_NrFieldsPeers)
+
+orderedprobit2_NrFieldsPeers<-polr(q6_col2 ~ #FieldDist+
+                                     NrFields+ 
+                                     q3_info+
+                                     minDist_demo + 
+                                     #  sq.demodist +
+                                     age_b + 
+                                     farmsize_b + 
+                                     AES_b #+
+                                   # advisory,
+                                   # Fabrikstandort_agg
+                                   , 
+                                   data = SampleIV,Hess= TRUE)
+summary(orderedprobit2_NrFieldsPeers)
+
+orderedprobit3_NrFieldsPeers<-polr(q6_col3 ~ #FieldDist+
+                                     NrFields+ 
+                                     #fields_b + info_b +
+                                     q3_info+
+                                     minDist_demo + 
+                                     #  sq.demodist +
+                                     age_b + 
+                                     farmsize_b + 
+                                     AES_b #+
+                                   # advisory,
+                                   # Fabrikstandort_agg
+                                   , 
+                                   data = SampleIV,Hess= TRUE)
+summary(orderedprobit3_NrFieldsPeers)
+
+
+stargazer(#orderedprobit1_NrFieldsPeers,
+          #orderedprobit2_NrFieldsPeers,
+         orderedprobit3_NrFieldsPeers,
+         type = "html", out = "CategoricalIntention3.doc", 
+         star.char = c("*", "**", "***"), 
+         star.cutoffs = c(0.1, 0.05, 0.01),
+        dep.var.caption  = "Intention to adopt ", 
+        ord.intercepts = TRUE, column.labels = c("traditional mechanical weeding", "modern mechanical weeding"),
+        covariate.labels = c("1-5 fields", "6-10 fields","11-15 fields", "more than 10 fields", "1-5 adopters", "6-10 adopters", "more than 10 adopters",
+                             "minimal distance to demonstration farm", "more than 45 years", "farmsize more than 50 ha", "participation in AES",
+                             "no intention | low intention", "low intention | middle intention", "middle intention | high intention", "high intention | adoption"))
+
+
 #let's try multinomial model
 #library(nnet)
 #test <- multinom(q6_col1 ~ info_b + fields_b+
@@ -1169,5 +1228,8 @@ plot(Effect("q3_info",orderedprobit1_NrAdopters),multiline=T)
 plot(Effect("q3_info",orderedprobit1_NrAdopters),style="stacked")
 # shows a stacked vertical bar chart of predictions
 
+#get data for sebastian
+write_xlsx(DemoOrganic_coord,"DemoOrganic_coord_forSebastian.xlsx")
+write_xlsx(df.SB_fabriken,"Zuckerfabriken_coord_forSebastian.xlsx")
 
 
