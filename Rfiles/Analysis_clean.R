@@ -1164,18 +1164,77 @@ orderedprobit3_NrFieldsPeers<-polr(q6_col3 ~ #FieldDist+
                                    data = SampleIV,Hess= TRUE)
 summary(orderedprobit3_NrFieldsPeers)
 
-
 stargazer(#orderedprobit1_NrFieldsPeers,
-          #orderedprobit2_NrFieldsPeers,
-         orderedprobit3_NrFieldsPeers,
-         type = "html", out = "CategoricalIntention3.doc", 
-         star.char = c("*", "**", "***"), 
-         star.cutoffs = c(0.1, 0.05, 0.01),
-        dep.var.caption  = "Intention to adopt ", 
-        ord.intercepts = TRUE, column.labels = c("traditional mechanical weeding", "modern mechanical weeding"),
-        covariate.labels = c("1-5 fields", "6-10 fields","11-15 fields", "more than 10 fields", "1-5 adopters", "6-10 adopters", "more than 10 adopters",
-                             "minimal distance to demonstration farm", "more than 45 years", "farmsize more than 50 ha", "participation in AES",
-                             "no intention | low intention", "low intention | middle intention", "middle intention | high intention", "high intention | adoption"))
+  #orderedprobit2_NrFieldsPeers,
+  orderedprobit3_NrFieldsPeers,
+  type = "html", out = "CategoricalIntention3.doc", 
+  star.char = c("*", "**", "***"), 
+  star.cutoffs = c(0.1, 0.05, 0.01),
+  dep.var.caption  = "Intention to adopt ", 
+  ord.intercepts = TRUE, column.labels = c("traditional mechanical weeding", "modern mechanical weeding"),
+  covariate.labels = c("1-5 fields", "6-10 fields","11-15 fields", "more than 10 fields", "1-5 adopters", "6-10 adopters", "more than 10 adopters",
+                       "minimal distance to demonstration farm", "more than 45 years", "farmsize more than 50 ha", "participation in AES",
+                       "no intention | low intention", "low intention | middle intention", "middle intention | high intention", "high intention | adoption"))
+
+
+#only number of peers
+
+orderedprobit1_NrPeers<-polr(q6_col1 ~ #FieldDist+
+                                  #  NrFields+ 
+                                    q3_info+
+                                    minDist_demo + 
+                                    #  sq.demodist +
+                                    age_b + 
+                                    farmsize_b + 
+                                    AES_b #+
+                                  # advisory,
+                                  # Fabrikstandort_agg
+                                  , 
+                                  data = SampleIV,Hess= TRUE)
+summary(orderedprobit1_NrPeers)
+
+orderedprobit2_NrPeers<-polr(q6_col2 ~ #FieldDist+
+                               #  NrFields+ 
+                               q3_info+
+                               minDist_demo + 
+                               #  sq.demodist +
+                               age_b + 
+                               farmsize_b + 
+                               AES_b #+
+                             # advisory,
+                             # Fabrikstandort_agg
+                             , 
+                             data = SampleIV,Hess= TRUE)
+summary(orderedprobit2_NrPeers)
+
+
+orderedprobit3_NrPeers<-polr(q6_col3 ~ #FieldDist+
+                               #  NrFields+ 
+                               q3_info+
+                               minDist_demo + 
+                               #  sq.demodist +
+                               age_b + 
+                               farmsize_b + 
+                               AES_b #+
+                             # advisory,
+                             # Fabrikstandort_agg
+                             , 
+                             data = SampleIV,Hess= TRUE)
+summary(orderedprobit3_NrPeers)
+
+
+stargazer(#orderedprobit1_NrPeers,
+  #orderedprobit2_NrPeers,
+ orderedprobit3_NrPeers,
+  type = "html", out = "CategoricalIntention_onlyPeersb.doc", 
+  star.char = c("*", "**", "***"), 
+  star.cutoffs = c(0.1, 0.05, 0.01),
+  dep.var.caption  = "Intention to adopt ", 
+  ord.intercepts = TRUE, column.labels = c("traditional mechanical weeding", "modern mechanical weeding"))#,
+ # covariate.labels = c("1-5 fields", "6-10 fields","11-15 fields", "more than 10 fields", "1-5 adopters", "6-10 adopters", "more than 10 adopters",
+    #                   "minimal distance to demonstration farm", "more than 45 years", "farmsize more than 50 ha", "participation in AES",
+          #             "no intention | low intention", "low intention | middle intention", "middle intention | high intention", "high intention | adoption"))
+
 
 
 #let's try multinomial model
