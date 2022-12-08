@@ -948,8 +948,13 @@ orderedprobit1<-polr(q6_col1 ~ info_b + fields_b+
                        , 
                      data = SampleIV,Hess= TRUE)
 summary(orderedprobit1)
-m.Intention1_mfx <-probitmfx(orderedprobit1, data = SampleIV, robust = TRUE)
-plot_summs(m.Intention1_mfx)
+m.Intention1_mfx_atmf <-probitmfx(orderedprobit1, data = SampleIV, robust = TRUE, atmean = FALSE)
+m.Intention1_mfx_atmt <-probitmfx(orderedprobit1, data = SampleIV, robust = TRUE, atmean = TRUE)
+
+plot_summs(m.Intention1_mfx_atmt)
+plot_summs(orderedprobit1,m.Intention1_mfx_atmt,m.Intention1_mfx_atmf)
+plot_summs(m.Full.comp_mfx3,orderedprobit1)
+
 #how to get marginal effects?
 #probitmfx(orderedprobit1, data = df.Models)
 orderedprobit2<-polr(q6_col2 ~ info_b + fields_b+
@@ -1005,6 +1010,35 @@ models_Intention <- plot_summs(m.Full.comp_mfx3, m.Intention1_mfx,m.Intention2_m
 
 models_Intention +theme(legend.position="bottom")+
   guides(color = guide_legend(nrow = 2, byrow = TRUE))
+
+
+#models_Intention_odds <- plot_summs(orderedprobit1, orderedprobit2,orderedprobit3,
+ #                              coefs = c("knowing other farmers (info)"="info_b1",
+  #                                       "Info_IV =knowing other farmers"="info_iv",
+   #                                      "observing fields (fields)"="fields_b1",
+    #                                     "Field_IV = observing fields"="fields_iv",
+     #                                    "distance to fields observed"="fields_dist"),
+      #                         colors = c("Black", "Grey38", "Grey48", "Grey58"))#,
+                               #  "squared distance to fields observed"="sq.fields_dist",
+                               #   "minimal distance to demo farm" = "minDist_demo",
+                               #   "squared minimal distance to demo farm" = "sq.demodist",
+                               #   "advisory Cosun" = "advisoryCosun",
+                               #   "advisory Pfeiffer&Langen" = "advisoryPfeifferLangen",
+                               #   "advisory Südzucker"= "advisorySüdzucker",
+                               #   "older than 45 years"="age_b1",
+                               #   "farm size > 50 ha"="farmsize_b1",
+                               #   "AES participation"="AES_b1",
+                               #   "share of sugarbeet area/ county"="ShareSB",
+                               #   "mean farm size (ha)/ county" = "meanFarmSize2",
+                               #   "sand content/ county"="sand_content",
+                               #   "elevation (m)"="elev_mean"),
+                              # model.names = c("Pre-Registration model","Intention traditional weeding ","Intention modern weeding ", "Intention autonomous weeding"),
+                             #  scale = TRUE, robust = TRUE
+#)
+
+
+#models_Intention_odds +theme(legend.position="bottom")+
+ # guides(color = guide_legend(nrow = 2, byrow = TRUE))
 
 #improve plotting intentions for all three levels
 #only for first intention model (intention to adopt traditional weeding devices)
