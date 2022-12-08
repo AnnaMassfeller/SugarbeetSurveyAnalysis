@@ -39,7 +39,6 @@ library(writexl)
 library(splitstackshape)
 library(dplyr)
 
-###load data
 #directly as json
 #json_file <- "https://fruchtfolge.agp.uni-bonn.de/db/survey_anna/_all_docs?include_docs=true"
 #json_data <- fromJSON(paste(readLines(json_file), collapse=""))
@@ -1245,3 +1244,7 @@ df.missingShareSB<-df.missingShareSB[!duplicated(df.missingShareSB$Kreis.x), ]
 
 #no sb area:
 SampleIV[is.na(SampleIV$elevation_in_m_mean),]$county
+
+library(writexl)
+write_xlsx(farms_coord_pure,"Farmcoordinates_forSebastian.xlsx")
+
