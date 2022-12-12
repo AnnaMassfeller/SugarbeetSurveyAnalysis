@@ -948,18 +948,30 @@ orderedprobit1<-polr(q6_col1 ~ info_b + fields_b+
                        , 
                      data = SampleIV,Hess= TRUE)
 summary(orderedprobit1)
-m.Intention1_mfx_atmf <-probitmfx(orderedprobit1, data = SampleIV, robust = TRUE, atmean = FALSE)
-m.Intention1_mfx_atmt <-probitmfx(orderedprobit1, data = SampleIV, robust = TRUE, atmean = TRUE)
+#m.Intention1_mfx_atmf <-probitmfx(orderedprobit1, data = SampleIV, robust = TRUE, atmean = FALSE)
+#m.Intention1_mfx_atmt <-probitmfx(orderedprobit1, data = SampleIV, robust = TRUE, atmean = TRUE)
 
-plot_summs(m.Intention1_mfx_atmt)
-plot_summs(orderedprobit1,m.Intention1_mfx_atmt,m.Intention1_mfx_atmf)
-plot_summs(m.Full.comp_mfx3,orderedprobit1)
+#plot_summs(m.Intention1_mfx_atmt)
+#plot_summs(orderedprobit1,m.Intention1_mfx_atmt,m.Intention1_mfx_atmf)
+#plot_summs(m.Full.comp_mfx3,orderedprobit1)
+
+
+#try margins package
+library(margins)
+op1_0 <- margins(orderedprobit1, category = "0")
+op1_1 <- margins(orderedprobit1, category = "1")
+op1_2 <- margins(orderedprobit1, category = "2")
+op1_3 <- margins(orderedprobit1, category = "3")
+op1_4 <- margins(orderedprobit1, category = "4")
+
+
+
 
 #how to get marginal effects?
 #probitmfx(orderedprobit1, data = df.Models)
 orderedprobit2<-polr(q6_col2 ~ info_b + fields_b+
                        minDist_demo + 
-                       sq.demodist+
+                     #  sq.demodist+
                        age_b + 
                        farmsize_b + 
                        AES_b +
@@ -968,11 +980,16 @@ orderedprobit2<-polr(q6_col2 ~ info_b + fields_b+
                      , 
                      data = SampleIV,Hess = TRUE)
 
-m.Intention2_mfx <-probitmfx(orderedprobit2, data = SampleIV, robust = TRUE)
+op2_0 <- margins(orderedprobit2, category = "0")
+op2_1 <- margins(orderedprobit2, category = "1")
+op2_2 <- margins(orderedprobit2, category = "2")
+op2_3 <- margins(orderedprobit2, category = "3")
+op2_4 <- margins(orderedprobit2, category = "4")
+#m.Intention2_mfx <-probitmfx(orderedprobit2, data = SampleIV, robust = TRUE)
 
 orderedprobit3<-polr(q6_col3 ~ info_b + fields_b+
                        minDist_demo + 
-                       sq.demodist+
+                    #   sq.demodist+
                        age_b + 
                        farmsize_b + 
                        AES_b +
@@ -980,8 +997,83 @@ orderedprobit3<-polr(q6_col3 ~ info_b + fields_b+
                       Fabrikstandort_agg
                      , 
                      data = SampleIV,Hess = TRUE)
+op3_0 <- margins(orderedprobit3, category = "0")
+op3_1 <- margins(orderedprobit3, category = "1")
+op3_2 <- margins(orderedprobit3, category = "2")
+op3_3 <- margins(orderedprobit3, category = "3")
+op3_4 <- margins(orderedprobit3, category = "4")
+#m.Intention3_mfx <-probitmfx(orderedprobit3, data = SampleIV, robust = TRUE)
 
-m.Intention3_mfx <-probitmfx(orderedprobit3, data = SampleIV, robust = TRUE)
+marginal.effects_Intention1 <- plot_summs(op1_0,#op2_0, op3_0,
+                                         op1_1,#op2_1, op3_1,
+                                         op1_2, #op2_2,op3_2,
+                                         op1_3, #op2_3,op3_3,
+                                         op1_4, #op2_4,op3_4,
+                                         m.Full.comp_mfx3,
+                                         #point.shape = 
+                                         robust = TRUE, scale = TRUE,colors = c("Greys"),#c("Black", "Grey38", "Grey58","Black", "Grey38", "Grey58","Black", "Grey38", "Grey58","Black", "Grey38", "Grey58","Black", "Grey38", "Grey58"),
+                                         legend.title = "Traditional mechanical weeding",
+                                         model.names = c("No Intention",#"Modern_noIntention","Autonomous_noIntention",
+                                                         "Low Intention",#"Modern_lowIntention","Autonomous_lowIntention",
+                                                         "Middle Intention",#"Modern_middleIntention","Autonomous_middleIntention",
+                                                         "High Intention",#"Modern_highIntention","Autonomous_highIntention",
+                                                         "Adoption",
+                                                         "Pre-registration model"),#"Modern_Adoption","Autonomous_Adoption"),
+           coefs = c("knowing other farmers (info)"="info_b1",
+                     "Info_IV =knowing other farmers"="info_iv",
+                     "observing fields (fields)"="fields_b1",
+                     "Field_IV = observing fields"="fields_iv",
+                     "distance to fields observed"="fields_dist")) +theme(legend.position="bottom")+
+  guides(color = guide_legend(nrow = 2, byrow = TRUE))
+
+marginal.effects_Intention2 <- plot_summs(op2_0, #op3_0,
+           op2_1, #op3_1,
+           op2_2,#op3_2,
+           op2_3,#op3_3,
+           op2_4,#op3_4,
+           #point.shape = 
+           robust = TRUE, scale = TRUE,colors = c("Greys"),#c("Black", "Grey38", "Grey58","Black", "Grey38", "Grey58","Black", "Grey38", "Grey58","Black", "Grey38", "Grey58","Black", "Grey38", "Grey58"),
+           model.names = c("No Intention",#"Autonomous_noIntention",
+                           "Low Intention",#"Autonomous_lowIntention",
+                           "Middle Intention",#"Autonomous_middleIntention",
+                           "High Intention",#"Autonomous_highIntention",
+                           "Adoption"),#"Autonomous_Adoption"),
+           legend.title = "Modern mechanical weeding",
+           coefs = c("knowing other farmers (info)"="info_b1",
+                     "Info_IV =knowing other farmers"="info_iv",
+                     "observing fields (fields)"="fields_b1",
+                     "Field_IV = observing fields"="fields_iv",
+                     "distance to fields observed"="fields_dist")) +theme(legend.position="bottom")+
+  guides(color = guide_legend(nrow = 2, byrow = TRUE))
+
+marginal.effects_Intention3 <- plot_summs(op3_0,
+                                          op3_1,
+                                           op3_2,
+                                           op3_3,
+                                           op3_4,
+                                           robust = TRUE, scale = TRUE,colors = c("Greys"),#c("Black", "Grey38", "Grey58","Black", "Grey38", "Grey58","Black", "Grey38", "Grey58","Black", "Grey38", "Grey58","Black", "Grey38", "Grey58"),
+                                          shape = TRUE, 
+                                          legend.title = "Autonomous mechanical weeding",
+                                          model.names = c("No Intention",
+                                                           "Low Intention",
+                                                           "Middle Intention",
+                                                           "High Intention",
+                                                           "Adoption"),
+                                           coefs = c("knowing other farmers (info)"="info_b1",
+                                                     "Info_IV =knowing other farmers"="info_iv",
+                                                     "observing fields (fields)"="fields_b1",
+                                                     "Field_IV = observing fields"="fields_iv",
+                                                     "distance to fields observed"="fields_dist")) +theme(legend.position="bottom")+
+  guides(color = guide_legend(nrow = 2, byrow = TRUE))
+
+
+
+
+
+
+
+
+
 
 models_Intention <- plot_summs(m.Full.comp_mfx3, m.Intention1_mfx,m.Intention2_mfx,m.Intention3_mfx,
            coefs = c("knowing other farmers (info)"="info_b1",
@@ -1111,6 +1203,7 @@ summary(m.Full.comp3_select <- glm(q1_adopt ~  info_b +
 
 
 m.Full.comp3_select_mfx <- probitmfx(m.Full.comp3_select, data = SampleObserver)
+
 
 
 
