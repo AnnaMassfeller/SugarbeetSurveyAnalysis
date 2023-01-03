@@ -102,9 +102,9 @@ summary(m.Full.comp3 <- glm(q1_adopt ~  info_b +
 
 
 
-m.Full.comp_mfx <-probitmfx(m.Full.comp, data = SampleIV, robust = TRUE)
-m.Full.comp_mfx2 <-probitmfx(m.Full.comp2, data = SampleIV, robust = TRUE)
-m.Full.comp_mfx3 <-probitmfx(m.Full.comp3, data = SampleIV, robust = TRUE)
+m.Full.comp_mfx <-mfx::probitmfx(m.Full.comp, data = SampleIV, robust = TRUE)
+m.Full.comp_mfx2 <-mfx::probitmfx(m.Full.comp2, data = SampleIV, robust = TRUE)
+m.Full.comp_mfx3 <-mfx::probitmfx(m.Full.comp3, data = SampleIV, robust = TRUE)
 
 plot_summs(m.Full.comp_mfx,m.Full.comp_mfx2,m.Full.comp_mfx3, scale = TRUE, robust = TRUE,
           coefs = c("knowing other farmers"="info_b1",
@@ -211,7 +211,7 @@ MHE2i2 <- glm(q1_adopt ~ info_iv+
 
 summary(MHE2i2)
 
-m.info<-probitmfx(q1_adopt ~ info_iv+ 
+m.info<-mfx::probitmfx(q1_adopt ~ info_iv+ 
         #   fields_dist+
         #  sq.fields_dist+
             minDist_demo + 
@@ -270,7 +270,7 @@ MHE2f2 <- glm(q1_adopt ~ fields_iv +
 
 summary(MHE2f2)
 
-m.fields<-probitmfx(q1_adopt ~ fields_iv+
+m.fields<-mfx::probitmfx(q1_adopt ~ fields_iv+
          #  fields_dist+
          #  sq.fields_dist+
             minDist_demo + 
@@ -295,7 +295,7 @@ summary(m.Full.IV <- glm(q1_adopt ~  info_iv +
                            Fabrikstandort_agg, 
                       data = SampleIV, family = binomial("probit")))
 
-m.Full.IV_mfx <-probitmfx(m.Full.IV, data = SampleIV, robust = TRUE)
+m.Full.IV_mfx <-mfx::probitmfx(m.Full.IV, data = SampleIV, robust = TRUE)
 
 p.mFull_mfx_compareIV <- plot_summs(m.Full.comp_mfx3,m.Full.IV_mfx,scale = TRUE, robust = TRUE,
                       coefs = c("knowing other farmers (info)"="info_b1",
@@ -359,7 +359,7 @@ summary(m.Allin2 <- glm(q1_adopt ~  info_b #+ fields_b
                           Fabrikstandort_agg, 
                         data = SampleIV,family = binomial("probit")))#ref-category:0 = 0 peers
 
-m.Allin2_mfx <-probitmfx(m.Allin2, data = SampleIV)
+m.Allin2_mfx <-mfx::probitmfx(m.Allin2, data = SampleIV)
 p.Allin2_mfx <- plot_summs(m.Allin2, 
                           coefs =c("knowing other farmers"="info_b1",
                                    "observed fields in 0-5km"="FieldDist0",
@@ -400,7 +400,7 @@ summary(m.Full <- glm(q1_adopt ~  NrFields +info_b+
                         Fabrikstandort_agg, 
                       data = SampleIV, family = binomial("probit")))#ref-category:0 = 0 peers
 
-m.Full_mfx <-probitmfx(m.Full, data = SampleIV)
+m.Full_mfx <-mfx::probitmfx(m.Full, data = SampleIV)
 p.mFull_mfx <- plot_summs(m.Full_mfx, 
                           coefs = c("knowing other farmers"="info_b1",
                             "1-5 fields observed"="NrFields1",
@@ -434,7 +434,7 @@ summary(m.Full2 <- glm(q1_adopt ~   q3_info + fields_b+
                          Fabrikstandort_agg, 
                       data = SampleIV, family = binomial("probit")))#ref-category:0 = 0 peers
 
-m.Full2_mfx <-probitmfx(m.Full2, data = SampleIV)
+m.Full2_mfx <-mfx::probitmfx(m.Full2, data = SampleIV)
 p.mFull2_mfx <- plot_summs(m.Full2_mfx, 
                           coefs = c("1-5 adopters known"="q3_info1",
                                     "6-10 adopters known"="q3_info2",
@@ -508,10 +508,10 @@ models_cat +theme(legend.position="bottom")
 
 
 
-m.1.mfx <- probitmfx(m.1<- glm(q1_adopt ~ 1,  
+m.1.mfx <- mfx::probitmfx(m.1<- glm(q1_adopt ~ 1,  
                         data = SampleIV,family = binomial("probit")), data = SampleIV) 
 
-m.2.mfx <- probitmfx(m.2 <-glm(q1_adopt ~ 
+m.2.mfx <- mfx::probitmfx(m.2 <-glm(q1_adopt ~ 
                                  minDist_demo + 
                                  sq.demodist+
                                  age_b + 
@@ -521,7 +521,7 @@ m.2.mfx <- probitmfx(m.2 <-glm(q1_adopt ~
                                  Fabrikstandort_agg, 
                         data = SampleIV,family = binomial("probit")), data = SampleIV) 
 
-m.3.mfx <- probitmfx(m.3 <-glm(q1_adopt ~ info_b +
+m.3.mfx <- mfx::probitmfx(m.3 <-glm(q1_adopt ~ info_b +
                                  minDist_demo + 
                                  sq.demodist+
                                  age_b + 
@@ -531,7 +531,7 @@ m.3.mfx <- probitmfx(m.3 <-glm(q1_adopt ~ info_b +
                                  Fabrikstandort_agg, 
                    data = SampleIV,family = binomial("probit")), data = SampleIV)
 
-m.4.mfx <- probitmfx(m.4 <-glm(q1_adopt ~ fields_b+ 
+m.4.mfx <- mfx::probitmfx(m.4 <-glm(q1_adopt ~ fields_b+ 
                                  minDist_demo + 
                                  sq.demodist+
                                  age_b + 
@@ -541,7 +541,7 @@ m.4.mfx <- probitmfx(m.4 <-glm(q1_adopt ~ fields_b+
                                  Fabrikstandort_agg, 
                    data = SampleIV,family = binomial("probit")), data = SampleIV)
 
-m.5.mfx <- probitmfx(m.5 <-glm(q1_adopt ~ info_b + fields_b+ 
+m.5.mfx <- mfx::probitmfx(m.5 <-glm(q1_adopt ~ info_b + fields_b+ 
                                  minDist_demo + 
                                  sq.demodist+
                                  age_b + 
@@ -876,7 +876,7 @@ summary(m.Full_regional <- glm(q1_adopt ~ info_b +
                                , 
                            data = SampleIV, family = binomial("probit")))
 
-m.Full_regional_mfx <-probitmfx(m.Full_regional, data = SampleIV)
+m.Full_regional_mfx <-mfx::probitmfx(m.Full_regional, data = SampleIV)
 
 summary(m.Full_regional2 <- glm(q1_adopt ~ info_b +
                                  fields_b +
@@ -896,7 +896,7 @@ summary(m.Full_regional2 <- glm(q1_adopt ~ info_b +
                                , 
                                data = SampleIV, family = binomial("probit")))
 
-m.Full_regional_mfx2 <-probitmfx(m.Full_regional2, data = SampleIV)
+m.Full_regional_mfx2 <-mfx::probitmfx(m.Full_regional2, data = SampleIV)
 plot_summs(m.Full_regional_mfx,m.Full_regional_mfx2, scale = TRUE, robust = TRUE,
            coefs = c("knowing other farmers (info)"="info_b1",
                      "Info_IV =knowing other farmers"="info_iv",
@@ -948,8 +948,8 @@ orderedprobit1<-polr(q6_col1 ~ info_b + fields_b+
                        , 
                      data = SampleIV,Hess= TRUE)
 summary(orderedprobit1)
-#m.Intention1_mfx_atmf <-probitmfx(orderedprobit1, data = SampleIV, robust = TRUE, atmean = FALSE)
-#m.Intention1_mfx_atmt <-probitmfx(orderedprobit1, data = SampleIV, robust = TRUE, atmean = TRUE)
+#m.Intention1_mfx_atmf <-mfx::probitmfx(orderedprobit1, data = SampleIV, robust = TRUE, atmean = FALSE)
+#m.Intention1_mfx_atmt <-mfx::probitmfx(orderedprobit1, data = SampleIV, robust = TRUE, atmean = TRUE)
 
 #plot_summs(m.Intention1_mfx_atmt)
 #plot_summs(orderedprobit1,m.Intention1_mfx_atmt,m.Intention1_mfx_atmf)
@@ -968,7 +968,7 @@ op1_4 <- margins(orderedprobit1, category = "4")
 
 
 #how to get marginal effects?
-#probitmfx(orderedprobit1, data = df.Models)
+#mfx::probitmfx(orderedprobit1, data = df.Models)
 orderedprobit2<-polr(q6_col2 ~ info_b + fields_b+
                        minDist_demo + 
                      #  sq.demodist+
@@ -985,7 +985,7 @@ op2_1 <- margins(orderedprobit2, category = "1")
 op2_2 <- margins(orderedprobit2, category = "2")
 op2_3 <- margins(orderedprobit2, category = "3")
 op2_4 <- margins(orderedprobit2, category = "4")
-#m.Intention2_mfx <-probitmfx(orderedprobit2, data = SampleIV, robust = TRUE)
+#m.Intention2_mfx <-mfx::probitmfx(orderedprobit2, data = SampleIV, robust = TRUE)
 
 orderedprobit3<-polr(q6_col3 ~ info_b + fields_b+
                        minDist_demo + 
@@ -1002,7 +1002,7 @@ op3_1 <- margins(orderedprobit3, category = "1")
 op3_2 <- margins(orderedprobit3, category = "2")
 op3_3 <- margins(orderedprobit3, category = "3")
 op3_4 <- margins(orderedprobit3, category = "4")
-#m.Intention3_mfx <-probitmfx(orderedprobit3, data = SampleIV, robust = TRUE)
+#m.Intention3_mfx <-mfx::probitmfx(orderedprobit3, data = SampleIV, robust = TRUE)
 
 marginal.effects_Intention1 <- plot_summs(op1_0,#op2_0, op3_0,
                                          op1_1,#op2_1, op3_1,
@@ -1202,7 +1202,7 @@ summary(m.Full.comp3_select <- glm(q1_adopt ~  info_b +
                             ,data = SampleObserver, family = binomial("probit")))
 
 
-m.Full.comp3_select_mfx <- probitmfx(m.Full.comp3_select, data = SampleObserver)
+m.Full.comp3_select_mfx <- mfx::probitmfx(m.Full.comp3_select, data = SampleObserver)
 
 
 
@@ -1361,6 +1361,66 @@ stargazer(#orderedprobit1_NrPeers,
  # covariate.labels = c("1-5 fields", "6-10 fields","11-15 fields", "more than 10 fields", "1-5 adopters", "6-10 adopters", "more than 10 adopters",
     #                   "minimal distance to demonstration farm", "more than 45 years", "farmsize more than 50 ha", "participation in AES",
           #             "no intention | low intention", "low intention | middle intention", "middle intention | high intention", "high intention | adoption"))
+
+
+
+#distance to fabrics as continious variable
+#only number of peers
+library(MASS)
+orderedprobit1_FabricDistCont<-polr(q6_col1 ~ #FieldDist+
+                                     #  NrFields+ 
+                                     q3_info+
+                                     minDist_demo + 
+                                     #  sq.demodist +
+                                     age_b + 
+                                     farmsize_b + 
+                                     AES_b +
+                                       minDist_SBfabric
+                                   # advisory,
+                                   # Fabrikstandort_agg
+                                   , 
+                                   data = SampleIV,Hess= TRUE)
+summary(orderedprobit1_FabricDistCont)
+
+orderedprobit2_FabricDistCont<-polr(q6_col2 ~ #FieldDist+
+                                     #  NrFields+ 
+                                     q3_info+
+                                     minDist_demo + 
+                                     #  sq.demodist +
+                                     age_b + 
+                                     farmsize_b + 
+                                     AES_b+
+                                      minDist_SBfabric#+
+                                   # advisory,
+                                   # Fabrikstandort_agg
+                                   , 
+                                   data = SampleIV,Hess= TRUE)
+summary(orderedprobit2_FabricDistCont)
+
+
+orderedprobit3_FabricDistCont<-polr(q6_col3 ~ #FieldDist+
+                                     #  NrFields+ 
+                                     q3_info+
+                                     minDist_demo + 
+                                     #  sq.demodist +
+                                     age_b + 
+                                     farmsize_b + 
+                                     AES_b+
+                                      minDist_SBfabric#+
+                                   # advisory,
+                                   # Fabrikstandort_agg
+                                   , 
+                                   data = SampleIV,Hess= TRUE)
+summary(orderedprobit3_FabricDistCont)
+
+stargazer(orderedprobit1_FabricDistCont,
+  orderedprobit2_FabricDistCont,
+  orderedprobit3_FabricDistCont,
+  type = "html", out = "CategoricalIntention_FabricDistCont.doc", 
+  star.char = c("*", "**", "***"), 
+  star.cutoffs = c(0.1, 0.05, 0.01),
+  dep.var.caption  = "Intention to adopt mechanical weeding ", 
+  ord.intercepts = TRUE, column.labels = c("traditional", "modern", "autonomous"))
 
 
 
