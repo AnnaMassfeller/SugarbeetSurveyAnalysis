@@ -338,6 +338,8 @@ p.mFull_mfx_compareIV2 <- plot_summs(m.Full.comp_mfx,m.fields,m.info,
                                    # model.names = c("Probit model", "Probit model with 3SLS-IV"),
                                     scale = TRUE, robust = TRUE)#,colors = c("grey60", "grey36"))
 
+
+
 #now enter distance to fields and number of peers known as factor and remove fields_b
 SampleIV<- FullSample[!is.na(FullSample$minDist_demo)&!is.na(FullSample$advisory)&
                                     !is.na(FullSample$age_b)&!(FullSample$advisory == "Cosun"),]
@@ -641,39 +643,99 @@ m5<- matrix(table(SampleIV$q1_adopt, probabilities_m.5))
 
 
 
-#get plots fo distance variables
-
-SampleIV$pred_Y <- predict(m.Allin2, SampleIV, type = "response")
-m.Allin2$fitted.values
-
 
 #first need one regression that includes the distance variables
 
 #regression from above we take for demo-dist
-summary(m.Full.comp3 <- glm(q1_adopt ~  info_b +
-                              fields_b +
-                              #  meanDist+
-                              # sq.meanDist+
-                             # fields_dist+ #0 if no fields observed, otherwise km to fields observed 
-                            #  sq.fields_dist+
+summary(m.Full.comp3 <- glm(q1_adopt ~ info_b + fields_b+ 
                               minDist_demo + 
-                              sq.demodist+
+                             sq.demodist+
                               age_b + 
                               farmsize_b + 
                               AES_b +
-                              # advisory +
                               Fabrikstandort_agg 
-                            ,data = SampleIV, family = binomial("probit")))
+                            ,data = SampleIV, family = binomial))
 
-p.1<-effect_plot(m.Full.comp3, pred = minDist_demo, y.label = "probability",
-                 x.label = "minimal distance to demo farm (km)")+#, outcome.scale = "link") +
+
+
+m.Full.comp3_mfx <- mfx::probitmfx(m.Full.comp3_mfx <-glm(q1_adopt ~ info_b + fields_b+ 
+                                               minDist_demo + 
+                                               sq.demodist+
+                                               age_b + 
+                                               farmsize_b + 
+                                               AES_b +
+                                               Fabrikstandort_agg, 
+                                             data = SampleIV,family = binomial("probit")))
+
+summary(m.Full.comp3_lm <- lm(as.numeric(q1_adopt) ~ info_b + fields_b+ 
+                                minDist_demo + 
+                                sq.demodist+
+                                age_b + 
+                                farmsize_b + 
+                                AES_b +
+                                Fabrikstandort_agg 
+                            ,data = SampleIV))
+mean(m.Full.comp3$fitted.values)
+
+#get plots fo distance variables
+
+SampleIV$pred_Y <- stats::predict(m.Full.comp3, SampleIV, type = "response")
+m.Full.comp3$fitted.values
+ggplot(SampleIV, aes(minDist_demo, pred_Y))+
+geom_point(aes())
+
+ggplot(SampleIV, aes(q1_adopt,minDist_demo))+
+  geom_boxplot()
+
+ggplot(SampleIV, aes(minDist_demo, pred_Y))+
+  theme_bw()+geom_point(aes(shape = q1_adopt))+
+  geom_smooth(method = glm, colour = "darkgrey" )+
+  scale_x_continuous(limits = c(0, 50))+
+  labs(shape = "Adoption", x = "Minimal distance to demonstration farm (km)", y = "Predicted likelihood of adoption")+
+  #scale_y_continuous(labels = c("0%","20%", "40%", "60%"))+
+  theme(#panel.border = element_blank(), 
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+  
+  
+
+#squared demo distance
+ggplot(SampleIV, aes(sq.demodist, pred_Y))+
+ # geom_point(aes(colour = q1_adopt))+
+  geom_smooth(method = glm )+
   theme_bw()+
- scale_x_continuous(limits = c(0, 50))+
-# scale_y_continuous(limits = c(0, 0.1))+
+  scale_x_continuous(limits = c(0, 50))+
+  #scale_y_continuous(labels = c("0%","20%", "40%", "60%"))+
+  theme(#panel.border = element_blank(), 
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))#+
+
+
+
+
+ggplot(SampleIV, aes(sq.demodist, pred_Y))+
+  geom_point(aes(colour = q1_adopt))+
+  geom_smooth(method = glm )
+
+
+#effect plots for distances
+effect_plot(m.Full.comp3, pred = minDist_demo, data = SampleIV, centered = "all",
+            outcome.scale = "response")
+
+
+p.1<-effect_plot(m.Full.comp3, pred = minDist_demo, data = SampleIV, centered = "all",
+                 outcome.scale = "response",
+                 y.label = "Probability",
+                 x.label = "minimal distance to demo farm (km)") +
+  theme_bw()+
+  scale_x_continuous(limits = c(0, 50))+
+  scale_y_continuous(labels = c("0%","20%", "40%", "60%"))+
   theme(#panel.border = element_blank(), 
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))#+
  
+
+
 p.hist1 <- ggplot(SampleIV, aes(minDist_demo))+
   geom_histogram(binwidth = 5)+
   theme_bw()+

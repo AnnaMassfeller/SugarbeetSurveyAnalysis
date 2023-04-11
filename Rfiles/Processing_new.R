@@ -1110,10 +1110,10 @@ FullSample <- left_join(FullSample, df.ownfields_dist, by = "date")
 ###################################################
 ##############  SAMPLE IV ########################
 ##################################################
-
+SampleIV <- FullSample
 #create sampel for IV/for models with complete observations
 #remove those for which we have no spatial data
-SampleIV<-FullSample[!is.na(FullSample$Kreis.x),]
+SampleIV <- FullSample %>%  dplyr::filter(Kreis.x != "NANA")
 #remove the one delivering to Cosun
 SampleIV<-SampleIV[(!SampleIV$advisory == "Cosun"),]
 #exxclude those who have NA for age
@@ -1124,8 +1124,8 @@ SampleIV$Fabrikstandort_agg <- droplevels(SampleIV$Fabrikstandort_agg )
 SampleIV$Verband_agg <- droplevels(SampleIV$Verband_agg)
 
 vtable(SampleIV,missing = TRUE )
-write_xlsx(SampleIV,"Processed/SampleIV.xlsx")
-SampleIV<-read_xlsx("Processed/SampleIV.xlsx")
+#write_xlsx(SampleIV,"Processed/SampleIV11.04.xlsx")
+#SampleIV<-read_xlsx("Processed/SampleIV.xlsx")
 #create dataframe with all info we have at Kreislevel to then identify outliers
 
 ###########################################################

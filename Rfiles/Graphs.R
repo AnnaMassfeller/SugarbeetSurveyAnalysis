@@ -81,14 +81,22 @@ g.Intent.Mech_auton
 
 g.Age <- ggplot(FullSample, aes(q7_age))+
   geom_histogram(binwidth = 5, stat = "count")+
-  labs(x = "Age in years", y = "Count",title ="Participants' age")+
-  scale_x_discrete(labels = c("15-24", "25-34","35-44","45-54","55-64","65 and more","no Info"))
+  labs(x = "Age in years", y = "Count")+#,title ="Participants' age")+
+  scale_x_discrete(labels = c("15-24", "25-34","35-44","45-54","55-64","65 and more","no Info"))+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        panel.border = element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"), legend.position = "none")
 g.Age
 
 g.Farmsize <- ggplot(FullSample, aes(q7_size))+
   geom_histogram(binwidth = 5, stat = "count")+
-  labs(x = "Farmsize in hectar", y = "Count",title ="Farm Size")+
-  scale_x_discrete(labels = c("less than 5", "5-9","10-19","20-49","50-99","100-199","200-499","500-999","1000 and more", "no Info"))
+  labs(x = "Farmsize in hectar", y = "Count")+#,title ="Farm Size")+
+  scale_x_discrete(labels = c("less than 5", "5-9","10-19","20-49","50-99","100-199","200-499","500-999","1000 and more", "no Info"))+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        panel.border = element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"), legend.position = "none")
 g.Farmsize
 
 g.Specialization <- ggplot(FullSample, aes(q7_speci_select))+
