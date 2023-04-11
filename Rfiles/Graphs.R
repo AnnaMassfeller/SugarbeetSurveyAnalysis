@@ -927,7 +927,7 @@ g.NrFields_SF<- ggplot(FullSample)+
         panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"), legend.position = "none")+
   scale_x_discrete(labels = c("0", "1-5","6-10","11-15","more than 15"))
 
-g.DistFields_SF<- ggplot(Fullsample)+
+g.DistFields_SF<- ggplot(FullSample)+
   geom_bar(aes(FieldDist))+#,fill = as.factor(advisory)),position= "dodge")+
   #scale_y_continuous(labels=scales::percent)+
   scale_fill_manual(values = c("darkblue","darkgreen","darkred"))+
@@ -980,6 +980,25 @@ p.own_fields2<-ggplot(OwnFieldsSample,aes(Mean_ownfield_dist)) +
 
 
 ggarrange(g.NrPeers_SF, g.NrFields_SF, g.DistFields_SF,g.ownfields_cat,nrow = 2, ncol = 2)
+
+
+
+#plot cross-table between adopters known and fields observed
+
+table(FullSample$fields_b, FullSample$info_b)
+
+d <- ggplot(FullSample, aes(info_b, fields_b))
+d + geom_count(aes(size = after_stat(prop), group = 1)) +
+  scale_size_area(max_size = 60)+
+  labs(size = "Prop", x = "Knowing other farmers", y = "Observing fields")+
+  theme_bw(base_size = 12)+
+  scale_x_discrete(labels = c("No", "Yes"))+
+  scale_y_discrete(labels = c("No", "Yes"))+
+  theme(axis.text.x = element_text( hjust = 1),
+        panel.border = element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),legend.position = "none")
+
+
 
 
 
