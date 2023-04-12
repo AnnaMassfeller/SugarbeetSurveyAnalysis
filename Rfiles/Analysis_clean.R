@@ -341,8 +341,8 @@ p.mFull_mfx_compareIV2 <- plot_summs(m.Full.comp_mfx,m.fields,m.info,
 
 
 #now enter distance to fields and number of peers known as factor and remove fields_b
-SampleIV<- FullSample[!is.na(FullSample$minDist_demo)&!is.na(FullSample$advisory)&
-                                    !is.na(FullSample$age_b)&!(FullSample$advisory == "Cosun"),]
+#SampleIV<- FullSample[!is.na(FullSample$minDist_demo)&!is.na(FullSample$advisory)&
+ #                                   !is.na(FullSample$age_b)&!(FullSample$advisory == "Cosun"),]
 
 SampleIV$advisory<- as.factor(SampleIV$advisory)
 SampleIV$advisory <- relevel(SampleIV$advisory, ref = "Nordzucker")
@@ -457,6 +457,61 @@ p.mFull2_mfx <- plot_summs(m.Full2_mfx,
                           scale = TRUE, robust = TRUE)
 
 
+
+#create one model with number of fields and number of adopters together
+summary(m.Full4 <- glm(q1_adopt ~   q3_info +NrFields+
+                         minDist_demo + 
+                         sq.demodist+
+                         age_b + 
+                         farmsize_b + 
+                         AES_b +
+                         Fabrikstandort_agg, 
+                       data = SampleIV, family = binomial("probit")))#ref-category:0 = 0 peers
+
+m.Full4_mfx <-mfx::probitmfx(m.Full4, data = SampleIV)
+
+#and one with number of adopters and distance to fields observed
+
+summary(m.Full5 <- glm(q1_adopt ~   q3_info +FieldDist+
+                         minDist_demo + 
+                         sq.demodist+
+                         age_b + 
+                         farmsize_b + 
+                         AES_b +
+                         Fabrikstandort_agg, 
+                       data = SampleIV, family = binomial("probit")))#ref-category:0 = 0 peers
+
+m.Full5_mfx <-mfx::probitmfx(m.Full5, data = SampleIV)
+
+p.mFull45_mfx <- plot_summs(m.Full4_mfx,m.Full5_mfx, 
+                           coefs = c("1-5 adopters known"="q3_info1",
+                                     "6-10 adopters known"="q3_info2",
+                                     "more than 10 adopters known"="q3_info3",
+                                    # "minimal distance to demo farm" = "minDist_demo",
+                                    # "distance to fields observed"="fields_dist",
+                                     "1-5 fields observed"="NrFields1",
+                                     "6-10 fields observed"="NrFields2",
+                                     "11-15 fields observed"="NrFields3",
+                                     "more than 15 fields observed"="NrFields4",
+                                    "observed fields in 0-5km"="FieldDist0",
+                                    "observed fields in 6-10km"="FieldDist1",
+                                    "observed fields in 11-15km"="FieldDist2",
+                                    "observed fields in 16-20km"="FieldDist3",
+                                    "observed fields in 21-30km"="FieldDist4",
+                                    "observed fields in more than 30km"="FieldDist5"
+                                     #"observing fields" = "fields_b1",
+                                     #"squared distance to fields observed"="sq.fields_dist",
+                                     #"minimal distance to demo farm" = "minDist_demo",
+                                     #"squared minimal distance to demo farm" = "sq.demodist",
+                                     #"advisory Pfeiffer&Langen" = "advisoryPfeifferLangen",
+                                     #"advisory Südzucker"= "advisorySüdzucker",
+                                     #"older than 45 years"="age_b1",
+                                     #"farm size > 50 ha"="farmsize_b1",
+                                     #"AES participation"="AES_b1"),
+                           ),
+                           model.names = c("Model_NrFields","Model_FieldDist"),
+                           colors = c("Grey28", "Grey55"),
+                           scale = TRUE, robust = TRUE)
 
 models_cat <-plot_summs(m.Full2_mfx,m.Allin2_mfx, m.Full_mfx, 
            coefs = c("1-5 adopters known"="q3_info1",
@@ -1074,18 +1129,18 @@ marginal.effects_Intention1 <- plot_summs(op1_0,#op2_0, op3_0,
                                          m.Full.comp_mfx3,
                                          #point.shape = 
                                          robust = TRUE, scale = TRUE,colors = c("Greys"),#c("Black", "Grey38", "Grey58","Black", "Grey38", "Grey58","Black", "Grey38", "Grey58","Black", "Grey38", "Grey58","Black", "Grey38", "Grey58"),
-                                         legend.title = "Traditional mechanical weeding",
+                                         #legend.title = "Traditional mechanical weeding",
                                          model.names = c("No Intention",#"Modern_noIntention","Autonomous_noIntention",
                                                          "Low Intention",#"Modern_lowIntention","Autonomous_lowIntention",
                                                          "Middle Intention",#"Modern_middleIntention","Autonomous_middleIntention",
                                                          "High Intention",#"Modern_highIntention","Autonomous_highIntention",
                                                          "Adoption",
                                                          "Pre-registration model"),#"Modern_Adoption","Autonomous_Adoption"),
-           coefs = c("knowing other farmers (info)"="info_b1",
+           coefs = c("Knowing adopters"="info_b1",
                      "Info_IV =knowing other farmers"="info_iv",
-                     "observing fields (fields)"="fields_b1",
+                     "Observing fields"="fields_b1",
                      "Field_IV = observing fields"="fields_iv",
-                     "distance to fields observed"="fields_dist")) +theme(legend.position="bottom")+
+                     "distance to fields observed"="fields_dist")) +theme(legend.position="none") + ggtitle("Traditional mechanical weeding")+
   guides(color = guide_legend(nrow = 2, byrow = TRUE))
 
 marginal.effects_Intention2 <- plot_summs(op2_0, #op3_0,
@@ -1100,12 +1155,12 @@ marginal.effects_Intention2 <- plot_summs(op2_0, #op3_0,
                            "Middle Intention",#"Autonomous_middleIntention",
                            "High Intention",#"Autonomous_highIntention",
                            "Adoption"),#"Autonomous_Adoption"),
-           legend.title = "Modern mechanical weeding",
-           coefs = c("knowing other farmers (info)"="info_b1",
+          # legend.title = "Modern mechanical weeding",
+           coefs = c("Knowing adopters"="info_b1",
                      "Info_IV =knowing other farmers"="info_iv",
-                     "observing fields (fields)"="fields_b1",
+                     "Observing fields"="fields_b1",
                      "Field_IV = observing fields"="fields_iv",
-                     "distance to fields observed"="fields_dist")) +theme(legend.position="bottom")+
+                     "distance to fields observed"="fields_dist")) +theme(legend.position="none") + ggtitle("Modern mechanical weeding")+
   guides(color = guide_legend(nrow = 2, byrow = TRUE))
 
 marginal.effects_Intention3 <- plot_summs(op3_0,
@@ -1115,22 +1170,69 @@ marginal.effects_Intention3 <- plot_summs(op3_0,
                                            op3_4,
                                            robust = TRUE, scale = TRUE,colors = c("Greys"),#c("Black", "Grey38", "Grey58","Black", "Grey38", "Grey58","Black", "Grey38", "Grey58","Black", "Grey38", "Grey58","Black", "Grey38", "Grey58"),
                                           shape = TRUE, 
-                                          legend.title = "Autonomous mechanical weeding",
+                                        #  legend.title = "Autonomous mechanical weeding",
                                           model.names = c("No Intention",
                                                            "Low Intention",
                                                            "Middle Intention",
                                                            "High Intention",
                                                            "Adoption"),
-                                           coefs = c("knowing other farmers (info)"="info_b1",
-                                                     "Info_IV =knowing other farmers"="info_iv",
-                                                     "observing fields (fields)"="fields_b1",
-                                                     "Field_IV = observing fields"="fields_iv",
-                                                     "distance to fields observed"="fields_dist")) +theme(legend.position="bottom")+
+                                           coefs = c("Knowing adopters"="info_b1",
+                     "Info_IV =knowing other farmers"="info_iv",
+                     "Observing fields"="fields_b1",
+                     "Field_IV = observing fields"="fields_iv",
+                     "distance to fields observed"="fields_dist")) +theme(legend.position="none")+ ggtitle("Autonomous mechanical weeding")+
   guides(color = guide_legend(nrow = 2, byrow = TRUE))
 
 
+ggarrange(marginal.effects_Intention1, marginal.effects_Intention2, marginal.effects_Intention3, ncol = 1)
 
+#put all together
 
+All_prereg <- plot_summs(op1_0,#op2_0, op3_0,
+                         op1_1,#op2_1, op3_1,
+                         op1_2, #op2_2,op3_2,
+                         op1_3, #op2_3,op3_3,
+                         op1_4, #op2_4,op3_4,
+                         op2_0, #op3_0,
+                         op2_1, #op3_1,
+                         op2_2,#op3_2,
+                         op2_3,#op3_3,
+                         op2_4,#op3_4,
+                         op3_0,
+                         op3_1,
+                         op3_2,
+                         op3_3,
+                         op3_4,
+                         m.Full.comp_mfx3,
+                         #point.shape = 
+                         robust = TRUE, scale = TRUE,colors = c("grey80","grey80","grey80","grey80","grey80",
+                                                                "grey50","grey50","grey50","grey50","grey50",
+                                                                "grey27","grey27","grey27","grey27","grey27",
+                                                                "Black"),
+                         point.shape = c("square open","circle open","triangle open","plus","cross",
+                                         "square open","circle open","triangle open","plus","cross",
+                                         "square open","circle open","triangle open","plus","cross",
+                                         "diamond open"),
+                         #legend.title = "Traditional mechanical weeding",
+                         model.names = c("Traditional - No Intention",#"Modern_noIntention","Autonomous_noIntention",
+                                         "Traditional - Low Intention",#"Modern_lowIntention","Autonomous_lowIntention",
+                                         "Traditional - Middle Intention",#"Modern_middleIntention","Autonomous_middleIntention",
+                                         "Traditional - High Intention",#"Modern_highIntention","Autonomous_highIntention",
+                                         "Traditional - Adoption",
+                                         "Modern - No Intention",#"Modern_noIntention","Autonomous_noIntention",
+                                         "Modern - Low Intention",#"Modern_lowIntention","Autonomous_lowIntention",
+                                         "Modern - Middle Intention",#"Modern_middleIntention","Autonomous_middleIntention",
+                                         "Modern - High Intention",#"Modern_highIntention","Autonomous_highIntention",
+                                         "Modern - Adoption",
+                                         "Autonomous - No Intention",#"Modern_noIntention","Autonomous_noIntention",
+                                         "Autonomous - Low Intention",#"Modern_lowIntention","Autonomous_lowIntention",
+                                         "Autonomous - Middle Intention",#"Modern_middleIntention","Autonomous_middleIntention",
+                                         "Autonomous - High Intention",#"Modern_highIntention","Autonomous_highIntention",
+                                         "Autonomous - Adoption",
+                                         "Pre-registration model"),#"Modern_Adoption","Autonomous_Adoption"),
+                         coefs = c("Knowing adopters"="info_b1",
+                                   "Observing fields"="fields_b1")) +theme(legend.position="bottom") #+ ggtitle("Traditional mechanical weeding")+
+  guides(color = guide_legend(nrow = 2, byrow = TRUE))
 
 
 
