@@ -997,7 +997,7 @@ table(FullSample$fields_b, FullSample$info_b)
 
 d <- ggplot(FullSample, aes(info_b, fields_b))
 d + geom_count(aes(size = after_stat(prop), group = 1)) +
-  scale_size_area(max_size = 60)+
+  scale_size_area(max_size = 40)+
   labs(size = "Prop", x = "Knowing other farmers", y = "Observing fields")+
   theme_bw(base_size = 12)+
   scale_x_discrete(labels = c("No", "Yes"))+
@@ -1007,6 +1007,30 @@ d + geom_count(aes(size = after_stat(prop), group = 1)) +
         panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),legend.position = "none")
 
 
+d + geom_jitter(aes(colour= q1_adopt), position = position_jitter (0.3))+
+  labs(x = "Knowing other farmers", y = "Observing fields")+
+  theme_bw(base_size = 12)+
+  scale_colour_manual(values = c("grey10", "grey60"),name = "Adoption", labels = c("No", "Yes"))+
+  scale_x_discrete(labels = c("No", "Yes"))+
+  scale_y_discrete(labels = c("No", "Yes"))+
+  theme(axis.text.x = element_text( hjust = 1),
+        panel.border = element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),legend.position = "bottom")
+  
 
+
+ggplot(FullSample, aes(q1_adopt))+
+  geom_bar(position = "dodge", aes(fill = q1_adopt))+
+  facet_grid(info_b~fields_b, switch = "both", labeller = as_labeller(c("0"='No',"1"='Yes')))+
+  labs(x = "Knowing other farmers", y = "Observing fields")+
+  theme_bw(base_size = 12)+
+  scale_fill_manual(values = c("grey10", "grey60"),name = "Adoption", labels = c("No", "Yes"))+
+  scale_x_discrete(labels = c("", ""))+
+  #scale_y_discrete(labels = c("No", "Yes"))+
+  theme(axis.text.x = element_text( hjust = 1),
+        panel.border = element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),legend.position = "right")
+
+  
 
 
