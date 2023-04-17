@@ -1031,6 +1031,40 @@ ggplot(FullSample, aes(q1_adopt))+
         panel.border = element_blank(), panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),legend.position = "right")
 
-  
+df.rq3 <- FullSample %>% dplyr::select(info_b, fields_b, q1_adopt,  minDist_demo)#library(scales)
+library(scales)
+df.rq3$minDist_demo_St <- rescale(df.rq3$minDist_demo,  to = c(0, 1))
+
+df.rq3 <- df.rq3 %>% 
+  unite(group, c(info_b, fields_b), sep = "_", remove = FALSE)  
+
+#df.rq3$selection_distance <- as.numeric(as.character(df.rq3$selection_distance))
+df.rq3$q1_adopt <- as.numeric(as.character(df.rq3$q1_adopt))
+
+
+df.rq3 <- df.rq3 %>%
+  group_by(group) %>%
+  summarise_at(vars(q1_adopt, minDist_demo_St), list(mean = mean), na.rm = TRUE)
+
+library(reshape2)
+df.rq3.means.long<-melt(df.rq3,id.vars= "group")
+
+df.rq3.means.long<-df.rq3.means.long %>% separate(group, c('info', 'fields'), sep= "_")
+
+ggplot(df.rq3.means.long,aes(x=variable,y=value))+
+  geom_bar(stat="identity",position="dodge")+
+  scale_fill_discrete(name="group",
+                      breaks=c(1, 2))+
+  xlab("")+
+  ylab("Mean")+
+  facet_grid(info~fields, labeller = as_labeller(c("0"='No',"1"='Yes')))+
+  theme_bw(base_size = 12)+
+  #scale_fill_manual(values = c("grey10", "grey60"),name = "Adoption", labels = c("No", "Yes"))+
+  scale_x_discrete(labels = c("Share of adoption", "Distance to demonstration farm"))+
+  theme(axis.text.x = element_text(hjust = 1, angle = 45),
+        panel.border = element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),legend.position = "right")
+
+
 
 

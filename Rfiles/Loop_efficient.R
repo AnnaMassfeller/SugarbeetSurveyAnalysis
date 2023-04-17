@@ -188,6 +188,13 @@ plot_summs(final.lstlasso_mfx_1,
            colors = c("Grey38","Grey40","Grey42","Grey44","Grey46","Grey48","Grey50","Grey52","Grey54","Grey56"))+ theme(legend.position="bottom")
 
 
+#plot for CP6 presentatio Jan 10.03.23
+plot_summs(m.Full.comp_mfx3, final.lstlasso_mfx_1[1], 
+           coefs = c("Knowing adopters"="info_b1",
+                     "Observing fields"="fields_b1"
+           ),
+         #  model.names = c("Pre-registration model", "LASSO model"),
+           scale = TRUE, robust = TRUE,colors = c("grey60", "grey36"))+guides(color = guide_legend(nrow = 2, byrow = TRUE))
 
 
 

@@ -781,7 +781,7 @@ effect_plot(m.Full.comp3, pred = minDist_demo, data = SampleIV, centered = "all"
 p.1<-effect_plot(m.Full.comp3, pred = minDist_demo, data = SampleIV, centered = "all",
                  outcome.scale = "response",
                  y.label = "Probability",
-                 x.label = "minimal distance to demo farm (km)") +
+                 x.label = "Minimal distance to demonstration farm [km]") +
   theme_bw()+
   scale_x_continuous(limits = c(0, 50))+
   scale_y_continuous(labels = c("0%","20%", "40%", "60%"))+
@@ -794,7 +794,7 @@ p.1<-effect_plot(m.Full.comp3, pred = minDist_demo, data = SampleIV, centered = 
 p.hist1 <- ggplot(SampleIV, aes(minDist_demo))+
   geom_histogram(binwidth = 5)+
   theme_bw()+
-  scale_x_continuous(limits = c(0, 50))+
+  scale_x_continuous(limits = c(-2.5, 50))+
   scale_y_continuous(limits = c(0, 60))+
   theme(panel.border = element_blank(), panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), axis.line = element_line(colour = "white"),
