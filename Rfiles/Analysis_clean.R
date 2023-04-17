@@ -1186,6 +1186,74 @@ marginal.effects_Intention3 <- plot_summs(op3_0,
 
 ggarrange(marginal.effects_Intention1, marginal.effects_Intention2, marginal.effects_Intention3, ncol = 1)
 
+
+#rearrange Intention to plot in easier to understand plot
+#first for info
+df.Intention_estimates_info <- matrix(nrow=3, ncol=5)
+df.Intention_estimates_info[1,1] <- mean(op1_0$dydx_info_b1)
+df.Intention_estimates_info[1,2] <- mean(op1_1$dydx_info_b1)
+df.Intention_estimates_info[1,3] <- mean(op1_2$dydx_info_b1)
+df.Intention_estimates_info[1,4] <- mean(op1_3$dydx_info_b1)
+df.Intention_estimates_info[1,5] <- mean(op1_4$dydx_info_b1)
+df.Intention_estimates_info[2,1] <- mean(op2_0$dydx_info_b1)
+df.Intention_estimates_info[2,2] <- mean(op2_1$dydx_info_b1)
+df.Intention_estimates_info[2,3] <- mean(op2_2$dydx_info_b1)
+df.Intention_estimates_info[2,4] <- mean(op2_3$dydx_info_b1)
+df.Intention_estimates_info[2,5] <- mean(op2_4$dydx_info_b1)
+df.Intention_estimates_info[3,1] <- mean(op3_0$dydx_info_b1)
+df.Intention_estimates_info[3,2] <- mean(op3_1$dydx_info_b1)
+df.Intention_estimates_info[3,3] <- mean(op3_2$dydx_info_b1)
+df.Intention_estimates_info[3,4] <- mean(op3_3$dydx_info_b1)
+df.Intention_estimates_info[3,5] <- mean(op3_4$dydx_info_b1)
+
+colnames(df.Intention_estimates_info)<- c("No","Low","Middle","High","Adoption")
+df.Intention_estimates_info<- as.data.frame(df.Intention_estimates_info)
+df.Intention_estimates_info$Type <- 0
+df.Intention_estimates_info[1,6] <- "Traditional"
+df.Intention_estimates_info[2,6] <-"Modern"
+df.Intention_estimates_info[3,6] <-"Autonomous"
+
+df.Intention_estimates_info.long<-melt(df.Intention_estimates_info,id.vars= "Type")
+df.Intention_estimates_info.long$group <- "i"
+#then for field
+df.Intention_estimates_field <- matrix(nrow=3, ncol=5)
+df.Intention_estimates_field[1,1] <- mean(op1_0$dydx_fields_b1)
+df.Intention_estimates_field[1,2] <- mean(op1_1$dydx_fields_b1)
+df.Intention_estimates_field[1,3] <- mean(op1_2$dydx_fields_b1)
+df.Intention_estimates_field[1,4] <- mean(op1_3$dydx_fields_b1)
+df.Intention_estimates_field[1,5] <- mean(op1_4$dydx_fields_b1)
+df.Intention_estimates_field[2,1] <- mean(op2_0$dydx_fields_b1)
+df.Intention_estimates_field[2,2] <- mean(op2_1$dydx_fields_b1)
+df.Intention_estimates_field[2,3] <- mean(op2_2$dydx_fields_b1)
+df.Intention_estimates_field[2,4] <- mean(op2_3$dydx_fields_b1)
+df.Intention_estimates_field[2,5] <- mean(op2_4$dydx_fields_b1)
+df.Intention_estimates_field[3,1] <- mean(op3_0$dydx_fields_b1)
+df.Intention_estimates_field[3,2] <- mean(op3_1$dydx_fields_b1)
+df.Intention_estimates_field[3,3] <- mean(op3_2$dydx_fields_b1)
+df.Intention_estimates_field[3,4] <- mean(op3_3$dydx_fields_b1)
+df.Intention_estimates_field[3,5] <- mean(op3_4$dydx_fields_b1)
+
+colnames(df.Intention_estimates_field)<- c("No","Low","Middle","High","Adoption")
+df.Intention_estimates_field<- as.data.frame(df.Intention_estimates_field)
+df.Intention_estimates_field$Type <- 0
+df.Intention_estimates_field[1,6] <- "Traditional"
+df.Intention_estimates_field[2,6] <-"Modern"
+df.Intention_estimates_field[3,6] <-"Autonomous"
+
+df.Intention_estimates_field.long<-melt(df.Intention_estimates_field,id.vars= "Type")
+df.Intention_estimates_field.long$group <- "f"
+
+df.Intentions_estimates<- rbind(df.Intention_estimates_info.long, df.Intention_estimates_field.long)
+
+ggplot(df.Intentions_estimates, aes(variable, value, shape = group))+
+  geom_point()+
+  facet_grid(Type~.)+
+  xlab("")+
+  ylab("Estimate")+
+  scale_shape_manual(values = c(20,4), name = "Variable", labels = c("ObserveFields", "KnowAdopters"))
+  
+
+
 #put all together
 
 All_prereg <- plot_summs(op1_0,#op2_0, op3_0,
@@ -1203,7 +1271,6 @@ All_prereg <- plot_summs(op1_0,#op2_0, op3_0,
                          op3_2,
                          op3_3,
                          op3_4,
-                         m.Full.comp_mfx3,
                          #point.shape = 
                          robust = TRUE, scale = TRUE,colors = c("grey80","grey80","grey80","grey80","grey80",
                                                                 "grey50","grey50","grey50","grey50","grey50",

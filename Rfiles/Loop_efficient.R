@@ -189,7 +189,8 @@ plot_summs(final.lstlasso_mfx_1,
 
 
 #plot for CP6 presentatio Jan 10.03.23
-plot_summs(m.Full.comp_mfx3, final.lstlasso_mfx_1[1], 
+plot_summs(final.lstlasso_mfx_1[1], 
+           m.Full.comp_mfx3,
            coefs = c("Knowing adopters"="info_b1",
                      "Observing fields"="fields_b1"
            ),
