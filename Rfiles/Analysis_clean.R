@@ -1250,7 +1250,9 @@ ggplot(df.Intentions_estimates, aes(variable, value, shape = group))+
   facet_grid(Type~.)+
   xlab("")+
   ylab("Estimate")+
-  scale_shape_manual(values = c(20,4), name = "Variable", labels = c("ObserveFields", "KnowAdopters"))
+  scale_shape_manual(values = c(20,4), name = "Variable", labels = c("ObserveFields", "KnowAdopters"))+
+  geom_hline(yintercept=0, 
+             color = "darkgrey", size=0.5)
   
 
 
