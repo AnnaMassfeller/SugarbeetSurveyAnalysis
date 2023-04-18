@@ -173,7 +173,8 @@ write_xlsx(df.margEffects,"Output/df.margEffects.xlsx")
 #no loop on depdenent vars, seeds and nfolds needed as we only have one full model for all
 reg_Full <- glm(q1_adopt ~ .,data=dat,family = "binomial")
 reg_Full_mfx <- probitmfx(reg_Full, data = dat)
-plot_summs(reg_Full_mfx,robust = TRUE, standard = TRUE, coefs = c("fields_b1", "info_b1"))
+plot_summs(reg_Full_mfx,
+           robust = TRUE, standard = TRUE, coefs = c("fields_b1", "info_b1"))
 
 
 
@@ -189,17 +190,12 @@ plot_summs(final.lstlasso_mfx_1,
 
 
 #plot for CP6 presentatio Jan 10.03.23
-plot_summs(final.lstlasso_mfx_1[1], 
-           m.Full.comp_mfx3,
+plot_coefs(m.Full.comp_mfx3,
+           final.lstlasso_mfx_1[["m.Lasso_select_mfx_1"]], 
            coefs = c("Knowing adopters"="info_b1",
-                     "Observing fields"="fields_b1"
-           ),
-         #  model.names = c("Pre-registration model", "LASSO model"),
-           scale = TRUE, robust = TRUE,colors = c("grey60", "grey36"))+guides(color = guide_legend(nrow = 2, byrow = TRUE))
+                     "Observing fields"="fields_b1"),
+           model.names = c("Pre-registration model", "LASSO model"),
+           scale = TRUE, robust = TRUE,colors = c("grey60", "grey36"))+
+  guides(color = guide_legend(nrow = 2, byrow = TRUE))
 
-
-
-
-#library("dotwhisker")
-#dwplot(final.lstlasso_mfx_1,final.lstlasso_mfx_2, vars_order = c("info_b1", "fields_b1"))+ theme(legend.position="none")
 
