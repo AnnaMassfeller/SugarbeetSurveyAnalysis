@@ -794,7 +794,7 @@ p.1<-effect_plot(m.Full.comp3, pred = minDist_demo, data = SampleIV, centered = 
 p.hist1 <- ggplot(SampleIV, aes(minDist_demo))+
   geom_histogram(binwidth = 5)+
   theme_bw()+
-  scale_x_continuous(limits = c(-2.5, 50))+
+  scale_x_continuous(limits = c(-2.5, 52.5))+
   scale_y_continuous(limits = c(0, 60))+
   theme(panel.border = element_blank(), panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), axis.line = element_line(colour = "white"),
