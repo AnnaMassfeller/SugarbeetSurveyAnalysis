@@ -608,6 +608,9 @@ m.5.mfx <- mfx::probitmfx(m.5 <-glm(q1_adopt ~ info_b + fields_b+
                                  Fabrikstandort_agg, 
                    data = SampleIV,family = binomial("probit")), data = SampleIV)
 
+plot_summs(m.3.mfx, m.4.mfx, m.5.mfx, coefs = c("info_b1","fields_b1"), robust = T, scale = T, 
+           model.names = c("Only KnowAdopters", "Only ObserveFields", "Both"))
+
 #COmpare AIC?
 subtitute <- plot_summs(m.2.mfx, m.3.mfx, m.4.mfx, m.5.mfx,
                         coefs = c("knowing other farmers"="info_b1",
@@ -1710,5 +1713,160 @@ plot(Effect("q3_info",orderedprobit1_NrAdopters),style="stacked")
 #get data for sebastian
 write_xlsx(DemoOrganic_coord,"DemoOrganic_coord_forSebastian.xlsx")
 write_xlsx(df.SB_fabriken,"Zuckerfabriken_coord_forSebastian.xlsx")
+
+
+
+#to explore RQ3 further explore some effects of interactionterms by using the prereg-model
+summary(PreReg_interact1 <- glm(q1_adopt ~  #info_b +
+                             # fields_b +
+                                info_b*fields_b+
+                              minDist_demo + 
+                              sq.demodist+
+                              age_b + 
+                              farmsize_b + 
+                              AES_b +
+                              Fabrikstandort_agg 
+                            ,data = SampleIV, family = binomial("probit")))
+
+PreReg_interact1_mfx <-mfx::probitmfx(PreReg_interact1, data = SampleIV, robust = TRUE)
+plot_summs(m.Full.comp_mfx3,PreReg_interact1_mfx,scale = TRUE, robust = TRUE, 
+           coefs = c("info_b1", "fields_b1", "info_b1:fields_b1"))
+
+#create dummy var for having observed fields and/or know adopters
+
+SampleIV$NoFieldNoKnow <- ifelse(SampleIV$info_b == 0 & SampleIV$fields_b == 0,1,0)
+SampleIV$FieldKnow <- ifelse(SampleIV$info_b == 1 & SampleIV$fields_b == 1,1,0)
+SampleIV$NoFieldKnow <- ifelse(SampleIV$info_b == 1 & SampleIV$fields_b == 0,1,0)
+SampleIV$FieldNoKnow <- ifelse(SampleIV$info_b == 0 & SampleIV$fields_b == 1,1,0)
+
+summary(PreReg_interact2 <- glm(q1_adopt ~ 
+                                  FieldKnow+
+                                  NoFieldKnow+
+                                  FieldNoKnow+
+                                  NoFieldNoKnow+
+                                  minDist_demo + 
+                                  sq.demodist+
+                                  age_b + 
+                                  farmsize_b + 
+                                  AES_b +
+                                  Fabrikstandort_agg 
+                                ,data = SampleIV, family = binomial("probit")))
+
+PreReg_interact2_mfx <-mfx::probitmfx(PreReg_interact2, data = SampleIV, robust = TRUE)
+plot_summs(m.Full.comp_mfx3,PreReg_interact2_mfx,scale = TRUE, robust = TRUE, 
+           coefs = c("info_b1", "fields_b1", "FieldKnow", "NoFieldKnow", "FieldNoKnow"))
+
+
+#interact both vars in categorcial terms
+#first info_b with Nr fields a
+table(SampleIV$info_b, SampleIV$NrFields)
+SampleIV$NrFields_agg <- SampleIV$NrFields #create aggregated var where 11-15 and more than 15 are in one group
+SampleIV$NrFields_agg <- ifelse(SampleIV$NrFields == 4, 3,SampleIV$NrFields)
+table(SampleIV$info_b, SampleIV$NrFields_agg)
+summary(PreReg_interact3 <- glm(q1_adopt ~ 
+                                  info_b*NrFields_agg +
+                                  minDist_demo + 
+                                  sq.demodist+
+                                  age_b + 
+                                  farmsize_b + 
+                                  AES_b +
+                                  Fabrikstandort_agg 
+                                ,data = SampleIV, family = binomial("probit")))
+
+PreReg_interact3_mfx <-mfx::probitmfx(PreReg_interact3, data = SampleIV, robust = TRUE)
+plot_summs(m.Full.comp_mfx3,PreReg_interact3_mfx,scale = TRUE, robust = TRUE)
+#why do reuslts on individual vars differ so much from above cat plots?
+
+
+#then info_b with distance to fields
+table(SampleIV$info_b, SampleIV$FieldDist)
+#SampleIV$FieldDist_agg <- SampleIV$FieldDist #create aggregated var where 11-15, 16-20 & 21-30 are in one group
+#SampleIV$FieldDist_agg <- ifelse(SampleIV$FieldDist == "4", "3",SampleIV$FieldDist) #why not work?
+#SampleIV$FieldDist_agg <- ifelse(SampleIV$FieldDist == "5", "3",SampleIV$FieldDist)
+#FieldDist_agg<-as.factor(FieldDist_agg)
+table(SampleIV$info_b, SampleIV$FieldDist_agg)
+
+summary(PreReg_interact4 <- glm(q1_adopt ~ 
+                                  info_b*FieldDist +
+                                  minDist_demo + 
+                                  sq.demodist+
+                                  age_b + 
+                                  farmsize_b + 
+                                  AES_b +
+                                  Fabrikstandort_agg 
+                                ,data = SampleIV, family = binomial("probit")))
+
+PreReg_interact4_mfx <-mfx::probitmfx(PreReg_interact4, data = SampleIV, robust = TRUE)
+plot_summs(m.Full.comp_mfx3,PreReg_interact4_mfx,scale = TRUE, robust = TRUE)
+
+#then fields_b with nr Adopters
+table(SampleIV$fields_b, SampleIV$q3_info)
+SampleIV$q3_info_agg <- SampleIV$q3_info #create aggregated var where 6-10 and more than 10
+SampleIV$q3_info_agg <- ifelse(SampleIV$q3_info == 3, 3,SampleIV$q3_info)
+SampleIV$q3_info_agg<-as.factor(SampleIV$q3_info_agg)
+table(SampleIV$fields_b, SampleIV$q3_info_agg)
+
+summary(PreReg_interact5 <- glm(q1_adopt ~ 
+                                  fields_b*q3_info_agg +
+                                  minDist_demo + 
+                                  sq.demodist+
+                                  age_b + 
+                                  farmsize_b + 
+                                  AES_b +
+                                  Fabrikstandort_agg 
+                                ,data = SampleIV, family = binomial("probit")))
+
+PreReg_interact5_mfx <-mfx::probitmfx(PreReg_interact5, data = SampleIV, robust = TRUE)
+plot_summs(m.Full.comp_mfx3,PreReg_interact5_mfx,scale = TRUE, robust = TRUE)
+
+
+#interact NrFields &FieldDist
+#problematic for those who don't observe fields, check how to deal with it
+summary(PreReg_interact6 <- glm(q1_adopt ~ 
+                                 NrFields*FieldDist+
+                                  minDist_demo + 
+                                  sq.demodist+
+                                  age_b + 
+                                  farmsize_b + 
+                                  AES_b +
+                                  Fabrikstandort_agg 
+                                ,data = SampleIV, family = binomial("probit")))
+
+PreReg_interact6_mfx <-mfx::probitmfx(PreReg_interact6, data = SampleIV, robust = TRUE)
+plot_summs(m.Full.comp_mfx3,PreReg_interact6_mfx,scale = TRUE, robust = TRUE)
+
+
+#interact NrAdopters and NrFields
+summary(PreReg_interact7 <- glm(q1_adopt ~ 
+                                  NrFields*q3_info+
+                                  minDist_demo + 
+                                  sq.demodist+
+                                  age_b + 
+                                  farmsize_b + 
+                                  AES_b +
+                                  Fabrikstandort_agg 
+                                ,data = SampleIV, family = binomial("probit")))
+
+PreReg_interact7_mfx <-mfx::probitmfx(PreReg_interact7, data = SampleIV, robust = TRUE)
+plot_summs(m.Full.comp_mfx3,PreReg_interact7_mfx,scale = TRUE, robust = TRUE)
+
+#interact NrAdoptes and FieldDist
+summary(PreReg_interact8 <- glm(q1_adopt ~ 
+                                  FieldDist*q3_info+
+                                  minDist_demo + 
+                                  sq.demodist+
+                                  age_b + 
+                                  farmsize_b + 
+                                  AES_b +
+                                  Fabrikstandort_agg 
+                                ,data = SampleIV, family = binomial("probit")))
+
+PreReg_interact8_mfx <-mfx::probitmfx(PreReg_interact8, data = SampleIV, robust = TRUE)
+plot_summs(m.Full.comp_mfx3,PreReg_interact8_mfx,scale = TRUE, robust = TRUE)
+
+#for 24.04
+#many empty groups --> reduce number of groups to avoid that and check again
+#read how interaction terms are interpreted
+
 
 
