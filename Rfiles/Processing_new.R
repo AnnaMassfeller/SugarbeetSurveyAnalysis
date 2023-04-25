@@ -1124,7 +1124,7 @@ SampleIV$Fabrikstandort_agg <- droplevels(SampleIV$Fabrikstandort_agg )
 SampleIV$Verband_agg <- droplevels(SampleIV$Verband_agg)
 
 vtable(SampleIV,missing = TRUE )
-write_xlsx(SampleIV,"Processed/SampleIV1404.xlsx")
+write_xlsx(SampleIV,"Processed/SampleIV2404.xlsx")
 #SampleIV<-read_xlsx("Processed/SampleIV.xlsx")
 #create dataframe with all info we have at Kreislevel to then identify outliers
 
