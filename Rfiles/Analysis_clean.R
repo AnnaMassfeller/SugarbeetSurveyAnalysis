@@ -12,6 +12,13 @@ library(ggpubr)
 library(MASS)
 library(mfx)
 library(plyr)
+library(dplyr)
+library(purrr)
+library(rlang)
+library(vctrs)
+library(recipes)
+library(caret)
+library(performance)
 
 
 #prep
@@ -698,9 +705,9 @@ m5<- matrix(table(SampleIV$q1_adopt, probabilities_m.5))
 #correct:
 (m5[1]+m5[4])/(m5[1]+m5[2]+m5[3]+m5[4])
 
-
-
-
+library(performance)
+#install.packages("insight")
+performance_accuracy(m.5)
 
 
 #first need one regression that includes the distance variables
@@ -1789,19 +1796,31 @@ ggplot(df.rq3names, aes(NrFields_agg))+
   facet_grid(~info_b)
 df.rq3names$NrFields_agg<-as.factor(df.rq3names$NrFields_agg)
 df.rq3names <- within(df.rq3names, NrFields_agg <- relevel(NrFields_agg, ref = "noFields"))
-summary(PreReg_interact3 <- glm(q1_adopt ~ 
-                                  info_b*NrFields_agg +
+summary(PreReg_info_bNrFields <- glm(q1_adopt ~ 
+                                  info_b+NrFields +
                                   minDist_demo + 
                                   sq.demodist+
                                   age_b + 
                                   farmsize_b + 
                                   AES_b +
                                   Fabrikstandort_agg 
-                                ,data = df.rq3names, family = binomial("probit")))
+                                ,data = SampleIV, family = binomial("probit")))
+PreReg_interact3_mfx <-mfx::probitmfx(PreReg_interact3, data = SampleIV, robust = TRUE)
 
-PreReg_interact3_mfx <-mfx::probitmfx(PreReg_interact3, data = df.rq3names, robust = TRUE)
+summary(PreReg_NrFields <- glm(q1_adopt ~ 
+                                  NrFields +
+                                  minDist_demo + 
+                                  sq.demodist+
+                                  age_b + 
+                                  farmsize_b + 
+                                  AES_b +
+                                  Fabrikstandort_agg 
+                                ,data = SampleIV, family = binomial("probit")))
+
+PreReg_Nointeract3_mfx <-mfx::probitmfx(PreReg_Nointeract3, data = SampleIV, robust = TRUE)
 plot_summs(#m.Full.comp_mfx3,
-           PreReg_interact3_mfx,scale = TRUE, robust = TRUE, 
+           PreReg_interact3_mfx,PreReg_Nointeract3_mfx,scale = TRUE, robust = TRUE,
+           model.names = c("With Interaction", "Without Interaction"),
            coefs = c("info_bAdoptersKnown", "NrFields_agg1-5Fields" , "NrFields_agg6-10Fields", "NrFields_aggmore than 11Fields", 
                      "NrFields_aggnoFields","info_bAdoptersKnown:NrFields_agg1-5Fields","info_bAdoptersKnown:NrFields_agg6-10Fields"
                      ,"info_bAdoptersKnown:NrFields_aggmore than 11Fields","info_bAdoptersKnown:NrFields_aggnoFields"))
@@ -1836,10 +1855,24 @@ summary(PreReg_interact4 <- glm(q1_adopt ~
                                 ,data = df.rq3names, family = binomial("probit")))
 
 PreReg_interact4_mfx <-mfx::probitmfx(PreReg_interact4, data = df.rq3names, robust = TRUE)
-plot_summs(PreReg_interact4_mfx,scale = TRUE, robust = TRUE, 
+
+summary(PreReg_Nointeract4 <- glm(q1_adopt ~ 
+                                  info_b+FieldDist_agg+
+                                  minDist_demo + 
+                                  sq.demodist+
+                                  age_b + 
+                                  farmsize_b + 
+                                  AES_b +
+                                  Fabrikstandort_agg 
+                                ,data = df.rq3names, family = binomial("probit")))
+
+PreReg_Nointeract4_mfx <-mfx::probitmfx(PreReg_Nointeract4, data = df.rq3names, robust = TRUE)
+plot_summs(PreReg_interact4_mfx,PreReg_Nointeract4_mfx,scale = TRUE, robust = TRUE,
+           model.names = c("With Interaction", "Without Interaction"),
            coefs = c("info_bAdoptersKnown", "fields_b1","FieldDist_agg0-5km" , "FieldDist_agg6-10km", "FieldDist_agg11-30km",
-                     "FieldDist_aggmorethan30km","info_bAdoptersKnown:FieldDist_agg0-5km","info_bAdoptersKnown:FieldDist_agg6-10km","info_bAdoptersKnown:FieldDist_agg11-30km",
-                     "info_bAdopterrsKnown:FieldDist_aggmore than 30km"))
+                     "FieldDist_aggmore than 30km","info_bAdoptersKnown:FieldDist_agg0-5km","info_bAdoptersKnown:FieldDist_agg6-10km",
+                     "info_bAdoptersKnown:FieldDist_agg11-30km",
+                     "info_bAdoptersKnown:FieldDist_aggmore than 30km"))
 
 #then fields_b with nr Adopters
 table(df.rq3names$fields_b, df.rq3names$q3_info)
@@ -1857,18 +1890,32 @@ df.rq3names$NrAdopters_agg<-as.factor(df.rq3names$NrAdopters_agg)
 df.rq3names <- within(df.rq3names, NrAdopters_agg <- relevel(NrAdopters_agg, ref = "noAdopters"))
 
 
-summary(PreReg_interact5 <- glm(q1_adopt ~ 
-                                  fields_b*NrAdopters_agg +
+summary(PreReg_fields_bNrAdopters <- glm(q1_adopt ~ 
+                                  fields_b+q3_info +
                                   minDist_demo + 
                                   sq.demodist+
                                   age_b + 
                                   farmsize_b + 
                                   AES_b +
                                   Fabrikstandort_agg 
-                                ,data = df.rq3names, family = binomial("probit")))
+                                ,data = SampleIV, family = binomial("probit")))
 
 PreReg_interact5_mfx <-mfx::probitmfx(PreReg_interact5, data = df.rq3names, robust = TRUE)
-plot_summs(PreReg_interact5_mfx,scale = TRUE, robust = TRUE, 
+
+summary(PreReg_NrAdopters <- glm(q1_adopt ~ 
+                                  q3_info +
+                                  minDist_demo + 
+                                  sq.demodist+
+                                  age_b + 
+                                  farmsize_b + 
+                                  AES_b +
+                                  Fabrikstandort_agg 
+                                ,data = SampleIV, family = binomial("probit")))
+
+PreReg_Nointeract5_mfx <-mfx::probitmfx(PreReg_Nointeract5, data = df.rq3names, robust = TRUE)
+
+plot_summs(PreReg_interact5_mfx,PreReg_Nointeract5_mfx,scale = TRUE, robust = TRUE,
+           model.names = c("With Interaction", "Without Interaction"),
            coefs = c("fields_bFieldsObserved","NrAdopters_agg1-5Adopters", "NrAdopters_aggmore than 10Adopters" ,
                      "fields_bFieldsObserved:NrAdopters_agg1-5Adopters", "fields_bFieldsObserved:NrAdopters_aggmore than 10Adopters"))
 
@@ -1883,7 +1930,7 @@ df.Observer <-  droplevels(df.Observer)
 
 table(df.rq3names$FieldDist_agg, df.rq3names$NrFields_agg)
 ggplot(df.rq3names, aes(NrFields_agg))+
-  geom_bar(aes(fill = FieldDist_agg))+
+  geom_bar(aes(fill = FieldDist_agg), position = "fill")+
   facet_grid(~q1_adopt)
 table(df.Observer$FieldDist_agg, df.Observer$NrFields_agg)
 table(df.Observer$FieldDist_agg, df.Observer$q1_adopt)
@@ -1900,7 +1947,21 @@ summary(PreReg_interact6 <- glm(q1_adopt ~
                                 ,data = df.Observer, family = binomial("probit")))
 
 PreReg_interact6_mfx <-mfx::probitmfx(PreReg_interact6, data = df.Observer, robust = TRUE)
+
+summary(PreReg_Nointeract6 <- glm(q1_adopt ~ 
+                                  NrFields_agg+
+                                    FieldDist_agg+
+                                  minDist_demo + 
+                                  sq.demodist+
+                                  age_b + 
+                                  farmsize_b + 
+                                  AES_b +
+                                  Fabrikstandort_agg 
+                                ,data = df.rq3names, family = binomial("probit")))
+
+PreReg_Nointeract6_mfx <-mfx::probitmfx(PreReg_Nointeract6, data = df.rq3names, robust = TRUE)
 plot_summs(PreReg_interact6_mfx,scale = TRUE, robust = TRUE)#,
+         #  model.names = c("With Interaction", "Without Interaction"))#,
           # coefs = c("NrFields_agg1-5Fields", "NrFields_agg6-10Fields","NrFields_aggmore than 11Fields",
            #          "NrFields_aggmore than 11Fields","FieldDist_agg0-5km", "FieldDist_agg6-10km", 
             #         "FieldDist_agg11-30km", "FieldDist_aggmore than 30km",
@@ -1911,14 +1972,22 @@ plot_summs(PreReg_interact6_mfx,scale = TRUE, robust = TRUE)#,
                   #   ))
 
 
+ggplot(df.rq3names, aes(NrFields_agg, FieldDist_agg))+
+  geom_count(aes(colour=q1_adopt,size = after_stat(n)))+
+  scale_size_area(max_size = 10)
+
 #interact NrAdopters and NrFields
 table(df.rq3names$NrFields_agg, df.rq3names$NrAdopters_agg)
 ggplot(df.rq3names, aes(NrAdopters_agg))+
-  geom_bar(aes(fill = NrFields_agg))+
+  geom_bar(aes(fill = NrFields_agg), position = "fill")+
   facet_grid(~q1_adopt)
 
+ggplot(df.rq3names, aes(NrAdopters_agg, NrFields_agg))+
+  geom_count(aes(colour=q1_adopt,size = after_stat(n)))+
+  scale_size_area(max_size = 10)
+
 summary(PreReg_interact7 <- glm(q1_adopt ~ 
-                                  NrFields_agg*NrAdopters_agg+
+                                  NrFields*q3_info+
                                   minDist_demo + 
                                   sq.demodist+
                                   age_b + 
@@ -1928,14 +1997,31 @@ summary(PreReg_interact7 <- glm(q1_adopt ~
                                 ,data = df.rq3names, family = binomial("probit")))
 
 PreReg_interact7_mfx <-mfx::probitmfx(PreReg_interact7, data = df.rq3names, robust = TRUE)
-plot_summs(PreReg_interact7_mfx,scale = TRUE, robust = TRUE)
+
+summary(PreReg_NrFieldsNrAdopters <- glm(q1_adopt ~ 
+                                  NrFields+q3_info+
+                                  minDist_demo + 
+                                  sq.demodist+
+                                  age_b + 
+                                  farmsize_b + 
+                                  AES_b +
+                                  Fabrikstandort_agg 
+                                ,data = SampleIV, family = binomial("probit")))
+
+PreReg_Nointeract7_mfx <-mfx::probitmfx(PreReg_Nointeract7, data = df.rq3names, robust = TRUE)
+plot_summs(PreReg_interact7_mfx,PreReg_Nointeract7_mfx,scale = TRUE, robust = TRUE,
+           model.names = c("With Interaction", "Without Interaction"))
 
 #interact NrAdoptes and FieldDist
 
 table(df.rq3names$FieldDist_agg, df.rq3names$NrAdopters_agg)
 ggplot(df.rq3names, aes(NrAdopters_agg))+
-  geom_bar(aes(fill = FieldDist_agg))+
+  geom_bar(aes(fill = FieldDist_agg), position = "fill")+
   facet_grid(~q1_adopt)
+
+ggplot(df.rq3names, aes(NrAdopters_agg,  FieldDist_agg))+
+  geom_count(aes(colour=q1_adopt,size = after_stat(n)))+
+  scale_size_area(max_size = 10)
 
 summary(PreReg_interact8 <- glm(q1_adopt ~ 
                                   FieldDist_agg*NrAdopters_agg+
@@ -1948,18 +2034,220 @@ summary(PreReg_interact8 <- glm(q1_adopt ~
                                 ,data = df.rq3names, family = binomial("probit")))
 
 PreReg_interact8_mfx <-mfx::probitmfx(PreReg_interact8, data = df.rq3names, robust = TRUE)
-plot_summs(PreReg_interact8_mfx,scale = TRUE, robust = TRUE)
+
+summary(PreReg_Nointeract8 <- glm(q1_adopt ~ 
+                                  FieldDist_agg+NrAdopters_agg+
+                                  minDist_demo + 
+                                  sq.demodist+
+                                  age_b + 
+                                  farmsize_b + 
+                                  AES_b +
+                                  Fabrikstandort_agg 
+                                ,data = df.rq3names, family = binomial("probit")))
+
+PreReg_Nointeract8_mfx <-mfx::probitmfx(PreReg_Nointeract8, data = df.rq3names, robust = TRUE)
+
+plot_summs(PreReg_Nointeract8_mfx,scale = TRUE, robust = TRUE)
 
 
 
 #plot likelihood of adoption dependant on group
 SampleIV$NrObs <- c(1:nrow(SampleIV))
+df.rq3names$NrObs <- c(1:nrow(df.rq3names))
+
+
 
 ggplot(SampleIV, aes(pred_Y,x=reorder(NrObs, pred_Y)))+
   geom_jitter(aes(colour = InfoField))
 
+ggplot(df.rq3names, aes(pred_Y,x=reorder(NrObs, pred_Y)))+
+  geom_jitter(aes(colour = NrFields_agg, shape = NrAdopters_agg))
+
+ggplot(df.rq3names, aes(pred_Y,x=reorder(NrObs, pred_Y)))+
+  geom_jitter(aes(colour = FieldDist_agg, shape = NrAdopters_agg))
+
+ggplot(df.rq3names, aes(pred_Y,x=reorder(NrObs, pred_Y)))+
+  geom_jitter(aes(colour = NrFields_agg, shape = FieldDist_agg))
 
 
 
 
+
+
+#plots for info and fields
+ggplot(df.rq3names, aes(info_b))+
+  geom_bar(aes(fill = fields_b), position = "fill")+
+  facet_grid(~q1_adopt)
+
+ggplot(df.rq3names, aes(info_b, fields_b))+
+  geom_count(aes(colour=q1_adopt,size = after_stat(n)))+
+  scale_size_area(max_size = 10)
+
+
+#effect plot for distance to fields observed
+#only for "observers
+#exclude on outlier with distance of > 175
+df.Observer <- df.Observer %>% dplyr::filter(fields_dist <=100)
+
+summary(PreReg_fieldsdist_num <- glm(q1_adopt ~ 
+                                       info_b+
+                                  sq.fields_dist +
+                                  minDist_demo + 
+                                  sq.demodist+
+                                  age_b + 
+                                  farmsize_b + 
+                                  AES_b +
+                                  Fabrikstandort_agg 
+                                ,data = df.Observer, family = binomial("probit")))
+
+PreReg_fieldsdist_num_mfx <-mfx::probitmfx(PreReg_fieldsdist_num, data = df.Observer, robust = TRUE)
+
+
+
+p.1_fieldsdist<-effect_plot(PreReg_fieldsdist_num, pred = sq.fields_dist, data = df.Observer, centered = "all",
+                 outcome.scale = "response",
+                 y.label = "Probability",
+                 x.label = "Mean squared distance to other farmers fields [km]") +
+  theme_bw()+
+  scale_x_continuous(limits = c(0, 255))+
+  scale_y_continuous(labels = c("0%","20%", "40%", "60%"))+
+  theme(#panel.border = element_blank(), 
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))#+
+
+
+
+p.hist1_fieldsdist <- ggplot(df.Observer, aes(sq.fields_dist))+
+  geom_histogram(binwidth = 5)+
+  theme_bw()+
+  scale_x_continuous(limits = c(0, 255))+
+ # scale_y_continuous(limits = c(0, 60))+
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "white"),
+        axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())+
+  labs(x = "", y = "")
+
+
+ggarrange( p.hist1_fieldsdist,p.1_fieldsdist, ncol =1, nrow = 2, heights = c(1,2))
+
+
+#invetsigate subgroup of "high likelihood people
+
+df.rq3names %>% filter(pred_Y > 0.6) %>% 
+  ggplot(aes(NrFields))+
+  geom_histogram(stat = "count")
+
+df.rq3names %>% filter(pred_Y > 0.6) %>% 
+  ggplot(aes(q3_info))+
+  geom_histogram(stat = "count")
+
+df.rq3names %>% filter(pred_Y > 0.6) %>% 
+  ggplot(aes(FieldDist))+
+  geom_histogram(stat = "count")
+
+
+ggplot(df.rq3names, aes(NrFields_agg, FieldDist_agg))+
+  geom_count(aes(colour = pred_Y, shape = NrAdopters_agg))+
+  scale_size_area(max_size = 20)
+
+
+#get prediction power for model with category dummies for nrfields and Nradopt
+set.seed(200)
+
+#naive model
+performance_accuracy(m.1)
+
+#prereg model with inly controls
+performance_accuracy(m.2)
+
+#prereg model with inly controls+info_b
+performance_accuracy(m.3)
+
+#prereg model with inly controls+fields_b
+performance_accuracy(m.4)
+
+#prereg model with inly controls+info_b+fields_b
+performance_accuracy(m.5)
+
+#prereg model with inly controls+NrFields
+performance_accuracy(PreReg_NrFields)
+
+#prereg model with inly controls+NrAdopters
+performance_accuracy(PreReg_NrAdopters)
+
+#prereg model with inly controls+NrAdopters+fields_b
+performance_accuracy(PreReg_fields_bNrAdopters)
+
+#prereg model with inly controls+NrFields + info_b
+performance_accuracy(PreReg_info_bNrFields)
+
+#prereg model with inly controls+NrAdopters+NrFields
+performance_accuracy(PreReg_NrFieldsNrAdopters)
+
+
+#try manual method
+
+#get percent of correct predicitons
+probabilities_m.1 <- round(predict(m.1, type = "response"))
+probabilities_m.2 <- round(predict(m.2, type = "response"))
+probabilities_m.3 <- round(predict(m.3, type = "response"))
+probabilities_m.4 <- round(predict(m.4, type = "response"))
+probabilities_m.5 <- round(predict(m.5, type = "response"))
+probabilities_PreReg_NrFields <- round(predict(PreReg_NrFields, type = "response"))
+probabilities_PreReg_NrAdopters <- round(predict(PreReg_NrAdopters, type = "response"))
+probabilities_PreReg_fields_bNrAdopters <- round(predict(PreReg_fields_bNrAdopters, type = "response"))
+probabilities_PreReg_info_bNrFields <- round(predict(PreReg_info_bNrFields, type = "response"))
+probabilities_PreReg_NrFieldsNrAdopters <- round(predict(PreReg_NrFieldsNrAdopters, type = "response"))
+
+#model1
+m1<- matrix(table(SampleIV$q1_adopt, probabilities_m.1))
+#correct:
+m1[1]/(m1[1]+m1[2])
+
+#model2
+m2<- matrix(table(SampleIV$q1_adopt, probabilities_m.2))
+#correct:
+(m2[1]+m2[4])/(m2[1]+m2[2]+m2[3]+m2[4])
+
+#model3
+m3<- matrix(table(SampleIV$q1_adopt, probabilities_m.3))
+#correct:
+(m3[1]+m3[4])/(m3[1]+m3[2]+m3[3]+m3[4])
+
+#model4
+m4<- matrix(table(SampleIV$q1_adopt, probabilities_m.4))
+#correct:
+(m4[1]+m4[4])/(m4[1]+m4[2]+m4[3]+m4[4])
+
+#model5
+m5<- matrix(table(SampleIV$q1_adopt, probabilities_m.5))
+#correct:
+(m5[1]+m5[4])/(m5[1]+m5[2]+m5[3]+m5[4])
+
+#model6
+m6<- matrix(table(SampleIV$q1_adopt, probabilities_PreReg_NrFields))
+#correct:
+(m6[1]+m6[4])/(m6[1]+m6[2]+m6[3]+m6[4])
+
+#model7
+m7<- matrix(table(SampleIV$q1_adopt, probabilities_PreReg_NrAdopters))
+#correct:
+(m7[1]+m7[4])/(m7[1]+m7[2]+m7[3]+m7[4])
+
+#model8
+m8<- matrix(table(SampleIV$q1_adopt, probabilities_PreReg_fields_bNrAdopters))
+#correct:
+(m8[1]+m8[4])/(m8[1]+m8[2]+m8[3]+m8[4])
+
+#model9
+m9<- matrix(table(SampleIV$q1_adopt, probabilities_PreReg_info_bNrFields))
+#correct:
+(m9[1]+m9[4])/(m9[1]+m9[2]+m9[3]+m9[4])
+
+#model0
+m10<- matrix(table(SampleIV$q1_adopt, probabilities_PreReg_NrFieldsNrAdopters))
+#correct:
+(m10[1]+m10[4])/(m10[1]+m10[2]+m10[3]+m10[4])
 
