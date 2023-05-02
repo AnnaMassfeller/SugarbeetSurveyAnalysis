@@ -268,6 +268,24 @@ hoch = Ich plane diese Technik innerhalb der nächsten 5 Jahren einzusetzen (Eig
   scale_fill_brewer(name = "Technik zur mechanischen Unkrautbekämpfung", labels = c("traditionell", "modern", "autonom"),palette = "Spectral")
 g.Intentions
 
+
+
+g.Intentions_eng<-ggplot(freq.intentions_long,aes(x= factor(Intention, level = c("keine Intention", "gering","mittel","hoch","Technik schon im Einsatz")),value,fill=variable))+#c("no Intention", "low","middle","high","technique in use")
+  geom_bar(stat="identity",position="dodge")+
+  theme_bw()+
+  scale_x_discrete(label = c("no intention", "low", "middle", "high", "technology already in use"))+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),legend.position = "right",
+        panel.border = element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),
+        plot.caption = element_text(hjust = 0))+
+  labs(x= "",y = "Count",caption = "no intention = I don't plan anything in that direction,
+low = I plan to get informed and to follow current discussions about the topic,
+middle = I actively plan to get offers and to make use of advisory services within the next 5 years,
+high = I pan to use this technology within the next 5 years (own investment, via contractor, ...)")+#, title = "Intention to use different types of mechancial weeding in the future")+
+  scale_fill_brewer(name = "type of technology", labels = c("traditional", "modern", "autonomous"),palette = "Greys")
+g.Intentions_eng
+
+
 #mean distance to demonstration farm
 #c + geom_density(
 g.MinDemoDist <- ggplot(FullSample, aes(minDist_demo))+
@@ -1088,6 +1106,22 @@ table(FullSample$info_b, FullSample$fields_b)
 234/313
 30/313
 23/313
+
+
+df.rq3.means.long %>% filter(variable == "q1_adopt_mean") %>% 
+ggplot(aes(x=variable,y=value))+
+  geom_bar(stat="identity",position="dodge")+
+  scale_fill_discrete(name="group",
+                      breaks=c(1, 2))+
+  xlab("")+
+  ylab("Mean share of adoption")+
+  facet_grid(info~fields, labeller = as_labeller(c("0"='No',"1"='Yes')))+
+  theme_bw(base_size = 12)+
+  #scale_fill_manual(values = c("grey10", "grey60"),name = "Adoption", labels = c("No", "Yes"))+
+  scale_x_discrete(labels = c(""))+
+  theme(axis.text.x = element_text(hjust = 1, angle = 45),
+        panel.border = element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),legend.position = "right")
 
 
 

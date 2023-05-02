@@ -28,6 +28,7 @@ library(stringr)
 library(tibble)
 library(mfx)
 library(jtools)
+library(Rcpp)
 library(ggstance)
 library(broom.mixed)
 library(RColorBrewer)
@@ -38,6 +39,7 @@ library(rlist)
 library(writexl)
 library(splitstackshape)
 library(dplyr)
+library(pacman)
 
 #directly as json
 #json_file <- "https://fruchtfolge.agp.uni-bonn.de/db/survey_anna/_all_docs?include_docs=true"

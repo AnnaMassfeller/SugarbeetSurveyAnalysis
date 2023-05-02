@@ -13,14 +13,35 @@ library(MASS)
 library(mfx)
 library(plyr)
 library(dplyr)
+#library(rlang)
 library(purrr)
-library(rlang)
+#library(rlang)
 library(vctrs)
-library(recipes)
-library(caret)
-library(performance)
+library(stringi)
+#library(caret)
+#library(performance)
+
+#get clean SampleIV dataframe
+###################################################
+##############  SAMPLE IV ########################
+##################################################
+SampleIV <- FullSample
+#create sampel for IV/for models with complete observations
+#remove those for which we have no spatial data
+SampleIV <- FullSample %>%  dplyr::filter(Kreis.x != "NANA")
+#remove the one delivering to Cosun
+SampleIV<-SampleIV[(!SampleIV$advisory == "Cosun"),]
+#exxclude those who have NA for age
+SampleIV<-SampleIV[!is.na(SampleIV$age_b),]
+
+#drop unnecessary levels fo verband anf fabrikstandort as no cosun
+SampleIV$Fabrikstandort_agg <- droplevels(SampleIV$Fabrikstandort_agg )
+SampleIV$Verband_agg <- droplevels(SampleIV$Verband_agg)
+
+vtable(SampleIV,missing = TRUE )
 
 
+###IV#####
 #prep
 #check correlation between IV and endo and IV and exog. var
 AdoptersIV <- SampleIV[SampleIV$q1_adopt == "1",]
@@ -346,7 +367,7 @@ p.mFull_mfx_compareIV2 <- plot_summs(m.Full.comp_mfx,m.fields,m.info,
                                    # model.names = c("Probit model", "Probit model with 3SLS-IV"),
                                     scale = TRUE, robust = TRUE)#,colors = c("grey60", "grey36"))
 
-
+#####categorical####
 
 #now enter distance to fields and number of peers known as factor and remove fields_b
 #SampleIV<- FullSample[!is.na(FullSample$minDist_demo)&!is.na(FullSample$advisory)&
@@ -561,7 +582,7 @@ models_cat +theme(legend.position="bottom")
     #      se = list(m.Full2_mfx$mfxest[,2],m.Allin2_mfx$mfxest[,2],m.Full_mfx$mfxest[,2]),
      #     dep.var.labels   = "")
 
-
+####rq3####
 #start to compare different odels for substituitability
 #To do so, we compare different models, that include
 #1. intercept (naive model)
@@ -709,7 +730,7 @@ library(performance)
 #install.packages("insight")
 performance_accuracy(m.5)
 
-
+####effect plot distance to demo farm#####
 #first need one regression that includes the distance variables
 
 #regression from above we take for demo-dist
@@ -1452,7 +1473,7 @@ m.Full.comp3_select_mfx <- mfx::probitmfx(m.Full.comp3_select, data = SampleObse
 
 
 
-#intention for Sebastian
+####intention for Sebastian####
 orderedprobit1_NrAdopters<-polr(q6_col1 ~ q3_info + fields_b+
                        minDist_demo + 
                        #  sq.demodist +
@@ -1723,7 +1744,7 @@ write_xlsx(DemoOrganic_coord,"DemoOrganic_coord_forSebastian.xlsx")
 write_xlsx(df.SB_fabriken,"Zuckerfabriken_coord_forSebastian.xlsx")
 
 
-
+####rq3new#####
 #to explore RQ3 further explore some effects of interactionterms by using the prereg-model
 #create df with categories as names to avoid confusion
 df.rq3names <- SampleIV
@@ -1788,10 +1809,10 @@ plot_summs(m.Full.comp_mfx3,PreReg_interact2_mfx,scale = TRUE, robust = TRUE)#,
 table(df.rq3names$info_b, df.rq3names$NrFields)
 df.rq3names$NrFields_agg <- df.rq3names$NrFields #create aggregated var where 11-15 and more than 15 are in one group
 df.rq3names<-df.rq3names %>%
-  mutate(NrFields_agg= recode(NrFields_agg, "more than 15Fields" = "11-15Fields"))
+  mutate(NrFields_agg = recode(NrFields_agg, "more than 15Fields" = "11-15Fields"))
 df.rq3names$NrFields_agg<- revalue(df.rq3names$NrFields_agg, c("11-15Fields"="more than 11Fields"))
 table(df.rq3names$info_b, df.rq3names$NrFields_agg)
-ggplot(df.rq3names, aes(NrFields_agg))+
+ggplot(SampleIV, aes(NrFields))+
   geom_bar(aes(fill = q1_adopt))+
   facet_grid(~info_b)
 df.rq3names$NrFields_agg<-as.factor(df.rq3names$NrFields_agg)
@@ -1879,7 +1900,7 @@ table(df.rq3names$fields_b, df.rq3names$q3_info)
 df.rq3names$NrAdopters_agg <- df.rq3names$q3_info #create aggregated var where 6-10 and more than 10
 df.rq3names$NrAdopters_agg<-as.factor(df.rq3names$NrAdopters_agg)
 df.rq3names<-df.rq3names %>%
-  mutate(NrAdopters_agg= recode(NrAdopters_agg, "6-10Adopters" = "more than 10Adopters"))
+  mutate(NrAdopters_agg= recode(NrAdopters_agg, "more than 10Adopters" = "6-10Adopters"))
 df.rq3names$NrAdopters_agg<- revalue(df.rq3names$NrAdopters_agg, c("6-10Adopters"="more than 6Adopters"))
 table(df.rq3names$fields_b, df.rq3names$NrAdopters_agg)
 ggplot(df.rq3names, aes(NrAdopters_agg))+
