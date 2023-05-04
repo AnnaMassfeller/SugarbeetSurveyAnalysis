@@ -50,6 +50,8 @@ summary(PreReg_NrAdopters <- glm(q1_adopt ~
                                    Fabrikstandort_agg 
                                  ,data = SampleIV, family = binomial("probit")))
 
+PreReg_NrAdopters_mfx<-mfx::probitmfx(PreReg_NrAdopters, data = SampleIV)
+
 summary(PreReg_fields_bNrAdopters <- glm(q1_adopt ~ 
                                            fields_b+q3_info +
                                            minDist_demo + 
@@ -59,6 +61,8 @@ summary(PreReg_fields_bNrAdopters <- glm(q1_adopt ~
                                            AES_b +
                                            Fabrikstandort_agg 
                                          ,data = SampleIV, family = binomial("probit")))
+
+PreReg_fields_bNrAdopters_mfx<-mfx::probitmfx(PreReg_fields_bNrAdopters, data = SampleIV)
 
 summary(PreReg_NrFields <- glm(q1_adopt ~ 
                                  NrFields_agg +
@@ -70,6 +74,8 @@ summary(PreReg_NrFields <- glm(q1_adopt ~
                                  Fabrikstandort_agg 
                                ,data = SampleIV, family = binomial("probit")))
 
+PreReg_NrFields_mfx<-mfx::probitmfx(PreReg_NrFields, data = SampleIV)
+
 summary(PreReg_info_bNrFields <- glm(q1_adopt ~ 
                                        info_b+NrFields_agg +
                                        minDist_demo + 
@@ -79,6 +85,9 @@ summary(PreReg_info_bNrFields <- glm(q1_adopt ~
                                        AES_b +
                                        Fabrikstandort_agg 
                                      ,data = SampleIV, family = binomial("probit")))
+
+PreReg_info_bNrFields_mfx<-mfx::probitmfx(PreReg_info_bNrFields, data = SampleIV)
+
 summary(PreReg_NrFieldsNrAdopters <- glm(q1_adopt ~ 
                                            NrFields_agg+q3_info+
                                            minDist_demo + 
@@ -89,8 +98,10 @@ summary(PreReg_NrFieldsNrAdopters <- glm(q1_adopt ~
                                            Fabrikstandort_agg 
                                          ,data = SampleIV, family = binomial("probit")))
 
+PreReg_NrFieldsNrAdopters_mfx<-mfx::probitmfx(PreReg_NrFieldsNrAdopters, data = SampleIV)
+
 summary(PreReg_InteractNrFieldsNrAdopters <- glm(q1_adopt ~ 
-                                           NrFields_agg*q3_info+
+                                           NrFields_agg/NrAdopters_agg+
                                            minDist_demo + 
                                            sq.demodist+
                                            age_b + 
@@ -99,18 +110,27 @@ summary(PreReg_InteractNrFieldsNrAdopters <- glm(q1_adopt ~
                                            Fabrikstandort_agg 
                                          ,data = SampleIV, family = binomial("probit")))
 
+PreReg_InteractNrFieldsNrAdopters_mfx<-mfx::probitmfx(PreReg_InteractNrFieldsNrAdopters, data = SampleIV)
+plot_summs(PreReg_InteractNrFieldsNrAdopters_mfx, robust = TRUE, scale = TRUE)
+
+df.Observer <- SampleIV %>% filter(fields_b == "FieldsObserved")
+df.Observer$NrFields_agg <- droplevels(df.Observer$NrFields_agg)
+df.Observer$FieldDist_agg <- droplevels(df.Observer$FieldDist_agg)
 summary(PreReg_InteractNrFieldsFieldDist <- glm(q1_adopt ~ 
-                                                   NrFields_agg*FieldDist_agg+
+                                                   NrFields_agg/FieldDist_agg+
                                                    minDist_demo + 
                                                    sq.demodist+
                                                    age_b + 
                                                    farmsize_b + 
                                                    AES_b +
                                                    Fabrikstandort_agg 
-                                                 ,data = SampleIV, family = binomial("probit")))
+                                                 ,data = df.Observer, family = binomial("probit")))
+
+PreReg_InteractNrFieldsFieldDist_mfx<-mfx::probitmfx(PreReg_InteractNrFieldsFieldDist, df.Observer)
+plot_summs(PreReg_InteractNrFieldsFieldDist_mfx, robust = TRUE, scale = TRUE)
 
 summary(PreReg_InteractFieldDistNrAdopters <- glm(q1_adopt ~ 
-                                                   FieldDist_agg*q3_info+
+                                                   NrAdopters_agg/ FieldDist_agg+
                                                    minDist_demo + 
                                                    sq.demodist+
                                                    age_b + 
@@ -119,8 +139,12 @@ summary(PreReg_InteractFieldDistNrAdopters <- glm(q1_adopt ~
                                                    Fabrikstandort_agg 
                                                  ,data = SampleIV, family = binomial("probit")))
 
-summary(PreReg_InteractFieldDistinfo_b <- glm(q1_adopt ~ 
-                                                    info_b*FieldDist_agg+
+PreReg_InteractFieldDistNrAdopters_mfx <-mfx::probitmfx(PreReg_InteractFieldDistNrAdopters, data = SampleIV, robust = TRUE)
+plot_summs(PreReg_InteractFieldDistNrAdopters_mfx, robust = TRUE, scale = TRUE)
+
+
+summary(PreReg_InteractNrAdoptersFieldDist <- glm(q1_adopt ~ 
+                                                    FieldDist_agg/ NrAdopters_agg+
                                                     minDist_demo + 
                                                     sq.demodist+
                                                     age_b + 
@@ -129,9 +153,25 @@ summary(PreReg_InteractFieldDistinfo_b <- glm(q1_adopt ~
                                                     Fabrikstandort_agg 
                                                   ,data = SampleIV, family = binomial("probit")))
 
+PreReg_InteractNrAdoptersFieldDist_mfx <-mfx::probitmfx(PreReg_InteractNrAdoptersFieldDist, data = SampleIV, robust = TRUE)
+plot_summs(PreReg_InteractNrAdoptersFieldDist_mfx, robust = TRUE, scale = TRUE)
+
+
+summary(PreReg_InteractFieldDistinfo_b <- glm(q1_adopt ~ 
+                                                    info_b/FieldDist_agg+
+                                                    minDist_demo + 
+                                                    sq.demodist+
+                                                    age_b + 
+                                                    farmsize_b + 
+                                                    AES_b +
+                                                    Fabrikstandort_agg 
+                                                  ,data = SampleIV, family = binomial("probit")))
+
+PreReg_InteractFieldDistinfo_b_mfx<-mfx::probitmfx(PreReg_InteractFieldDistinfo_b, data = SampleIV)
+plot_summs(PreReg_InteractFieldDistinfo_b_mfx, robust = TRUE, scale = TRUE)
 
 summary(PreReg_Interactfields_bNrAdopters <- glm(q1_adopt ~ 
-                                                    fields_b*NrAdopters_agg+
+                                                    fields_b/NrAdopters_agg+
                                                     minDist_demo + 
                                                     sq.demodist+
                                                     age_b + 
@@ -139,9 +179,12 @@ summary(PreReg_Interactfields_bNrAdopters <- glm(q1_adopt ~
                                                     AES_b +
                                                     Fabrikstandort_agg 
                                                   ,data = SampleIV, family = binomial("probit")))
+
+PreReg_Interactfields_bNrAdopters_mfx<-mfx::probitmfx(PreReg_Interactfields_bNrAdopters, data = SampleIV)
+plot_summs(PreReg_Interactfields_bNrAdopters_mfx, robust = TRUE, scale = TRUE)
 
 summary(PreReg_InteractNrFieldsinfo_b <- glm(q1_adopt ~ 
-                                                    info_b*NrFields_agg+
+                                                    info_b/NrFields_agg+
                                                     minDist_demo + 
                                                     sq.demodist+
                                                     age_b + 
@@ -150,6 +193,8 @@ summary(PreReg_InteractNrFieldsinfo_b <- glm(q1_adopt ~
                                                     Fabrikstandort_agg 
                                                   ,data = SampleIV, family = binomial("probit")))
 
+PreReg_InteractNrFieldsinfo_b_mfx<-mfx::probitmfx(PreReg_InteractNrFieldsinfo_b, data = SampleIV)
+plot_summs(PreReg_InteractNrFieldsinfo_b_mfx, robust = TRUE, scale = TRUE)
 
 summary(PreReg_FieldsDist <- glm(q1_adopt ~ 
                                            FieldDist_agg +
@@ -161,6 +206,8 @@ summary(PreReg_FieldsDist <- glm(q1_adopt ~
                                            Fabrikstandort_agg 
                                          ,data = SampleIV, family = binomial("probit")))
 
+PreReg_FieldsDist_mfx<-mfx::probitmfx(PreReg_FieldsDist, data = SampleIV)
+
 summary(PreReg_FieldsDistinfo_b <- glm(q1_adopt ~ 
                                    FieldDist_agg + info_b+
                                    minDist_demo + 
@@ -170,6 +217,8 @@ summary(PreReg_FieldsDistinfo_b <- glm(q1_adopt ~
                                    AES_b +
                                    Fabrikstandort_agg 
                                  ,data = SampleIV, family = binomial("probit")))
+
+PreReg_FieldsDistinfo_b_mfx<-mfx::probitmfx(PreReg_FieldsDistinfo_b, data = SampleIV)
 
 
 
@@ -184,6 +233,8 @@ summary(PreReg_FieldsDistNrFields <- glm(q1_adopt ~
                                    Fabrikstandort_agg 
                                  ,data = SampleIV, family = binomial("probit")))
 
+PreReg_FieldsDistNrFields_mfx<-mfx::probitmfx(PreReg_FieldsDistNrFields, data = SampleIV)
+
 summary(PreReg_FieldsDistNrAdopters <- glm(q1_adopt ~ 
                                    FieldDist_agg+
                                      q3_info +
@@ -194,6 +245,8 @@ summary(PreReg_FieldsDistNrAdopters <- glm(q1_adopt ~
                                    AES_b +
                                    Fabrikstandort_agg 
                                  ,data = SampleIV, family = binomial("probit")))
+
+PreReg_FieldsDistNrAdopters_mfx<-mfx::probitmfx(PreReg_FieldsDistNrAdopters, data = SampleIV)
 
 
 summary(PreReg_FieldsDistNrFieldsNrAdopters <- glm(q1_adopt ~ 
@@ -208,8 +261,110 @@ summary(PreReg_FieldsDistNrFieldsNrAdopters <- glm(q1_adopt ~
                                    Fabrikstandort_agg 
                                  ,data = SampleIV, family = binomial("probit")))
 
+PreReg_FieldsDistNrFieldsNrAdopters_mfx<-mfx::probitmfx(PreReg_FieldsDistNrFieldsNrAdopters, data = SampleIV)
+
+m.1.mfx <- mfx::probitmfx(m.1<- glm(q1_adopt ~ 1,  
+                                    data = SampleIV,family = binomial("probit")), data = SampleIV) 
+
+m.2.mfx <- mfx::probitmfx(m.2 <-glm(q1_adopt ~ 
+                                      minDist_demo + 
+                                      sq.demodist+
+                                      age_b + 
+                                      farmsize_b + 
+                                      AES_b +
+                                      # advisory,
+                                      Fabrikstandort_agg, 
+                                    data = SampleIV,family = binomial("probit")), data = SampleIV) 
+
+m.3.mfx <- mfx::probitmfx(m.3 <-glm(q1_adopt ~ info_b +
+                                      minDist_demo + 
+                                      sq.demodist+
+                                      age_b + 
+                                      farmsize_b + 
+                                      AES_b +
+                                      # advisory,
+                                      Fabrikstandort_agg, 
+                                    data = SampleIV,family = binomial("probit")), data = SampleIV)
+
+m.4.mfx <- mfx::probitmfx(m.4 <-glm(q1_adopt ~ fields_b+ 
+                                      minDist_demo + 
+                                      sq.demodist+
+                                      age_b + 
+                                      farmsize_b + 
+                                      AES_b +
+                                      # advisory,
+                                      Fabrikstandort_agg, 
+                                    data = SampleIV,family = binomial("probit")), data = SampleIV)
+
+m.5.mfx <- mfx::probitmfx(m.5 <-glm(q1_adopt ~ info_b + fields_b+ 
+                                      minDist_demo + 
+                                      sq.demodist+
+                                      age_b + 
+                                      farmsize_b + 
+                                      AES_b +
+                                      # advisory,
+                                      Fabrikstandort_agg, 
+                                    data = SampleIV,family = binomial("probit")), data = SampleIV)
 
 
+plot_summs(#m.1.mfx,
+           #m.2.mfx,
+           m.3.mfx,
+           m.4.mfx,
+           m.5.mfx,
+         #  PreReg_NrFields_mfx,
+           PreReg_FieldsDist_mfx,
+           PreReg_NrAdopters_mfx,
+           PreReg_fields_bNrAdopters_mfx,
+          # PreReg_info_bNrFields_mfx,
+          # PreReg_NrFieldsNrAdopters_mfx,
+          # PreReg_InteractNrFieldsNrAdopters_mfx,
+          # PreReg_InteractNrFieldsFieldDist_mfx,
+           PreReg_InteractFieldDistNrAdopters_mfx,
+           PreReg_InteractFieldDistinfo_b_mfx,
+           PreReg_Interactfields_bNrAdopters_mfx,
+          # PreReg_InteractNrFieldsinfo_b_mfx,
+           PreReg_FieldsDistinfo_b_mfx,
+         #  PreReg_FieldsDistNrFields_mfx,
+           PreReg_FieldsDistNrAdopters_mfx,
+          # PreReg_FieldsDistNrFieldsNrAdopters_mfx,
+           scale = TRUE, robust = TRUE, colors = "Greys",
+         omit.coefs = c("minDist_demo","sq.demodist","age_b1","farmsize_b1","AES_b1","Fabrikstandort_aggElsdorf",
+                        "Fabrikstandort_aggLageNordst","Fabrikstandort_aggOchsenfurt","Fabrikstandort_aggOffenau",
+                        "Fabrikstandort_aggPlatting","Fabrikstandort_aggRain","Fabrikstandort_aggSachsenAnhalt",
+                        "Fabrikstandort_aggSchladen","Fabrikstandort_aggUelzen","Fabrikstandort_aggWabern","Fabrikstandort_aggWest",
+                        "Fabrikstandort_aggOffstein"))
+
+
+
+
+plot_summs(
+  PreReg_FieldsDist_mfx,
+  PreReg_NrAdopters_mfx,
+  PreReg_fields_bNrAdopters_mfx,
+  PreReg_InteractFieldDistNrAdopters_mfx,
+  PreReg_InteractFieldDistinfo_b_mfx,
+  PreReg_Interactfields_bNrAdopters_mfx,
+  PreReg_FieldsDistinfo_b_mfx,
+  PreReg_FieldsDistNrAdopters_mfx,
+  PreReg_InteractNrAdoptersFieldDist_mfx,
+  scale = TRUE, robust = TRUE, colors = "Greys",
+  omit.coefs = c("minDist_demo","sq.demodist","age_b1","farmsize_b1","AES_b1","Fabrikstandort_aggElsdorf",
+                 "Fabrikstandort_aggLageNordst","Fabrikstandort_aggOchsenfurt","Fabrikstandort_aggOffenau",
+                 "Fabrikstandort_aggPlatting","Fabrikstandort_aggRain","Fabrikstandort_aggSachsenAnhalt",
+                 "Fabrikstandort_aggSchladen","Fabrikstandort_aggUelzen","Fabrikstandort_aggWabern","Fabrikstandort_aggWest",
+                 "Fabrikstandort_aggOffstein"))
+
+library(coefplot)
+coefplot(PreReg_FieldsDist,
+         PreReg_NrAdopters,
+        # PreReg_fields_bNrAdopters,
+        # PreReg_InteractFieldDistNrAdopters,
+        # PreReg_InteractFieldDistinfo_b,
+        # PreReg_Interactfields_bNrAdopters,
+        # PreReg_FieldsDistinfo_b,
+         #PreReg_FieldsDistNrAdopters,
+        decreasing = TRUE, sort = "magnitude")
 
 
 
@@ -348,21 +503,24 @@ m21<- matrix(table(SampleIV$q1_adopt, probabilities_PreReg_InteractNrFieldsinfo_
 
 
 
-set.seed(2000)
+#plot all model results 
+
+
+#set.seed(2000)
 #prereg model with inly controls+NrFields
-performance_accuracy(PreReg_NrFields)
+#performance_accuracy(PreReg_NrFields)
 
 #prereg model with inly controls+NrAdopters
-performance_accuracy(PreReg_NrAdopters)
+#performance_accuracy(PreReg_NrAdopters)
 
 #prereg model with inly controls+NrAdopters+fields_b
-performance_accuracy(PreReg_fields_bNrAdopters)
+#performance_accuracy(PreReg_fields_bNrAdopters)
 
 #prereg model with inly controls+NrFields + info_b
-performance_accuracy(PreReg_info_bNrFields)
+#performance_accuracy(PreReg_info_bNrFields)
 
 #prereg model with inly controls+NrAdopters+NrFields
-performance_accuracy(PreReg_NrFieldsNrAdopters)
+#performance_accuracy(PreReg_NrFieldsNrAdopters)
 
 
 
@@ -451,7 +609,7 @@ ggplot(SampleIV, aes(q3_info, FieldDist_agg))+
 
 #contingency table info/Field
 ggplot(SampleIV, aes(info_b))+
-  geom_bar(aes(fill = q1_adopt), position = "fill")+
+  geom_bar(aes(fill = q1_adopt), position = "stack")+
   scale_fill_manual(values = c("grey80", "grey40"),name = "Adoption", labels = c("No", "Yes"))+
   xlab("")+
   theme_bw()+
@@ -506,6 +664,9 @@ plot_summs(PreReg_FieldsDist_aggNrAdopters_b_mfx,PreReg_NrFieldsNrAdopters_b_mfx
            model.names = c("Model Pr3","Model Pr4"),
            colors = c("Grey28", "Grey55"),
            scale = TRUE, robust = TRUE)
+
+
+
 
 
 

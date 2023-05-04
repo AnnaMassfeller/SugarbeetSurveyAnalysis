@@ -637,7 +637,21 @@ m.5.mfx <- mfx::probitmfx(m.5 <-glm(q1_adopt ~ info_b + fields_b+
                                  Fabrikstandort_agg, 
                    data = SampleIV,family = binomial("probit")), data = SampleIV)
 
+m.6.mfx <- mfx::probitmfx(m.6 <-glm(q1_adopt ~ info_b*fields_b+ 
+                                      minDist_demo + 
+                                      sq.demodist+
+                                      age_b + 
+                                      farmsize_b + 
+                                      AES_b +
+                                      # advisory,
+                                      Fabrikstandort_agg, 
+                                    data = SampleIV,family = binomial("probit")), data = SampleIV)
+
+
 plot_summs(m.3.mfx, m.4.mfx, m.5.mfx, coefs = c("info_b1","fields_b1"), robust = T, scale = T, 
+           model.names = c("Only KnowAdopters", "Only ObserveFields", "Both"))
+
+plot_summs(m.3.mfx, m.4.mfx, m.5.mfx,m.6.mfx, robust = T, scale = T)#, 
            model.names = c("Only KnowAdopters", "Only ObserveFields", "Both"))
 
 #COmpare AIC?
