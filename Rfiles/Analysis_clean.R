@@ -1814,8 +1814,8 @@ summary(PreReg_interact2 <- glm(q1_adopt ~
                                 ,data = SampleIV, family = binomial("probit")))
 
 PreReg_interact2_mfx <-mfx::probitmfx(PreReg_interact2, data = SampleIV, robust = TRUE)
-plot_summs(m.Full.comp_mfx3,PreReg_interact2_mfx,scale = TRUE, robust = TRUE)#, 
-         #  coefs = c("info_b1", "fields_b1", "FieldKnow", "NoFieldKnow", "FieldNoKnow"))
+plot_summs(m.Full.comp_mfx3,PreReg_interact2_mfx,scale = TRUE, robust = TRUE, 
+           coefs = c("info_b1", "fields_b1", "FieldKnow", "NoFieldKnow", "FieldNoKnow"))
 
 
 #interact both vars in categorcial terms
@@ -2187,39 +2187,6 @@ ggplot(df.rq3names, aes(NrFields_agg, FieldDist_agg))+
   geom_count(aes(colour = pred_Y, shape = NrAdopters_agg))+
   scale_size_area(max_size = 20)
 
-
-#get prediction power for model with category dummies for nrfields and Nradopt
-set.seed(200)
-
-#naive model
-performance_accuracy(m.1)
-
-#prereg model with inly controls
-performance_accuracy(m.2)
-
-#prereg model with inly controls+info_b
-performance_accuracy(m.3)
-
-#prereg model with inly controls+fields_b
-performance_accuracy(m.4)
-
-#prereg model with inly controls+info_b+fields_b
-performance_accuracy(m.5)
-
-#prereg model with inly controls+NrFields
-performance_accuracy(PreReg_NrFields)
-
-#prereg model with inly controls+NrAdopters
-performance_accuracy(PreReg_NrAdopters)
-
-#prereg model with inly controls+NrAdopters+fields_b
-performance_accuracy(PreReg_fields_bNrAdopters)
-
-#prereg model with inly controls+NrFields + info_b
-performance_accuracy(PreReg_info_bNrFields)
-
-#prereg model with inly controls+NrAdopters+NrFields
-performance_accuracy(PreReg_NrFieldsNrAdopters)
 
 
 #try manual method

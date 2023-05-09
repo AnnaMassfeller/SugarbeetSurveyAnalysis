@@ -923,9 +923,8 @@ fisher.test(table(SampleIV$q1_adopt, SampleIV$q6_col3))
 
 ####descriptive reuslts fro paper
 g.NrPeers_SF<- ggplot(FullSample)+
-  geom_bar(aes(q3_info))+#,position = position_fill(reverse = TRUE))+#y = (..count..)/sum(..count..)
-  # scale_y_continuous(labels=scales::percent)+
-  # scale_fill_brewer(labels = c("0", "1-5","6-10","mehr al 10"),palette = "Greens")+
+  geom_bar(aes(q3_info, fill = q1_adopt))+
+  scale_fill_manual(values = c("grey80", "grey40"),name = "Adoption", labels = c("No", "Yes"))+
   ylab("")+
   theme_bw()+
   # xlab("number of adopters known")
@@ -939,11 +938,11 @@ g.NrPeers_SF<- ggplot(FullSample)+
   scale_x_discrete(labels = c("0", "1-5","6-10","more than 10"))
 
 g.NrFields_SF<- ggplot(FullSample)+
-  geom_bar(aes(NrFields))+#,fill = as.factor(advisory)),position= "dodge")+
-  # scale_y_continuous(labels=scales::percent)+
+  geom_bar(aes(NrFields, fill = q1_adopt))+
+  scale_fill_manual(values = c("grey80", "grey40"),name = "Adoption", labels = c("No", "Yes"))+
   ylab("")+
   theme_bw()+
-  scale_fill_manual(values = c("darkblue","darkgreen","darkred"))+
+  #scale_fill_manual(values = c("darkblue","darkgreen","darkred"))+
   # xlab("number of adopters known")
   # labs(title= "PfeifferLangen")+
   labs(x = "number of fields observed")+ 
@@ -954,9 +953,8 @@ g.NrFields_SF<- ggplot(FullSample)+
   scale_x_discrete(labels = c("0", "1-5","6-10","11-15","more than 15"))
 
 g.DistFields_SF<- ggplot(FullSample)+
-  geom_bar(aes(FieldDist))+#,fill = as.factor(advisory)),position= "dodge")+
-  #scale_y_continuous(labels=scales::percent)+
-  scale_fill_manual(values = c("darkblue","darkgreen","darkred"))+
+  geom_bar(aes(FieldDist, fill = q1_adopt))+
+  scale_fill_manual(values = c("grey80", "grey40"),name = "Adoption", labels = c("No", "Yes"))+
   ylab("")+
   theme_bw()+
   # xlab("number of adopters known")
@@ -975,9 +973,8 @@ OwnFieldsSample$Mean_ownfield_dist_cat <- cut(OwnFieldsSample$Mean_ownfield_dist
                                               labels=c('A', 'B', 'C', 'D','E','F'))
 
 g.ownfields_cat<- ggplot(OwnFieldsSample)+
-  geom_bar(aes(Mean_ownfield_dist_cat))+#,fill = as.factor(advisory)),position= "dodge")+
-  #scale_y_continuous(labels=scales::percent)+
-  scale_fill_manual(values = c("darkblue","darkgreen","darkred"))+
+  geom_bar(aes(Mean_ownfield_dist_cat, fill = q1_adopt))+
+  scale_fill_manual(values = c("grey80", "grey40"),name = "Adoption", labels = c("No", "Yes"))+
   ylab("")+
   theme_bw()+
   # xlab("number of adopters known")
@@ -992,7 +989,8 @@ g.ownfields_cat<- ggplot(OwnFieldsSample)+
 
 
 p.own_fields2<-ggplot(OwnFieldsSample,aes(Mean_ownfield_dist)) +            
-  geom_histogram(bins = 10)+
+  geom_histogram(bins = 10, aes (fill = q1_adopt))+
+  scale_fill_manual(values = c("grey80", "grey40"),name = "Adoption", labels = c("No", "Yes"))+
   theme_bw()+
   xlim(limits = c(0, 5.5))+
   labs(x = "distance to own fields [km]")+
@@ -1000,12 +998,12 @@ p.own_fields2<-ggplot(OwnFieldsSample,aes(Mean_ownfield_dist)) +
   theme_bw()+
   theme(axis.text.x = element_text( hjust = 1),
         panel.border = element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),legend.position = "none")#+
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),legend.position = "bottom")#+
 
 
 
 
-ggarrange(g.NrPeers_SF, g.NrFields_SF, g.DistFields_SF,g.ownfields_cat,nrow = 2, ncol = 2)
+ggpubr::ggarrange(g.NrPeers_SF, g.NrFields_SF, g.DistFields_SF,g.ownfields_cat,nrow = 2, ncol = 2)
 
 
 
