@@ -922,8 +922,8 @@ fisher.test(table(SampleIV$q1_adopt, SampleIV$q6_col3))
 
 
 ####descriptive reuslts fro paper
-g.NrPeers_SF<- ggplot(FullSample)+
-  geom_bar(aes(q3_info, fill = q1_adopt))+
+g.NrPeers_SF<- ggplot(SampleIV)+
+  geom_bar(aes(q3_info))+ #fill = q1_adopt
   scale_fill_manual(values = c("grey80", "grey40"),name = "Adoption", labels = c("No", "Yes"))+
   ylab("")+
   theme_bw()+
@@ -934,11 +934,11 @@ g.NrPeers_SF<- ggplot(FullSample)+
   # y = "Count")+
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         panel.border = element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"), legend.position = "none")+
-  scale_x_discrete(labels = c("0", "1-5","6-10","more than 10"))
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"), legend.position = "none")#+
+ # scale_x_discrete(labels = c("0", "1-5","6-10","more than 10"))
 
-g.NrFields_SF<- ggplot(FullSample)+
-  geom_bar(aes(NrFields, fill = q1_adopt))+
+g.NrFields_SF<- ggplot(SampleIV)+
+  geom_bar(aes(NrFields_agg))+
   scale_fill_manual(values = c("grey80", "grey40"),name = "Adoption", labels = c("No", "Yes"))+
   ylab("")+
   theme_bw()+
@@ -949,11 +949,11 @@ g.NrFields_SF<- ggplot(FullSample)+
   # y = "Count")+
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         panel.border = element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"), legend.position = "none")+
-  scale_x_discrete(labels = c("0", "1-5","6-10","11-15","more than 15"))
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"), legend.position = "none")#+
+  #scale_x_discrete(labels = c("0", "1-5","6-10","11-15","more than 15"))
 
-g.DistFields_SF<- ggplot(FullSample)+
-  geom_bar(aes(FieldDist, fill = q1_adopt))+
+g.DistFields_SF<- ggplot(SampleIV)+
+  geom_bar(aes(FieldDist_agg))+
   scale_fill_manual(values = c("grey80", "grey40"),name = "Adoption", labels = c("No", "Yes"))+
   ylab("")+
   theme_bw()+
@@ -964,8 +964,8 @@ g.DistFields_SF<- ggplot(FullSample)+
   # y = "Count")+
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         panel.border = element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),legend.position = "none")+
-  scale_x_discrete(labels = c("0-5", "6-10","11-15","16-20","21-30","more than 30","no fields obs."))
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),legend.position = "none")#+
+  #scale_x_discrete(labels = c("0-5", "6-10","11-15","16-20","21-30","more than 30","no fields obs."))
 
 #make into ctegorcial
 OwnFieldsSample$Mean_ownfield_dist_cat <- cut(OwnFieldsSample$Mean_ownfield_dist,
@@ -973,7 +973,7 @@ OwnFieldsSample$Mean_ownfield_dist_cat <- cut(OwnFieldsSample$Mean_ownfield_dist
                                               labels=c('A', 'B', 'C', 'D','E','F'))
 
 g.ownfields_cat<- ggplot(OwnFieldsSample)+
-  geom_bar(aes(Mean_ownfield_dist_cat, fill = q1_adopt))+
+  geom_bar(aes(Mean_ownfield_dist_cat))+
   scale_fill_manual(values = c("grey80", "grey40"),name = "Adoption", labels = c("No", "Yes"))+
   ylab("")+
   theme_bw()+

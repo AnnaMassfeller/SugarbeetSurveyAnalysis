@@ -2202,6 +2202,7 @@ probabilities_PreReg_NrAdopters <- round(predict(PreReg_NrAdopters, type = "resp
 probabilities_PreReg_fields_bNrAdopters <- round(predict(PreReg_fields_bNrAdopters, type = "response"))
 probabilities_PreReg_info_bNrFields <- round(predict(PreReg_info_bNrFields, type = "response"))
 probabilities_PreReg_NrFieldsNrAdopters <- round(predict(PreReg_NrFieldsNrAdopters, type = "response"))
+probabilities_PreReg_FieldsDist <- round(predict(PreReg_FieldsDist, type = "response"))
 
 #model1
 m1<- matrix(table(SampleIV$q1_adopt, probabilities_m.1))
@@ -2252,4 +2253,9 @@ m9<- matrix(table(SampleIV$q1_adopt, probabilities_PreReg_info_bNrFields))
 m10<- matrix(table(SampleIV$q1_adopt, probabilities_PreReg_NrFieldsNrAdopters))
 #correct:
 (m10[1]+m10[4])/(m10[1]+m10[2]+m10[3]+m10[4])
+
+m10<- matrix(table(SampleIV$q1_adopt, probabilities_PreReg_FieldsDist))
+#correct:
+(m10[1]+m10[4])/(m10[1]+m10[2]+m10[3]+m10[4])
+
 
