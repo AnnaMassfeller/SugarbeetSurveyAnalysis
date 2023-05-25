@@ -206,22 +206,22 @@ freq.ReasonsNo<- freq.ReasonsNo %>% filter(freq.ReasonsNo$Nr.Reason != 99)
 freq.ReasonsNo$Nr.Reason <- as.numeric(freq.ReasonsNo$Nr.Reason)
 
 freq.ReasonsNo$Reason <- freq.ReasonsNo$Nr.Reason
-freq.ReasonsNo["Reason"][freq.ReasonsNo["Reason"] == "0"] <- "Zu hohe laufende Kosten"#"running costs"
-freq.ReasonsNo["Reason"][freq.ReasonsNo["Reason"] == "1"] <- "Zu hohe Investitionskosten"#"investment costs"
-freq.ReasonsNo["Reason"][freq.ReasonsNo["Reason"] == "2"] <- "Zu hoher Zeitaufwand"#"time constraints"
-freq.ReasonsNo["Reason"][freq.ReasonsNo["Reason"] == "3"] <- "Geringe Zuverlässigkeit in der Unkrautbekämpfung"#"low reliability"
-freq.ReasonsNo["Reason"][freq.ReasonsNo["Reason"] == "4"] <- "Hohes Risiko die Kulturpflanze zu schädigen"#"high risk of damaging the crop"
-freq.ReasonsNo["Reason"][freq.ReasonsNo["Reason"] == "5"] <- "Nicht möglich auf meinem Betrieb (z.B. durch Bodenbedingungen, Feldgrößen,..)"#"not possible on my farm "
-freq.ReasonsNo["Reason"][freq.ReasonsNo["Reason"] == "6"] <- "Ich weiß nicht, ob die Technik bei mir funktioniert"#"I don't know if the technology works for me"
-freq.ReasonsNo["Reason"][freq.ReasonsNo["Reason"] == "7"] <- "Ich traue mir die Anwendung/Bedienung  nicht zu "#"I don't trust the technology"
-freq.ReasonsNo["Reason"][freq.ReasonsNo["Reason"] == "8"] <- "Meine Kollegen in der Region haben schlechte Erfahrungen gemacht und mir davon erzählt"#"colleagues'bad experiences"
-freq.ReasonsNo["Reason"][freq.ReasonsNo["Reason"] == "9"] <- "Ich kenne keine Kollegen in meiner Region die mir Tipps geben könnten"#"I don't know any colleagues"
-freq.ReasonsNo["Reason"][freq.ReasonsNo["Reason"] == "10"] <-"Ich möchte noch warten bis die Technik ausgereifter ist"#"wait until the technology is more mature"
-freq.ReasonsNo["Reason"][freq.ReasonsNo["Reason"] == "11"] <-"Es gibt für mich keinen Grund für eine Umstellung des Anbaus"#"no reason for me to change cultivation"
+freq.ReasonsNo["Reason"][freq.ReasonsNo["Reason"] == "0"] <- "running costs"#"Zu hohe laufende Kosten"#
+freq.ReasonsNo["Reason"][freq.ReasonsNo["Reason"] == "1"] <- "investment costs"#"Zu hohe Investitionskosten"#
+freq.ReasonsNo["Reason"][freq.ReasonsNo["Reason"] == "2"] <- "time constraints"#"Zu hoher Zeitaufwand"#
+freq.ReasonsNo["Reason"][freq.ReasonsNo["Reason"] == "3"] <- "low reliability"#Geringe Zuverlässigkeit in der Unkrautbekämpfung"#
+freq.ReasonsNo["Reason"][freq.ReasonsNo["Reason"] == "4"] <- "high risk of damaging the crop"#"Hohes Risiko die Kulturpflanze zu schädigen"
+freq.ReasonsNo["Reason"][freq.ReasonsNo["Reason"] == "5"] <- "not possible on my farm"#"Nicht möglich auf meinem Betrieb (z.B. durch Bodenbedingungen, Feldgrößen,..)"#
+freq.ReasonsNo["Reason"][freq.ReasonsNo["Reason"] == "6"] <- "I don't know if the technology works for me"#"Ich weiß nicht, ob die Technik bei mir funktioniert"#
+freq.ReasonsNo["Reason"][freq.ReasonsNo["Reason"] == "7"] <- "I don't trust the technology"#"Ich traue mir die Anwendung/Bedienung  nicht zu "#"
+freq.ReasonsNo["Reason"][freq.ReasonsNo["Reason"] == "8"] <- "colleagues'bad experiences"#"Meine Kollegen in der Region haben schlechte Erfahrungen gemacht und mir davon erzählt"#
+freq.ReasonsNo["Reason"][freq.ReasonsNo["Reason"] == "9"] <- "I don't know any colleagues"#"Ich kenne keine Kollegen in meiner Region die mir Tipps geben könnten"#
+freq.ReasonsNo["Reason"][freq.ReasonsNo["Reason"] == "10"] <-"wait until the technology is more mature"#"Ich möchte noch warten bis die Technik ausgereifter ist"#
+freq.ReasonsNo["Reason"][freq.ReasonsNo["Reason"] == "11"] <-"no reason for me to change cultivation"#"Es gibt für mich keinen Grund für eine Umstellung des Anbaus"#
 #freq.ReasonNo$Reason <-arrange(desc(sum))
 g.ReasonsNo <- ggplot(freq.ReasonsNo,aes(x=reorder(factor(Reason),-sum),y=sum))+
-  geom_col(fill='#F46D43')+ #brewer.pal(9,"Spectral") find one colour form the "blues" scheme#blue. #08306B #08306B
-  labs(x = "", y = "Anzahl")+#, title = "Reasons for Non-adoption")+
+  geom_col(fill='Grey')+ #brewer.pal(9,"Spectral") find one colour form the "blues" scheme#blue. #08306B #08306B
+  labs(x = "", y = "Count")+#, title = "Reasons for Non-adoption")+
   theme_bw()+
   theme(axis.text.x = element_text(angle = 45, hjust = 1),legend.position = "bottom",
         text = element_text(size=20),
@@ -634,41 +634,41 @@ df.technique$type_tech <- ifelse(df.technique$question2_autonom_choice == 1 ,2,d
 
 g.ownersip_technology<- ggplot(df.technique)+
   geom_bar(aes(q2_machine,fill = as.factor(type_tech)),position= "fill")+
-   scale_y_continuous(labels=scales::percent)+
+  scale_y_continuous(labels=scales::percent)+
   ylab("")+
   theme_bw()+
- scale_fill_discrete(name = "Technik", labels = c("traditionel", "modern", "autonom"))+
-  xlab("Wem gehört die Maschine?")+
+  scale_fill_brewer(palette = "Greys",name = "Type of technology", labels = c("traditional", "modern", "autonomous"))+
+  xlab("Who is owning the machine?")+
  # labs(title= "PfeifferLangen")+
  # labs(x = "number of fields observed")+ 
   # y = "Count")+
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         panel.border = element_blank(), panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))+#, legend.position = "none")+
- scale_x_discrete(labels = c("Eigene Maschine", "Teile mit Nachbarn","Maschinenring","Lohnunternehmer","Andere"))
+ scale_x_discrete(labels = c("Own machine", "Sharing with neighbour","Machinery ring","Contractor","Other"))
 
 g.technology_ownership<- ggplot(df.technique)+
-  geom_bar(aes(type_tech,fill = as.factor(q2_machine)),position= "fill")+
-  scale_x_discrete(labels = c("traditionel", "modern", "autonom"))+
-   scale_y_continuous(labels=scales::percent)+
+  geom_bar(aes(as.factor(type_tech),fill = as.factor(q2_machine)),position= "fill")+
+  scale_y_continuous(labels=scales::percent)+
   ylab("")+
+  theme_bw()+
+  scale_x_discrete(name = "Type of technology",labels = c("traditional", "modern", "autonomous"))+
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         panel.border = element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(), axis.line = element_line(colour = "white"))+
-  
-  theme_bw()+
-  scale_fill_discrete(name = "Wem gehört die Maschine?", labels = c("Eigene Maschine", "Teile mit Nachbarn","Maschinenring","Lohnunternehmer","Andere"))+
-  xlab("Technik")
-  
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))+#, legend.position = "none")+
+  scale_fill_brewer(palette = "Greys",name = "Type of ownership",labels = c("Own machine", "Sharing with neighbour","Machinery ring","Contractor","Other"))
+
+df.technique[df.technique$date=="2022-04-20 16:30:35", "q2_technique"] <- "Ruebenhacke" 
+df.technique[df.technique$date=="2022-04-05 18:12:18", "q2_technique"] <- "Ruebenhacke"   
 
 g.tech_over_time <- ggplot(df.technique, aes(q2_timeframe, fill = q2_technique))+
   geom_bar(position = "stack")+
   theme_bw()+
   theme(panel.border = element_blank(), panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
-  labs(x = "Year of purchase", y = "Count") +#, title = "Usage of mechanical weeding machines over time")+
-  #scale_fill_brewer(palette = "Rainbow")+#,name = "",labels = c("Farmdroid","Hoe", "Combination hoe-bandspray", "Rotorharrow", "Coulter hoe",
-   #                                                        "Fingerweeder", "Hoe harrow", "Rolling hoe", "Beet hoe")) +
+  labs(x = "Year of purchase", y = "Count", title = "Usage of mechanical weeding machines over time")+
+  scale_fill_brewer(palette = "Greys",name = "",labels = c("Farmdroid","Hoe", "Combination hoe-bandspray", "Rotorharrow", "Coulter hoe",
+                                                          "Fingerweeder", "Hoe harrow", "Rolling hoe", "Beet hoe")) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1),legend.position = "bottom")
 g.tech_over_time
 
@@ -927,15 +927,15 @@ g.NrPeers_SF<- ggplot(SampleIV)+
   scale_fill_manual(values = c("grey80", "grey40"),name = "Adoption", labels = c("No", "Yes"))+
   ylab("")+
   theme_bw()+
-  # xlab("number of adopters known")
-  labs(x="number of adopters known", fill= "Wie viele LandwirtInnen kennen Sie, die mechanische Unkrautbekämpfung nutzen?")+
+   xlab("number of adopters known")+
+  #labs(x="number of adopters known")+
   # labs(x = "Zuckerhersteller")+ 
   # legend("Wie viele LandwirtInnen kennen Sie, die mechanische Unkrautbekämpfung nutzen?")+
   # y = "Count")+
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         panel.border = element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"), legend.position = "none")#+
- # scale_x_discrete(labels = c("0", "1-5","6-10","more than 10"))
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"), legend.position = "none")+
+ scale_x_discrete(labels = c("no adopters known", "1-5 adopters known","6-10 adopters known","> 10 adopters known"))
 
 g.NrFields_SF<- ggplot(SampleIV)+
   geom_bar(aes(NrFields_agg))+
@@ -949,8 +949,8 @@ g.NrFields_SF<- ggplot(SampleIV)+
   # y = "Count")+
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         panel.border = element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"), legend.position = "none")#+
-  #scale_x_discrete(labels = c("0", "1-5","6-10","11-15","more than 15"))
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"), legend.position = "none")+
+  scale_x_discrete(labels = c("no fields observed", "1-5 fields observed","6-10 fields observed",">10 fields observed"))
 
 g.DistFields_SF<- ggplot(SampleIV)+
   geom_bar(aes(FieldDist_agg))+
@@ -964,8 +964,8 @@ g.DistFields_SF<- ggplot(SampleIV)+
   # y = "Count")+
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         panel.border = element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),legend.position = "none")#+
-  #scale_x_discrete(labels = c("0-5", "6-10","11-15","16-20","21-30","more than 30","no fields obs."))
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),legend.position = "none")+
+  scale_x_discrete(labels = c("no fields observed","0-5", "6-10","11-30","> than 30"))
 
 #make into ctegorcial
 OwnFieldsSample$Mean_ownfield_dist_cat <- cut(OwnFieldsSample$Mean_ownfield_dist,
@@ -1002,7 +1002,7 @@ p.own_fields2<-ggplot(OwnFieldsSample,aes(Mean_ownfield_dist)) +
 
 
 
-
+install.packages("tidyr")
 ggpubr::ggarrange(g.NrPeers_SF, g.NrFields_SF, g.DistFields_SF,g.ownfields_cat,nrow = 2, ncol = 2)
 
 

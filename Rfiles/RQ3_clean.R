@@ -1,6 +1,7 @@
 #RQ3
 library(dplyr)
 library(caret)
+library(ggpubr)
 #create aggregated variables
 SampleIV$info_b <- plyr::revalue(SampleIV$info_b, c("0"="noAdoptersKnown", "1"="AdoptersKnown"))
 SampleIV$fields_b <- plyr::revalue(SampleIV$fields_b, c("0"="noFieldsObserved", "1"="FieldsObserved"))
@@ -38,7 +39,7 @@ SampleIV<-SampleIV %>%
   mutate(FieldDist_agg2= dplyr::recode(FieldDist_agg2, "more than 30km" = "11-15km"))
 SampleIV$FieldDist_agg2<- plyr::revalue(SampleIV$FieldDist_agg2, c("11-15km"="11km and more"))
 SampleIV$FieldDist_agg2<- as.factor(SampleIV$FieldDist_agg2)
-SampleIV$FieldDist_agg2<- factor(SampleIV$FieldDist_agg2, levels = c("noFields", "0-5km", "6-10km", "more than 11km"))
+SampleIV$FieldDist_agg2<- factor(SampleIV$FieldDist_agg2, levels = c("noFields", "0-5km", "6-10km", "11km and more"))
 table(SampleIV$FieldDist_agg2)
 
 
@@ -246,50 +247,48 @@ m.5.mfx <- mfx::probitmfx(m.5 <-glm(q1_adopt ~ info_b + fields_b+
                                     data = SampleIV,family = binomial("probit")), data = SampleIV)
 
 
-plot_summs(#m.1.mfx,
-           m.2.mfx,
-           PreReg_FieldsDist_mfx,
-           m.4.mfx,
+plot_summs(#m.2.mfx,
            PreReg_NrFields_mfx,
-           m.3.mfx,
+           m.4.mfx,
            PreReg_FieldsDistNrFields_mfx,
-           PreReg_NrAdopters_mfx,
+           PreReg_FieldsDist_mfx,
+           m.3.mfx,
+           PreReg_NrFieldsNrAdopters_mfx,
            m.5.mfx,
+           PreReg_info_bNrFields_mfx,
+           PreReg_NrAdopters_mfx,
            PreReg_fields_bNrAdopters_mfx,
            PreReg_FieldsDistinfo_b_mfx,
            PreReg_FieldsDistNrAdopters_mfx,
-           PreReg_NrFieldsNrAdopters_mfx,
-           PreReg_info_bNrFields_mfx,
            scale = TRUE, robust = TRUE,
-       #   model.names = c("b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n"), 
-          colors = c("grey60","grey60","grey60","grey60","grey60","grey60","grey60","grey60","grey60","grey60","grey60","grey60","grey60","grey60"),
-           omit.coefs = c("minDist_demo","sq.demodist","age_b1","farmsize_b1","AES_b1","Fabrikstandort_aggElsdorf",
-                        "Fabrikstandort_aggLageNordst","Fabrikstandort_aggOchsenfurt","Fabrikstandort_aggOffstein","Fabrikstandort_aggOffenau",
-                        "Fabrikstandort_aggPlatting","Fabrikstandort_aggRain",
+          model.names = c("c) NrFields", "d) ObserveFields", "e) FieldDist&NrFields", 
+                          "f) FieldDist", "g) KnowAdopters", "h) NrAdopters&NrFields", 
+                          "i) KnowAdopters&ObserveFields", "j) KnowAdopters&NrFields",
+                          "k) NrAdopters", "l) NrAdopters&ObserveFields", "m) KnowAdopters&FieldDist"
+                          , "n) NrAdopters&FieldDist"), 
+          colors = c("grey50","grey50","grey70","grey50","grey50","grey20","grey20","grey20","grey50","grey20","grey20","grey20"),
+          # omit.coefs = c("minDist_demo","sq.demodist","age_b1","farmsize_b1","AES_b1","Fabrikstandort_aggElsdorf",
+           #             "Fabrikstandort_aggLageNordst","Fabrikstandort_aggOchsenfurt","Fabrikstandort_aggOffstein","Fabrikstandort_aggOffenau",
+            #            "Fabrikstandort_aggPlatting","Fabrikstandort_aggRain",
                       #  "Fabrikstandort_aggSachsenAnhalt",
-                        "Fabrikstandort_aggSchladen","Fabrikstandort_aggUelzen","Fabrikstandort_aggWabern","Fabrikstandort_aggWest"))#,
-          coefs = c("1-5 fields observed"="NrFields_agg1-5Fields",
-                    "6-10 fields observed"="NrFields_agg6-10Fields",
-                    "11 and more fields observed"="NrFields_agg11 and more Fields",
+                     #   "Fabrikstandort_aggSchladen","Fabrikstandort_aggUelzen","Fabrikstandort_aggWabern","Fabrikstandort_aggWest"))#,
+          coefs = c("Observing fields (binary)" = "fields_bFieldsObserved",
+                    "Knowing Adopters (binary)" = "info_bAdoptersKnown",
                     "1-5 adopters known"="q3_info1-5Adopters",
                     "6-10 adopters known"="q3_info6-10Adopters",
-                    "10 and more adopters known"="q3_infomore than 10Adopters",
+                    ">10 adopters known"="q3_infomore than 10Adopters",
+                    "1-5 fields observed"="NrFields_agg1-5Fields",
+                    "6-10 fields observed"="NrFields_agg6-10Fields",
+                    ">10 fields observed"="NrFields_agg11 and more Fields",
                     "observed fields in 0-5km"="FieldDist_agg0-5km",
                     "observed fields in 6-10km"="FieldDist_agg6-10km",
                     "observed fields in 11-30km"="FieldDist_agg11-30km",
-                    "observed fields in 30km and more"="FieldDist_aggmore than 30km"))
+                    "observed fields in >30km"="FieldDist_aggmore than 30km"))
 
 
 plot_summs(
-#  PreReg_FieldsDist_mfx,
-#  PreReg_NrAdopters_mfx,
- # PreReg_fields_bNrAdopters_mfx,
   PreReg_InteractFieldDistNrAdopters_mfx,
- # PreReg_InteractFieldDistinfo_b_mfx,
-#  PreReg_Interactfields_bNrAdopters_mfx,
-#  PreReg_FieldsDistinfo_b_mfx,
- # PreReg_FieldsDistNrAdopters_mfx,
-  PreReg_InteractNrAdoptersFieldDist_mfx,
+  PreReg_InteractNrFieldsFieldDist_mfx,
   scale = TRUE, robust = TRUE, colors = "Greys",
   omit.coefs = c("minDist_demo","sq.demodist","age_b1","farmsize_b1","AES_b1","Fabrikstandort_aggElsdorf",
                  "Fabrikstandort_aggLageNordst","Fabrikstandort_aggOchsenfurt","Fabrikstandort_aggOffenau",
@@ -475,19 +474,21 @@ ggplot(SampleIV, aes(q3_info))+
   facet_grid(~FieldDist_agg)
 
 
-p.a<- ggplot(SampleIV, aes(FieldDist_agg))+
-  geom_bar(aes(fill = q3_info), position = "fill")+
-  scale_fill_manual(values = c("grey90","grey70","grey40", "grey20"), name = "NrAdopters")+#,name = "Adoption", labels = c("No", "Yes"))+
+p.a<- ggplot(SampleIV, aes(FieldDist_agg2))+
+  geom_bar(aes(fill = NrAdopters_agg), position = "fill")+
+  scale_fill_manual(values = c("grey90","grey70","grey40", "grey20"), name = "NrAdopters",labels = c("noAdopters", "1-5Adopters", ">6Adopters"))+#,name = "Adoption", labels = c("No", "Yes"))+
   xlab("")+
+  scale_x_discrete(labels = c("noFields", "0-5km", "6-10km", ">10km"))+
   theme_bw()+
   theme(axis.text.x = element_text(hjust = 1, angle = 45),
         panel.border = element_blank(), panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),legend.position = "right")
 
 p.b<- ggplot(df.Observer, aes(NrFields_agg))+
-  geom_bar(aes(fill = FieldDist_agg), position = "fill")+
-  scale_fill_manual(values = c("grey90","grey70","grey40", "grey20"), name = "FieldDist")+#,name = "Adoption", labels = c("No", "Yes"))+
+  geom_bar(aes(fill = FieldDist_agg2), position = "fill")+
+  scale_fill_manual(values = c("grey90","grey70","grey40", "grey20"), name = "FieldDist",labels = c("0-5km", "6-10km", ">10km"))+#,name = "Adoption", labels = c("No", "Yes"))+
   xlab("")+
+  scale_x_discrete(labels = c("1-5Fields", "6-10Fields", ">10Fields"))+
   theme_bw()+
   theme(axis.text.x = element_text(hjust = 1, angle = 45),
         panel.border = element_blank(), panel.grid.major = element_blank(),
@@ -495,10 +496,11 @@ p.b<- ggplot(df.Observer, aes(NrFields_agg))+
   
 
   
-p.c<- ggplot(SampleIV, aes(q3_info))+
+p.c<- ggplot(SampleIV, aes(NrAdopters_agg))+
   geom_bar(aes(fill = NrFields_agg), position = "fill")+
-  scale_fill_manual(values = c("grey90","grey70","grey40", "grey20"), name = "NrFields")+#,name = "Adoption", labels = c("No", "Yes"))+
+  scale_fill_manual(values = c("grey90","grey70","grey40", "grey20"), name = "NrFields",labels = c("no Fields","1-5Fields", "6-10Fields", ">10Fields"))+#,name = "Adoption", labels = c("No", "Yes"))+
   xlab("")+
+  scale_x_discrete(labels = c("noAdopters", "1-5Adopters", ">6Adopters"))+
   theme_bw()+
   theme(axis.text.x = element_text(hjust = 1, angle = 45),
         panel.border = element_blank(), panel.grid.major = element_blank(),
@@ -705,15 +707,44 @@ plot_summs(PreReg_InteractFieldDistNrAdopters_mfx, robust = TRUE, scale = TRUE)
 
 #create plot of interaction term sused for the heatmaps
 
-plot_summs(PreReg_InteractNrFieldsNrAdopters, PreReg_InteractFieldDistNrAdopters,PreReg_InteractNrFieldsFieldDist,
+plot_summs(PreReg_InteractFieldDistNrAdopters_mfx,PreReg_InteractNrFieldsNrAdopters_mfx,PreReg_InteractNrFieldsFieldDist_mfx,
            robust = TRUE, scale = TRUE,
-           model.names = c("InteractionNrFieldsNrAdopters", "InteractionNrAdoptersFieldDist","InteractionNrFieldsFieldDist"),
+           model.names = c("InteractionNrAdoptersFieldDist","InteractionNrFieldsNrAdopters","InteractionNrFieldsFieldDist"),
            colors = "Greys",
-           omit.coefs = c("(Intercept)","minDist_demo","sq.demodist","age_b1","farmsize_b1","AES_b1","Fabrikstandort_aggElsdorf",
-                          "Fabrikstandort_aggLageNordst","Fabrikstandort_aggOchsenfurt","Fabrikstandort_aggOffenau",
-                          "Fabrikstandort_aggPlatting","Fabrikstandort_aggRain","Fabrikstandort_aggSachsenAnhalt",
-                          "Fabrikstandort_aggSchladen","Fabrikstandort_aggUelzen","Fabrikstandort_aggWabern","Fabrikstandort_aggWest",
-                          "Fabrikstandort_aggOffstein"))
+           coefs = c(#"Observing fields (binary)" = "fields_bFieldsObserved",
+                     #"Knowing Adopters (binary)" = "info_bAdoptersKnown",
+                     #"1-5 adopters known"="NrAdopters_agg1-5Adopters",
+                     #">5 adopters known"="NrAdopters_agg6 and more Adopters",
+                    # ">10 adopters known"="q3_infomore than 10Adopters",
+                     #"1-5 fields observed"="NrFields_agg1-5Fields",
+                     #"6-10 fields observed"="NrFields_agg6-10Fields",
+                     #">10 fields observed"="NrFields_agg11 and more Fields",
+                     #"observed fields in 0-5km"="FieldDist_agg20-5km",
+                     #"observed fields in 6-10km"="FieldDist_agg26-10km",
+                     #"observed fields in >10km"="FieldDist_agg211km and more",
+                     "1-5 adopters known*observed fields in 0-5km"="NrAdopters_agg1-5Adopters:FieldDist_agg20-5km",                
+                     ">5 adopters known*observed fields in 0-5km"="NrAdopters_agg6 and more Adopters:FieldDist_agg20-5km",        
+                     "1-5 adopters known*observed fields in 6-10km"="NrAdopters_agg1-5Adopters:FieldDist_agg26-10km",              
+                     ">5 adopters known*observed fields in 6-10km"="NrAdopters_agg6 and more Adopters:FieldDist_agg26-10km",       
+                     "1-5 adopters known*observed fields in >10km"="NrAdopters_agg1-5Adopters:FieldDist_agg211km and more",        
+                     ">5 adopters known*observed fields in >10km"="NrAdopters_agg6 and more Adopters:FieldDist_agg211km and more",
+                     "1-5 fields observed*1-5 adopters known"="NrFields_agg1-5Fields:NrAdopters_agg1-5Adopters",                 
+                     "6-10 fields observed*1-5 adopters known"="NrFields_agg6-10Fields:NrAdopters_agg1-5Adopters",                
+                     ">10 fields observed*1-5 adopters known"="NrFields_agg11 and more Fields:NrAdopters_agg1-5Adopters",        
+                     "1-5 fields observed*>5 adopters known"="NrFields_agg1-5Fields:NrAdopters_agg6 and more Adopters",         
+                     "6-10 fields observed*>5 adopters known"="NrFields_agg6-10Fields:NrAdopters_agg6 and more Adopters",        
+                     ">10 fields observed*>5 adopters known"="NrFields_agg11 and more Fields:NrAdopters_agg6 and more Adopters",
+                    "6-10 fields observed*observed fields in 6-10km"="NrFields_agg6-10Fields:FieldDist_agg26-10km",               
+                    ">10 fields observed*observed fields in 6-10km"="NrFields_agg11 and more Fields:FieldDist_agg26-10km",       
+                    "6-10 fields observed* fields in >10km"="NrFields_agg6-10Fields:FieldDist_agg211km and more",        
+                    ">10 fields observed*observed fields in >10km"="NrFields_agg11 and more Fields:FieldDist_agg211km and more"
+                     ))+theme(legend.position="bottom")
+           
+         #  omit.coefs = c("(Intercept)","minDist_demo","sq.demodist","age_b1","farmsize_b1","AES_b1","Fabrikstandort_aggElsdorf",
+          #                "Fabrikstandort_aggLageNordst","Fabrikstandort_aggOchsenfurt","Fabrikstandort_aggOffenau",
+           #               "Fabrikstandort_aggPlatting","Fabrikstandort_aggRain","Fabrikstandort_aggSachsenAnhalt",
+            #              "Fabrikstandort_aggSchladen","Fabrikstandort_aggUelzen","Fabrikstandort_aggWabern","Fabrikstandort_aggWest",
+             #             "Fabrikstandort_aggOffstein"))
 
 
 
@@ -857,8 +888,8 @@ ppFieldDistNrFields <-round(ppFieldDistNrFields, digits = 0)
 #library(gplots)
 #col <- rev(colorRampPalette(brewer.pal(10, "RdYlBu"))(256))
 matrix.NrFieldsNrAdopters <- as.matrix(ppNrFieldsNrAdopters)
-colnames(matrix.NrFieldsNrAdopters)<-c("noFields","1-5Fields","6-10Fields",">11Fields")
-rownames(matrix.NrFieldsNrAdopters) <-c("noAdopters", "1-5Adopters",">6Adopters") 
+colnames(matrix.NrFieldsNrAdopters)<-c("noFields","1-5Fields","6-10Fields",">10Fields")
+rownames(matrix.NrFieldsNrAdopters) <-c("noAdopters", "1-5Adopters",">5Adopters") 
 
 #png(file="NrFieldsNrAdopters.png")
 #heatmap.2(x = matrix.NrFieldsNrAdopters, Rowv = FALSE, Colv = FALSE, dendrogram = "none",
@@ -868,8 +899,8 @@ rownames(matrix.NrFieldsNrAdopters) <-c("noAdopters", "1-5Adopters",">6Adopters"
 
 
 matrix.FieldDistNrAdopters <- as.matrix(ppFieldDistNrAdopters)
-colnames(matrix.FieldDistNrAdopters)<-c("noFields","0-5km","6-10km",">11km")
-rownames(matrix.FieldDistNrAdopters) <-c("noAdopters", "1-5Adopters",">6Adopters") 
+colnames(matrix.FieldDistNrAdopters)<-c("noFields","0-5km","6-10km",">10km")
+rownames(matrix.FieldDistNrAdopters) <-c("noAdopters", "1-5Adopters",">5Adopters") 
 
 #png(file="FieldDistNrAdopters.png")
 #heatmap.2(x = matrix.FieldDistNrAdopters, Rowv = FALSE, Colv = FALSE, dendrogram = "none",
@@ -879,7 +910,7 @@ rownames(matrix.FieldDistNrAdopters) <-c("noAdopters", "1-5Adopters",">6Adopters
 
 matrix.FieldDistNrFields <- as.matrix(ppFieldDistNrFields)
 colnames(matrix.FieldDistNrFields)<-c("0-5km","6-10km",">11km")
-rownames(matrix.FieldDistNrFields) <- c("1-5Fields","6-10Fields",">11Fields")
+rownames(matrix.FieldDistNrFields) <- c("1-5Fields","6-10Fields",">10Fields")
 
 
 #png(file="FieldDistNrFields.png")
@@ -903,8 +934,8 @@ summary(PreReg_NrFieldsNrAdopters <- glm(q1_adopt ~
 
 PreReg_NrFieldsNrAdopters_mfx<-mfx::probitmfx(PreReg_NrFieldsNrAdopters, data = SampleIV)
 
-summary(PreReg_FieldsDistNrAdopters_unagg <- glm(q1_adopt ~ 
-                                             FieldDist_agg+
+summary(PreReg_FieldsDistNrAdopters_agg <- glm(q1_adopt ~ 
+                                             FieldDist_agg2+
                                              q3_info +
                                              minDist_demo + 
                                              sq.demodist+
@@ -914,32 +945,32 @@ summary(PreReg_FieldsDistNrAdopters_unagg <- glm(q1_adopt ~
                                              Fabrikstandort_agg 
                                            ,data = SampleIV, family = binomial("probit")))
 
-PreReg_FieldsDistNrAdopters_unagg_mfx<-mfx::probitmfx(PreReg_FieldsDistNrAdopters_unagg, data = SampleIV)
+PreReg_FieldsDistNrAdopters_agg_mfx<-mfx::probitmfx(PreReg_FieldsDistNrAdopters_agg, data = SampleIV)
 
 
 
-plot_summs(PreReg_info_bNrFields_mfx, PreReg_fields_bNrAdopters_mfx, PreReg_FieldsDistinfo_b_mfx,
-           PreReg_FieldsDistNrAdopters_mfx,PreReg_NrFieldsNrAdopters_mfx,
+plot_summs(#PreReg_info_bNrFields_mfx, PreReg_fields_bNrAdopters_mfx, PreReg_FieldsDistinfo_b_mfx,
+           PreReg_FieldsDistNrAdopters_agg_mfx,PreReg_NrFieldsNrAdopters_mfx,
            robust = TRUE, scale = TRUE,
            colors = c("Greys"),
-          # model.names = c("Model Pr3","Model Pr4"),
-         #  omit.coefs = c("minDist_demo","sq.demodist","age_b1","farmsize_b1","AES_b1","Fabrikstandort_aggElsdorf",
-          #                "Fabrikstandort_aggLageNordst","Fabrikstandort_aggOchsenfurt","Fabrikstandort_aggOffenau",
-           #               "Fabrikstandort_aggPlatting","Fabrikstandort_aggRain","Fabrikstandort_aggSachsenAnhalt",
-            #              "Fabrikstandort_aggSchladen","Fabrikstandort_aggUelzen","Fabrikstandort_aggWabern","Fabrikstandort_aggWest",
-             #             "Fabrikstandort_aggOffstein"),
+           model.names = c("Model Pr3","Model Pr4"),
+           omit.coefs = c("minDist_demo","sq.demodist","age_b1","farmsize_b1","AES_b1","Fabrikstandort_aggElsdorf",
+                          "Fabrikstandort_aggLageNordst","Fabrikstandort_aggOchsenfurt","Fabrikstandort_aggOffenau",
+                          "Fabrikstandort_aggPlatting","Fabrikstandort_aggRain","Fabrikstandort_aggSachsenAnhalt",
+                          "Fabrikstandort_aggSchladen","Fabrikstandort_aggUelzen","Fabrikstandort_aggWabern","Fabrikstandort_aggWest",
+                          "Fabrikstandort_aggOffstein"),
            coefs = c("Adopters known"="info_bAdoptersKnown" ,
                       "Fields observed"="fields_bFieldsObserved",
                      "1-5 fields observed"="NrFields_agg1-5Fields",
                      "6-10 fields observed"="NrFields_agg6-10Fields",
-                     "more than 10 fields observed"="NrFields_agg11 and more Fields",
+                     ">10 fields observed"="NrFields_agg11 and more Fields",
                      "1-5 adopters known"="q3_info1-5Adopters",
                      "6-10 adopters known"="q3_info6-10Adopters",
-                     "more than 10 adopters known"="q3_infomore than 10Adopters",
-                     "observed fields in 0-5km"="FieldDist_agg0-5km",
-                     "observed fields in 6-10km"="FieldDist_agg6-10km",
-                     "observed fields in 11-30km"="FieldDist_agg11-30km",
-                     "observed fields in  >30km"="FieldDist_aggmore than 30km"))
+                     ">10 adopters known"="q3_infomore than 10Adopters",
+                     "observed fields in 0-5km"="FieldDist_agg20-5km",
+                     "observed fields in 6-10km"="FieldDist_agg26-10km",
+                     "observed fields in 11-30km"="FieldDist_agg211-30km",
+                     "observed fields in  >10km"="FieldDist_agg211km and more"))
 
 
 #####
@@ -1081,6 +1112,7 @@ df.NrFieldsNrAdopters_long$ShareAdopters <- (round((df.NrFieldsNrAdopters_long$A
 heatmap.NrFieldsNrAdopters <- ggplot(df.NrFieldsNrAdopters_long, aes(NrAdopters, variable)) +    # Create default ggplot2 heatmap
   geom_tile(aes(fill = value))+
   ylab(("NrFields"))+
+  xlab(("NrAdopters_agg"))+
   geom_text(aes(label=gsub(" ", "",paste(value,"\n","(",Count,",",ShareAdopters,"%",")"))))+theme_bw()+
   scale_x_discrete(limits=rev)+
   scale_fill_gradient(low = "white", high = "grey30")+
@@ -1105,7 +1137,8 @@ df.FieldDistNrAdopters_long$ShareAdopters <- (round((df.FieldDistNrAdopters_long
 
 heatmap.FieldDistNrAdopters <- ggplot(df.FieldDistNrAdopters_long, aes(NrAdopters, variable)) +    # Create default ggplot2 heatmap
   geom_tile(aes(fill = value))+
-  ylab(("FieldDist"))+
+  ylab(("FieldDist_agg"))+
+  xlab(("NrAdopters_agg"))+
   geom_text(aes(label=gsub(" ", "",paste(value,"\n","(",Count,",",ShareAdopters,"%",")"))))+theme_bw()+
   scale_x_discrete(limits=rev)+
   scale_fill_gradient(low = "white", high = "grey30")+
@@ -1115,32 +1148,30 @@ heatmap.FieldDistNrAdopters
 #3
 
 df.FieldDistNrFields<- as.data.frame(matrix.FieldDistNrFields)
-df.FieldDistNrFields$NrAdopters <- rownames(df.FieldDistNrFields)
-df.FieldDistNrFields_long <- reshape2::melt(df.FieldDistNrFields, id.vars = "NrAdopters")
+df.FieldDistNrFields$NrFields <- rownames(df.FieldDistNrFields)
+df.FieldDistNrFields_long <- reshape2::melt(df.FieldDistNrFields, id.vars = "NrFields")
 
 #get count
-df.countFieldDistNrFields<- as.data.frame(table(df.Observer$FieldDist_agg2,df.Observer$NrFields_agg))
+df.countFieldDistNrFields<- as.data.frame(table(df.Observer$NrFields_agg,df.Observer$FieldDist_agg2))
 df.FieldDistNrFields_long$Count <- df.countFieldDistNrFields$Freq
 
 #get share of adopters
-df.ShareAdoptersFieldDistNrFields<- as.data.frame(table(df.Observer[df.Observer$q1_adopt==1,]$NrAdopters_agg,df.Observer[df.Observer$q1_adopt==1,]$FieldDist_agg2))
+df.ShareAdoptersFieldDistNrFields<- as.data.frame(table(df.Observer[df.Observer$q1_adopt==1,]$NrFields_agg,df.Observer[df.Observer$q1_adopt==1,]$FieldDist_agg2))
 df.FieldDistNrFields_long$Adopters <- df.ShareAdoptersFieldDistNrFields$Freq
 
 df.FieldDistNrFields_long$ShareAdopters <- (round((df.FieldDistNrFields_long$Adopters/df.FieldDistNrFields_long$Count),digits = 2))*100
+df.FieldDistNrFields_long$NrFields <- factor(df.FieldDistNrFields_long$NrFields, levels=c("1-5Fields", "6-10Fields", ">10Fields"))
 
-heatmap.FieldDistNrFields<- ggplot(df.FieldDistNrFields_long, aes(NrAdopters, variable)) +    # Create default ggplot2 heatmap
+
+heatmap.FieldDistNrFields<- ggplot(df.FieldDistNrFields_long, aes(NrFields, variable)) +    # Create default ggplot2 heatmap
   geom_tile(aes(fill = value))+
-  ylab(("FieldDist"))+
+  xlab(("NrFields"))+
+  ylab("FieldDist_agg")+
   geom_text(aes(label=gsub(" ", "",paste(value,"\n","(",Count,",",ShareAdopters,"%",")"))))+theme_bw()+
-  scale_x_discrete(limits=rev)+
+  #scale_x_discrete(limits=rev)+
   scale_fill_gradient(low = "white", high = "grey30")+
   theme(legend.position = "none")
 heatmap.FieldDistNrFields
-
-
-
-
-
 
 
 
