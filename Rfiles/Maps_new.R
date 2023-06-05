@@ -115,7 +115,8 @@ spdf_formaps$ShareSB<-as.numeric(spdf_formaps$ShareSB)
 #set to 0 for those where we have no data
 spdf_formaps$ShareSB <- ifelse(is.na(spdf_formaps$ShareSB)== TRUE, 0,spdf_formaps$ShareSB)
 
-
+#write_xlsx(spdf_formaps,"Processed/spdf_formaps.xlsx")
+#spdf_formaps<-read_xlsx("Processed/spdf_formaps.xlsx")
 
 ###create map
 # Germany map
@@ -148,12 +149,12 @@ SmallFarms_plot<-ggplot(data = spdf_formaps) +
   geom_label_repel(data=df.SB_fabriken, aes(Long, Lat, label=Fabrikstandort), size = 4,
                    min.segment.length = 0,box.padding = 0.5)#+
  #theme(legend.position="none")
-ggsave(SmallFarms_plot,file="Output/map_sharesmallfarms_fabrics.tiff",dpi = 300,unit="cm",height=35,width=50)
+#ggsave(SmallFarms_plot,file="Output/map_sharesmallfarms_fabrics.tiff",dpi = 300,unit="cm",height=35,width=50)
 
 #share organic farms
 OrgFarms_plot<-ggplot(data = spdf_formaps) +
   #add filling of landkreise accoridng to variable of choice
-  geom_sf(aes(fill = ShareOrgFarms ))+#,size = 0.01, alpha = 1)+
+  geom_sf(aes(geometry = geometry,fill = ShareOrgFarms ))+#,size = 0.01, alpha = 1)+
   scale_fill_distiller("Share of organic farms",palette = "Greens", direction = 1)+
   #now add SB fabrics and farms that participated in the survey
   # farms
@@ -538,6 +539,33 @@ SB_farms_demo_plot<-ggplot(data = spdf_formaps) +
 ggsave(SB_farms_demo_plot,file="Output/map_SB_farms_demo_fabrics.tiff")#,dpi = 800,unit="cm",height=35,width=50)
 
 
+#share adopters for magazones
+ShareAdopters2_plot<-ggplot(data = spdf_formaps) +
+  #add filling of landkreise accoridng to variable of choice
+  geom_sf(aes(fill = ShareAdopters ))+#,size = 0.01, alpha = 1)+
+  scale_fill_distiller("Share of adopters",palette = "Greens", direction = 1,na.value="white")+
+  #sb fabrics
+  geom_point(data = df.SB_fabriken,
+             aes(x = Long, y = Lat),
+             alpha=1,shape = 23,size = 1, fill = "darkred")+
+  geom_label_repel(data=df.SB_fabriken, aes(Long, Lat, label=Fabrikstandort), size = 3,
+                   min.segment.length = 0,box.padding = 0.5)+
+  theme_bw()+
+  labs(x = "", y = "") +
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks=element_blank(),
+        panel.border = element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "white"))+
+  coord_sf()+
+  #sb fabrics
+  #geom_point(data = df.SB_fabriken,
+  #          aes(x = Long, y = Lat),
+  #         alpha=1,shape = 23,size = 3, fill = "darkred")+
+  #geom_label_repel(data=df.SB_fabriken, aes(Long, Lat, label=Fabrikstandort), size = 5,
+  #                min.segment.length = 0,box.padding = 0.5)+
+  theme(legend.position="none")
+ggsave(ShareAdopters2_plot,file="map_shareadopters_fabrics_formagazines2.tiff",dpi = 300,unit="cm",height=20,width=12)
 
 
 

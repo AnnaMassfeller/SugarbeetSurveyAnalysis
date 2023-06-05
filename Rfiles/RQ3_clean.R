@@ -476,8 +476,8 @@ ggplot(SampleIV, aes(q3_info))+
 
 p.a<- ggplot(SampleIV, aes(FieldDist_agg2))+
   geom_bar(aes(fill = NrAdopters_agg), position = "fill")+
-  scale_fill_manual(values = c("grey90","grey70","grey40", "grey20"), name = "NrAdopters",labels = c("noAdopters", "1-5Adopters", ">6Adopters"))+#,name = "Adoption", labels = c("No", "Yes"))+
-  xlab("")+
+  scale_fill_manual(values = c("grey90","grey70","grey40", "grey20"), name = "NrAdopters_agg",labels = c("noAdopters", "1-5Adopters", ">6Adopters"))+#,name = "Adoption", labels = c("No", "Yes"))+
+  xlab("FieldDist_agg")+
   scale_x_discrete(labels = c("noFields", "0-5km", "6-10km", ">10km"))+
   theme_bw()+
   theme(axis.text.x = element_text(hjust = 1, angle = 45),
@@ -486,8 +486,8 @@ p.a<- ggplot(SampleIV, aes(FieldDist_agg2))+
 
 p.b<- ggplot(df.Observer, aes(NrFields_agg))+
   geom_bar(aes(fill = FieldDist_agg2), position = "fill")+
-  scale_fill_manual(values = c("grey90","grey70","grey40", "grey20"), name = "FieldDist",labels = c("0-5km", "6-10km", ">10km"))+#,name = "Adoption", labels = c("No", "Yes"))+
-  xlab("")+
+  scale_fill_manual(values = c("grey90","grey70","grey40", "grey20"), name = "FieldDist_agg",labels = c("0-5km", "6-10km", ">10km"))+#,name = "Adoption", labels = c("No", "Yes"))+
+  xlab("NrFields")+
   scale_x_discrete(labels = c("1-5Fields", "6-10Fields", ">10Fields"))+
   theme_bw()+
   theme(axis.text.x = element_text(hjust = 1, angle = 45),
@@ -499,7 +499,7 @@ p.b<- ggplot(df.Observer, aes(NrFields_agg))+
 p.c<- ggplot(SampleIV, aes(NrAdopters_agg))+
   geom_bar(aes(fill = NrFields_agg), position = "fill")+
   scale_fill_manual(values = c("grey90","grey70","grey40", "grey20"), name = "NrFields",labels = c("no Fields","1-5Fields", "6-10Fields", ">10Fields"))+#,name = "Adoption", labels = c("No", "Yes"))+
-  xlab("")+
+  xlab("NrAdopters_agg")+
   scale_x_discrete(labels = c("noAdopters", "1-5Adopters", ">6Adopters"))+
   theme_bw()+
   theme(axis.text.x = element_text(hjust = 1, angle = 45),
@@ -909,7 +909,7 @@ rownames(matrix.FieldDistNrAdopters) <-c("noAdopters", "1-5Adopters",">5Adopters
 #dev.off()
 
 matrix.FieldDistNrFields <- as.matrix(ppFieldDistNrFields)
-colnames(matrix.FieldDistNrFields)<-c("0-5km","6-10km",">11km")
+colnames(matrix.FieldDistNrFields)<-c("0-5km","6-10km",">10km")
 rownames(matrix.FieldDistNrFields) <- c("1-5Fields","6-10Fields",">10Fields")
 
 
@@ -1174,6 +1174,26 @@ heatmap.FieldDistNrFields<- ggplot(df.FieldDistNrFields_long, aes(NrFields, vari
 heatmap.FieldDistNrFields
 
 
+
+chisq.test(table(SampleIV$NrFields_agg, SampleIV$NrAdopters_agg))
+chisq.test(SampleIV$FieldDist_agg2, SampleIV$NrAdopters_agg)
+chisq.test(df.Observer$FieldDist_agg2, df.Observer$NrFields_agg)
+
+
+#for magazine article
+#4
+
+heatmap.FieldDistNrAdopters_plain <- ggplot(df.FieldDistNrAdopters_long, aes(NrAdopters, variable)) +    # Create default ggplot2 heatmap
+  geom_tile(aes(fill = ShareAdopters))+
+  ylab(("Entferung zu beobachteten Feldern"))+
+  xlab(("Anzahl der bekannten 'Adopter'"))+
+  scale_y_discrete(label = c("Keine Felder", "0-5 km", "6-10 km", ">10 km"))+
+  geom_text(aes(label=gsub(" ", "",paste(ShareAdopters,"%","(",Count,")"))))+theme_bw()+
+  scale_x_discrete(limits=rev, label = c("Keine Adopter", "1-5 Adopter", ">5 Adopter"))+
+  scale_fill_gradient(low = "white", high = "dodgerblue4")+
+  theme_bw()+
+  theme(legend.position = "none")
+heatmap.FieldDistNrAdopters_plain
 
 
 

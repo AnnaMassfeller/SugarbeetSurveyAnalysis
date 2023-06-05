@@ -907,7 +907,7 @@ p.hist_effect_neiFields<-ggarrange( p.hist3,p.3, ncol =1, nrow = 2, heights = c(
 plot_grid(p.1, p.3, nrow = 1, ncol = 2)
 
 #check ho that looks between the different type sof indication (map vs. multiple choice)
-ggplot(SampleObserver, aes(fields_dist, fill = selection_distance))+
+ggplot(df.Observer, aes(fields_dist, fill = selection_distance))+
   geom_histogram(binwidth = 5,alpha = 0.5, position = 'identity')+
   theme_bw()+
   theme(#panel.border = element_blank(),
@@ -948,7 +948,7 @@ chisq.test(table(SampleObserver$q1_adopt, SampleObserver$selection_distance))
 
 
 #check number of fields observed in same way
-ggplot(SampleObserver, aes(NrFields, fill = selection_distance))+
+ggplot(df.Observer, aes(NrFields, fill = selection_distance))+
   geom_bar(alpha = 0.5, position = 'identity')+
   theme_bw()+
   theme(#panel.border = element_blank(),
