@@ -41,9 +41,7 @@ library(splitstackshape)
 library(dplyr)
 library(pacman)
 
-#directly as json
-#json_file <- "https://fruchtfolge.agp.uni-bonn.de/db/survey_anna/_all_docs?include_docs=true"
-#json_data <- fromJSON(paste(readLines(json_file), collapse=""))
+
 
 #as csv
 FullSample<- read_csv("Data_raw/survey.csv")#csv
