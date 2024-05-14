@@ -6,7 +6,7 @@ library(wiesbaden)
 library(janitor) # clean_names
 library(Hmisc) # match column names
 
-#save_credentials(db="regio",user="RE008335", password = "MhSDV2gP6px8u3Xz")
+#save_credentials(db="regio",user="", password = "") #own username and password needed
 test_login(genesis=c(db='regio'))
 
 # retrieve list of tables
