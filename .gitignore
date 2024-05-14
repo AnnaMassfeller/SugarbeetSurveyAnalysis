@@ -65,5 +65,5 @@ Backgrounddata/
 Output/
 map_sandcontent_files/
 map_Fabrikstandorte_files/
-zensus_api_withcredentials_nonpublished
-Processing_new_unpublished with API
+zensus_api_withcredentials_nonpublished.R
+Processing_new_unpublished with API.R
