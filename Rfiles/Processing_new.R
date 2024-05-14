@@ -379,7 +379,7 @@ st(FullSample, vars = c("q1_adopt","q3_info","plz","NrFields","FieldDist","q6_co
 #get geo-data from address
 # Read in the CSV data and store it in a variable 
 #set google API
-register_google(key = "AIzaSyCGy4X_aWJabtdrvJmhouJl_royB9Mc-PU", write = TRUE)
+#register_google(key = "", write = TRUE)
 
 df.Modell_Organic <-read_xlsx("Backgrounddata/Modellbetriebe/ModellbetriebeÖkolandbau.xlsx")
 df.Modell_Organic <- as.data.frame(df.Modell_Organic)
