@@ -39,13 +39,14 @@ library(writexl)
 library(splitstackshape)
 library(dplyr)
 library(pacman)
+library(readr)
 
 #########################
 ####from zensus_api######
 #########################
 
 
-d.full<-read_xlsx("Processed/d.full.xlsx")
+d.full<-read_xlsx("data/d.full.xlsx")
 # merge with spatial data
 
 # set worknig directory
@@ -53,7 +54,7 @@ d.full<-read_xlsx("Processed/d.full.xlsx")
 
 # locate shapefile
 library(sf)
-shp_path <- "C:/Users/Massfeller/sciebo/PhD/Paper/Paper2_socioSpat/SurveyAnalysis_new/SurveyAnalysis_new/Backgrounddata/Geodata/Kreisgrenzen_2017_mit_Einwohnerzahl"
+shp_path <- "data/Kreisgrenzen_2017_mit_Einwohnerzahl"
 spdf <- read_sf(dsn = shp_path, layer = "Kreisgrenzen_2017_mit_Einwohnerzahl")
 
 #make göttingen right
@@ -73,10 +74,10 @@ spdf<-spdf[!duplicated(spdf$RS), ]
 ##from processing_new#
 ######################
 
-rev_geo<-read_xlsx("Processed/rev_geo.xlsx")
-df.Kreise_lasso<-read_xlsx("Processed/df.Kreise_lasso.xlsx")
-DemoOrganic_coord<-read_xlsx("Processed/DemoOrganic_coord.xlsx")
-SampleIV<-read_xlsx("Processed/SampleIV.xlsx")
+rev_geo<-read_xlsx("data/rev_geo.xlsx")
+df.Kreise_lasso<-read_xlsx("data/df.Kreise_lasso.xlsx")
+DemoOrganic_coord<-read_xlsx("data/DemoOrganic_coord.xlsx")
+SampleIV<-read_csv("data/SampleIV_anonym.csv")
 
 SampleIV$q1_adopt <- as.factor(SampleIV$q1_adopt)
 SampleIV$info_b <- as.factor(SampleIV$info_b)
