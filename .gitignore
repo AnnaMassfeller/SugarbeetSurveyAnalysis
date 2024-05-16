@@ -43,11 +43,16 @@ vignettes/*.pdf
 #.RData
 .Ruserdata
 *.csv
+!SampleIV_anonym.csv
 *.geojson
 *.shp
 *.doc
 *.txt
 *.xlsx
+!d.full.xlsx
+!rev_geo.xlsx
+!df.Kreise_lasso.xlsx
+!DemoOrganic_coord.xlsx
 *.docx
 *.html
 Data_raw/
@@ -68,3 +73,5 @@ map_Fabrikstandorte_files/
 zensus_api_withcredentials_nonpublished.R
 Processing_new_unpublished with API.R
 Contractors.R
+!Kreisgrenzen_2017_mit_Einwohnerzahl
+!data/
